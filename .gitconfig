@@ -1,0 +1,15 @@
+[filter "lfs"]
+	clean = git lfs clean %f
+	smudge = git lfs smudge %f
+	required = true
+[user]
+	name = CHANN
+	email = chann@chann.kr
+[core]
+	excludesfile = /Users/CHANN/.gitignore_global
+	editor = vim
+[alias]
+	cm = commit -m
+	co = checkout
+	lg = log --decorate --oneline --graph --all
+	po = pull origin
