@@ -13,3 +13,4 @@
 	co = checkout
 	lg = log --decorate --oneline --graph --all
 	po = pull origin
+	f = fetch
