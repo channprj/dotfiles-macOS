@@ -8,10 +8,11 @@ export DB_ID="db_id"
 export DB_PW="db_password"
 
 # Useful Sentence
-export mygit="https://github.com/channprj"
+# export mygit="https://github.com/channprj"
 
 # Alias
 alias pp='python'
+alias gits='git clone'
 
 ## History
 HIST_STAMPS="yyyy-mm-dd"
