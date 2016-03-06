@@ -1,6 +1,7 @@
-# Path to your oh-my-zsh installation.
 export ZSH=$HOME/.oh-my-zsh
 ZSH_THEME="dpoggi"
+
+echo "Welcome aboard!";w;
 
 # Temp Project DB
 export DB_NAME="db_name"
