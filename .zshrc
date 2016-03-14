@@ -1,47 +1,51 @@
+### oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 ZSH_THEME="dpoggi"
 
 echo "Welcome aboard!";w;
 
-# Temp Project DB
+### temp project db
 export DB_NAME="db_name"
 export DB_ID="db_id"
 export DB_PW="db_password"
 
-# Useful Sentence
-# export mygit="https://github.com/channprj"
+### useful sentence
+export mygit="https://github.com/channprj"
 
-# Alias
+### alias
 alias pp='python'
 alias gits='git clone'
 
-## History
+### history
 HIST_STAMPS="yyyy-mm-dd"
 # HISTSIZE=1000                # lines of history to maintain memory
 SAVEHIST=500                 # lines of history to maintain in history file.
 setopt EXTENDED_HISTORY      # save timestamp and runtime information
 
-plugins=(git)
+# plugins=(git)
 
-# User Configuration
+### user configuration
 export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
 # export MANPATH="/usr/local/man:$MANPATH"
 
 source $ZSH/oh-my-zsh.sh
 
-# nvm
+### nvm
 export NVM_DIR=~/.nvm
 source $(brew --prefix nvm)/nvm.sh
 
-# pyenv init
+### pyenv init
 export PATH="$HOME/.pyenv/shims:$PATH"
 eval "$(pyenv init -)"
 
-# virtualenv init
+### virtualenv init
 eval "$(pyenv virtualenv-init -)"
 
-# autoenv automatically execute
+### autoenv automatically execute
 source /usr/local/opt/autoenv/activate.sh
 
-# Travis gem
+### travis gem
 [ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
+
+### powerline
+# . /Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/zsh/powerline.zsh
