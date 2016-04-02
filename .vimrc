@@ -23,6 +23,7 @@ Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/vim-github-dashboard'
 Plug 'junegunn/seoul256.vim'
 Plug 'powerline/powerline'
+Plug 'junegunn/goyo.vim'
 
 call plug#end()
 
