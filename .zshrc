@@ -10,11 +10,11 @@ export DB_ID="db_id"
 export DB_PW="db_pw"
 
 ### useful sentence
-export mygit="https://github.com/channprj"
+export MYGIT="https://github.com/channprj"
 
 ### alias
 alias pp='python'
-alias gits='git clone'
+alias gclone='git clone'
 alias gogit='cd ~/git'
 alias gotil='cd ~/git/TIL'
 
@@ -49,7 +49,7 @@ source /usr/local/opt/autoenv/activate.sh
 ### travis gem init
 [ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
 
-### powerline(not use) - too slow
+### powerline: too slow
 # . /Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/zsh/powerline.zsh
 
 ### golang init
