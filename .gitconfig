@@ -8,11 +8,19 @@
 [core]
 	excludesfile = /Users/CHANN/.gitignore_global
 	editor = vim
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true
 [alias]
 	cm = commit -m
 	co = checkout
-	lg = log --decorate --oneline --graph --all
+	# lg = log --decorate --oneline --graph --all
+	lg = log --all --graph --pretty=format:'%C(auto)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	p = pull
 	po = pull origin
 	f = fetch
-	ds = diff --staged
-	di = diff
+	poo = push origin
+

@@ -11,27 +11,31 @@ set shiftwidth=4
 set incsearch
 
 syntax on 
-" colorscheme molokai 
+colorscheme molokai 
 
 set backspace=eol,start,indent 
 set history=1000
 
 call plug#begin('~/.vim/plugged')
 
-"### PlugInstall List
+""" PlugInstall List
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/vim-github-dashboard'
 Plug 'junegunn/seoul256.vim'
 Plug 'powerline/powerline'
 Plug 'junegunn/goyo.vim'
+Plug 'davidhalter/jedi-vim'
+"let g:jedi#auto_initialization = 0
+
+Plug 'ervandew/supertab'
 
 call plug#end()
 
-"### Colorscheme
-" let g:seoul256_background=232
+""" seoul256 colorscheme
+"let g:seoul256_background=232
 colorscheme seoul256
 
-"### Powerline
+""" Powerline
 set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
 let g:Powerline_symbols = 'fancy'
 set laststatus=2
