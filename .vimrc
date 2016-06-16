@@ -24,6 +24,7 @@ Plug 'junegunn/vim-github-dashboard'
 Plug 'junegunn/seoul256.vim'
 Plug 'powerline/powerline'
 Plug 'junegunn/goyo.vim'
+Plug 'airblade/vim-gitgutter'
 Plug 'davidhalter/jedi-vim'
 "let g:jedi#auto_initialization = 0
 
