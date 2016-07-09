@@ -17,6 +17,7 @@ alias pp='python'
 alias gclone='git clone'
 alias gogit='cd ~/git'
 alias gotil='cd ~/git/TIL/content/posts'
+alias ipconfig='curl ipecho.net/plain ; echo'
 
 ### history
 HIST_STAMPS="yyyy-mm-dd"
@@ -27,7 +28,7 @@ setopt EXTENDED_HISTORY      # save timestamp and runtime information
 # plugins=(git)
 
 ### user configuration
-export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin"
+export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/git-core/contrib/diff-highlight/"
 # export MANPATH="/usr/local/man:$MANPATH"
 
 source $ZSH/oh-my-zsh.sh
