@@ -17,13 +17,12 @@ alias pp='python'
 alias gclone='git clone'
 alias gogit='cd ~/git'
 alias gotil='cd ~/git/TIL/content/posts'
-alias ipconfig='curl ipecho.net/plain ; echo'
+alias ipconfig='curl ifconfig.co'
 
 ### history
 HIST_STAMPS="yyyy-mm-dd"
-# HISTSIZE=1000                # lines of history to maintain memory
-SAVEHIST=500                 # lines of history to maintain in history file.
-setopt EXTENDED_HISTORY      # save timestamp and runtime information
+SAVEHIST=500
+setopt EXTENDED_HISTORY
 
 # plugins=(git)
 
