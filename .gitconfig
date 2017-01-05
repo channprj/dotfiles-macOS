@@ -23,6 +23,7 @@
 	po = pull origin
 	f = fetch
 	poo = push origin
+	st = status
 
 [diff]
 	compactionHeuristic = true
