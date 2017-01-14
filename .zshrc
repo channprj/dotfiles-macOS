@@ -1,7 +1,6 @@
 ### zsh and oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
-source $ZSH/oh-my-zsh.sh
 ZSH_THEME="dpoggi"
 ENABLE_CORRECTION="true"
 
@@ -28,6 +27,9 @@ setopt EXTENDED_HISTORY
 
 plugins=(git)
 
+### ohmyzsh
+source $ZSH/oh-my-zsh.sh
+
 ### path
 export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/git-core/contrib/diff-highlight/"
 
@@ -36,12 +38,12 @@ export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sb
 #source $(brew --prefix nvm)/nvm.sh
 
 ### pyenv, virtualenv
-#export PATH="$HOME/.pyenv/shims:$PATH"
-#eval "$(pyenv init -)"
-#eval "$(pyenv virtualenv-init -)"
+export PATH="$HOME/.pyenv/shims:$PATH"
+eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 ### autoenv
-#source /usr/local/opt/autoenv/activate.sh
+source /usr/local/opt/autoenv/activate.sh
 
 ### travis gem
 #[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
@@ -50,6 +52,7 @@ export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sb
 # . /Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/zsh/powerline.zsh
 
 ### golang
-#export GOPATH=$HOME/golang
-#export GOROOT=/usr/local/bin/go
-#PATH=$PATH:$GOROOT/bin:$GOPATH/bin
+export GOPATH=$HOME/Go
+export GOROOT=/usr/local/opt/go/libexec
+export PATH=$PATH:$GOPATH/bin
+export PATH=$PATH:$GOROOT/bin
