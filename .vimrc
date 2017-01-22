@@ -1,19 +1,19 @@
-set wrap 
-set nowrapscan 
+set wrap
+set nowrapscan
 set ruler
 set number
-set fileencoding=utf-8 
+set fileencoding=utf-8
 set tenc=utf-8
 set hlsearch
 set ignorecase
 set tabstop=4
-set shiftwidth=4 
+set shiftwidth=4
 set incsearch
 
-syntax on 
-colorscheme molokai 
+syntax on
+colorscheme molokai
 
-set backspace=eol,start,indent 
+set backspace=eol,start,indent
 set history=1000
 
 call plug#begin('~/.vim/plugged')
@@ -29,17 +29,19 @@ Plug 'davidhalter/jedi-vim'
 "let g:jedi#auto_initialization = 0
 
 Plug 'ervandew/supertab'
-Plug 'ntpeters/vim-better-whitespace'
-Plug 'nathanaelkane/vim-indent-guides'
-let g:indent_guides_enable_on_vim_startup = 1
+"Plug 'ntpeters/vim-better-whitespace'
+"Plug 'nathanaelkane/vim-indent-guides'
+"let g:indent_guides_enable_on_vim_startup = 1
+
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 call plug#end()
 
 """ seoul256 colorscheme
 "let g:seoul256_background=232
-colorscheme seoul256
+"colorscheme seoul256
 
 """ Powerline
-set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
-let g:Powerline_symbols = 'fancy'
-set laststatus=2
+"set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
+"let g:Powerline_symbols = 'fancy'
+"set laststatus=2
