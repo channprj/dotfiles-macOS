@@ -45,3 +45,6 @@ call plug#end()
 "set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
 "let g:Powerline_symbols = 'fancy'
 "set laststatus=2
+
+""" fzf using Homebrew
+set rtp+=/usr/local/opt/fzf
