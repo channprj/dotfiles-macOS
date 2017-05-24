@@ -2,7 +2,7 @@
 	"always_show_minimap_viewport": true,
 	"caret_extra_width": 0,
 	"caret_style": "blink",
-	"color_scheme": "Packages/User/SublimeLinter/Afterglow-monokai (SL).tmTheme",
+	"color_scheme": "Packages/Theme - Afterglow/Afterglow-monokai.tmTheme",
 	"draw_white_space": "all",
 	"ensure_newline_at_eof_on_save": true,
 	"fade_fold_buttons": true,
