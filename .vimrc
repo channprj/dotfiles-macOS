@@ -26,6 +26,8 @@ Plug 'powerline/powerline'
 Plug 'junegunn/goyo.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'davidhalter/jedi-vim'
+Plug 'dracula/vim'
+Plug 'posva/vim-vue'
 "let g:jedi#auto_initialization = 0
 
 Plug 'ervandew/supertab'
@@ -37,9 +39,14 @@ Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
 call plug#end()
 
-""" seoul256 colorscheme
+""" colorscheme for seoul256 
 "let g:seoul256_background=232
 "colorscheme seoul256
+
+""" colorscheme: dracula
+syntax on
+colorscheme dracula
+
 
 """ Powerline
 "set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
