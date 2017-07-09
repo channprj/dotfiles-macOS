@@ -2,23 +2,22 @@
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 ZSH_THEME="dpoggi"
-ENABLE_CORRECTION="true"
+#ENABLE_CORRECTION="true"
 
 ### welcome message
-echo "---------------";
 echo "Welcome aboard!"
 echo "---------------";
 w;
 
 ### alias
-alias pp='python'
-alias gclone='git clone'
-alias gogit='cd ~/git'
-alias gotil='cd ~/git/TIL/content/posts'
-alias ipconfig='curl ifconfig.co'
-
-export UPDATE_ZSH_DAYS=13
-ENABLE_CORRECTION="true"
+alias pp="python"
+alias go_git="cd ~/git"
+alias go_key="cd ~/key"
+alias go_til="cd ~/git/TIL/content/posts"
+alias ipconfig="curl ifconfig.co"
+alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
+alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
+alias chromium="/Applications/Chromium.app/Contents/MacOS/Chromium"
 
 ### history
 HIST_STAMPS="yyyy-mm-dd"
@@ -49,7 +48,7 @@ source /usr/local/opt/autoenv/activate.sh
 #[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
 
 ### powerline: too slow
-# . /Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/zsh/powerline.zsh
+#. /Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/zsh/powerline.zsh
 
 ### golang
 export GOPATH=$HOME/Go
