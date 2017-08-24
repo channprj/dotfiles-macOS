@@ -10,9 +10,6 @@ set tabstop=4
 set shiftwidth=4
 set incsearch
 
-syntax on
-colorscheme molokai
-
 set backspace=eol,start,indent
 set history=1000
 
