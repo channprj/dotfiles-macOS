@@ -2,18 +2,22 @@
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 ZSH_THEME="dpoggi"
+
 #ENABLE_CORRECTION="true"
 
 ### welcome message
-echo "Welcome aboard!"
-echo "---------------";
+echo "--------------------------------------------------------------------------------";
 w;
+echo "--------------------------------------------------------------------------------";
+
 
 ### alias
 alias pp="python"
 alias go_git="cd ~/git"
 alias go_key="cd ~/key"
 alias go_til="cd ~/git/TIL/content/posts"
+alias flushdns="sudo killall -HUP mDNSResponder"  # for Sierra
+alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock"  # for Sierra
 alias ipconfig="curl ifconfig.co"
 alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
 alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
