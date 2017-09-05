@@ -5,25 +5,23 @@
 [user]
 	name = CHANN
 	email = chann@chann.kr
+	signingkey = #SECRET#
 [core]
 	excludesfile = /Users/CHANN/.gitignore_global
 	editor = vim
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/SourceTree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
+	pager = diff-so-fancy | less --tabs=4 -RFX
 [alias]
 	cm = commit -m
 	co = checkout
 	# lg = log --decorate --oneline --graph --all
-	lg = log --graph --all --pretty=format:'%C(auto)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
+	lg = log --all --graph --pretty=format:'%C(auto)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	p = pull
 	po = pull origin
 	f = fetch
 	poo = push origin
 	st = status
+	unadd = reset HEAD
+
 [diff]
 	compactionHeuristic = true
 [interactive]
@@ -37,3 +35,7 @@
 	oldHighlight = red bold 52
 	newNormal = green bold
 	newHighlight = green bold 22
+[commit]
+	gpgsign = true
+[hub]
+	protocol = https
