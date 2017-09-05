@@ -1,14 +1,26 @@
 ### zsh and oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
-ZSH_THEME="dpoggi"
-
+ZSH_THEME="dpoggi-timestamp"
+#ZSH_THEME="dpoggi"
+#ZSH_THEME="bullet-train"
+#ZSH_THEME="powerlevel9k/powerlevel9k"
 #ENABLE_CORRECTION="true"
+
+### option for ZSH_THEME="bullet-train"
+#BULLETTRAIN_PROMPT_ORDER=(
+#  time
+#  context
+#  dir
+#  virtualenv
+#  git
+#)
+#BULLETTRAIN_VIRTUALENV_BG=cyan
 
 ### welcome message
 echo "--------------------------------------------------------------------------------"
 w
-screenfetch -E
+#screenfetch -E
 echo "--------------------------------------------------------------------------------"
 
 
@@ -63,3 +75,4 @@ export PATH=$PATH:$GOROOT/bin
 
 ### fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
