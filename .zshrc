@@ -35,6 +35,7 @@ alias ipconfig="curl ifconfig.co"
 alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
 alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
 alias chromium="/Applications/Chromium.app/Contents/MacOS/Chromium"
+alias rm_ds="find . -name '.DS_Store' -type f -delete -print"  # remove .DS_Store recursively
 
 ### history
 HIST_STAMPS="yyyy-mm-dd"
