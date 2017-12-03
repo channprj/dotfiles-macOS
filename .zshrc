@@ -1,22 +1,37 @@
-### zsh and oh-my-zsh
+# zsh and oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 ZSH_THEME="dpoggi-timestamp"
 source $ZSH/oh-my-zsh.sh
-#ZSH_THEME="dpoggi"
-#ZSH_THEME="bullet-train"
-#ZSH_THEME="powerlevel9k/powerlevel9k"
-#ENABLE_CORRECTION="true"
 
-# option for ZSH_THEME="bullet-train"
-#BULLETTRAIN_PROMPT_ORDER=(
-#  time
-#  context
-#  dir
-#  virtualenv
-#  git
-#)
-#BULLETTRAIN_VIRTUALENV_BG=cyan
+# zsh options
+HISTFILE=~/.history
+HIST_STAMPS="yyyy-mm-dd"
+SAVEHIST=10000
+HISTSIZE=10000
+setopt EXTENDED_HISTORY
+setopt APPEND_HISTORY
+setopt INC_APPEND_HISTORY
+setopt SHARE_HISTORY
+setopt HIST_IGNORE_DUPS
+setopt HIST_IGNORE_ALL_DUPS
+setopt HIST_REDUCE_BLANKS
+setopt HIST_IGNORE_SPACE
+setopt HIST_NO_STORE
+setopt HIST_VERIFY
+setopt EXTENDED_HISTORY
+setopt HIST_SAVE_NO_DUPS
+setopt HIST_EXPIRE_DUPS_FIRST
+setopt HIST_FIND_NO_DUPS
+
+# plugins
+plugins=(git, github, brew)
+
+# performance tweaks
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
+
+
 
 # welcome message
 echo "--------------------------------------------------------------------------------"
@@ -27,14 +42,10 @@ echo "--------------------------------------------------------------------------
 # aliases
 source ~/.zshalias
 
-plugins=(
-	git
-)
+# functions
+source ~/.zshfunc
 
-### history
-HIST_STAMPS="yyyy-mm-dd"
-SAVEHIST=1000
-setopt EXTENDED_HISTORY
 
-plugins=(git)
+# fzf
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
