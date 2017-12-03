@@ -1,0 +1,28 @@
+# Default
+export EDITOR='vim'
+
+
+# Dev Shortcuts
+alias pp="python"
+
+
+# Portals
+alias go_git="cd ~/git"
+alias go_key="cd ~/key"
+alias go_til="cd ~/git/TIL/content/posts"
+
+
+# Commands
+alias rm_ds="find . -name '.DS_Store' -type f -delete -print"  # remove .DS_Store recursively
+alias flushdns="sudo killall -HUP mDNSResponder"  # for Sierra
+alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock"  # for Sierra
+alias ipconfig="curl ifconfig.co"
+alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
+
+
+# Applications
+alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
+alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
+alias chromium="/Applications/Chromium.app/Contents/MacOS/Chromium"
+
