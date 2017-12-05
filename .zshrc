@@ -5,7 +5,7 @@ ZSH_THEME="dpoggi-timestamp"
 source $ZSH/oh-my-zsh.sh
 
 # zsh options
-HISTFILE=~/.history
+HISTFILE=~/.zsh_history
 HIST_STAMPS="yyyy-mm-dd"
 SAVEHIST=10000
 HISTSIZE=10000
@@ -38,6 +38,9 @@ echo "--------------------------------------------------------------------------
 w
 #screenfetch -E
 echo "--------------------------------------------------------------------------------"
+
+# env
+source ~/.zshenv
 
 # aliases
 source ~/.zshalias
