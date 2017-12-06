@@ -16,6 +16,7 @@ alias go_til="cd ~/git/TIL/content/posts"
 alias rm_ds="find . -name '.DS_Store' -type f -delete -print"  # remove .DS_Store recursively
 alias flushdns="sudo killall -HUP mDNSResponder"  # for Sierra
 alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock"  # for Sierra
+alias disable_iPhone_backup="defaults write com.apple.iTunes DeviceBackupsDisabled -bool false"
 alias ipconfig="curl ifconfig.co"
 alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
 
