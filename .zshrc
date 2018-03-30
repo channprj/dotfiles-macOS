@@ -32,7 +32,6 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 
-
 # welcome message
 echo "--------------------------------------------------------------------------------"
 w
@@ -51,4 +50,14 @@ source ~/.zshfunc
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+
+
+# serverless
+# tabtab source for serverless package
+# uninstall by removing these lines or running `tabtab uninstall serverless`
+[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
+
+# tabtab source for sls package
+# uninstall by removing these lines or running `tabtab uninstall sls`
+[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
 
