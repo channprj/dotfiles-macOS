@@ -19,6 +19,7 @@ alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; 
 alias disable_iPhone_backup="defaults write com.apple.iTunes DeviceBackupsDisabled -bool false"
 alias ipconfig="curl ifconfig.co"
 alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
+alias enable_wireshark="sudo chown ${USER}:staff /dev/bp*"
 
 
 # Applications
