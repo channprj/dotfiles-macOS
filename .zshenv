@@ -1,3 +1,8 @@
+# for dev
+export GOROOT_BOOTSTRAP="/usr/local/bin/go"
+export ANDROID_HOME="/Users/chann/Library/Android/sdk"
+export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+
 # system
 export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/git-core/contrib/diff-highlight/"
 
@@ -16,7 +21,7 @@ eval "$(pyenv virtualenv-init -)"
 #[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
 
 # golang
-export GOPATH=$HOME/Go
+export GOPATH=$HOME/go
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
