@@ -7,7 +7,7 @@
 	email = chann@chann.kr
 	signingkey = #SECRET#
 [core]
-	excludesfile = /Users/CHANN/.gitignore_global
+	excludesfile = /Users/chann/.gitignore_global
 	editor = vim
 	pager = diff-so-fancy | less --tabs=4 -RFX
 [alias]
@@ -39,3 +39,6 @@
 	gpgsign = true
 [hub]
 	protocol = https
+[credential]
+		helper = osxkeychain
+
