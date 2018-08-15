@@ -26,3 +26,6 @@ export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
+# android
+export PATH=${PATH}:/Users/chann/library/android/sdk/tools:${PATH}:/Users/chann/library/android/sdk/platform-tools
+
