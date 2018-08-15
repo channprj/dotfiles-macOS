@@ -5,6 +5,7 @@ export EDITOR='vim'
 # Dev Shortcuts
 alias pp="python"
 
+
 # Portals
 alias go_git="cd ~/git"
 alias go_key="cd ~/key"
@@ -18,7 +19,7 @@ alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; 
 alias disable_iPhone_backup="defaults write com.apple.iTunes DeviceBackupsDisabled -bool false"
 alias ipconfig="curl ifconfig.co"
 alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
-#alias cleos='docker-compose exec keosd /opt/eos/bin/cleos -H nodeos'
+alias cleos_docker='docker exec nodeos /opt/eosio/bin/cleos --wallet-url http://localhost:8888'
 
 # Applications
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
