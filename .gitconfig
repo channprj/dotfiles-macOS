@@ -5,7 +5,7 @@
 [user]
 	name = CHANN
 	email = chann@chann.kr
-	signingkey = #SECRET#
+	signingkey = <SECRET>
 [core]
 	excludesfile = /Users/chann/.gitignore_global
 	editor = vim
@@ -40,5 +40,10 @@
 [hub]
 	protocol = https
 [credential]
-		helper = osxkeychain
-
+	helper = osxkeychain
+[difftool "sourcetree"]
+	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
+	path = 
+[mergetool "sourcetree"]
+	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
+	trustExitCode = true

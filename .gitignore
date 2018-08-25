@@ -1,7 +1,8 @@
-# macOS
+# macOS Metadata
 .DS_Store
 
 # ZSH Metadata
 .zsh-update
 .zsh_history
+.zcompdump*
 
