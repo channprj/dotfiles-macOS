@@ -2,12 +2,12 @@
 	"always_show_minimap_viewport": true,
 	"caret_extra_width": 0,
 	"caret_style": "blink",
-	"color_scheme": "Packages/Theme - Afterglow/Afterglow-monokai.tmTheme",
+	"color_scheme": "Packages/Theme - One Dark/One Dark.tmTheme",
 	"draw_white_space": "all",
 	"ensure_newline_at_eof_on_save": true,
 	"fade_fold_buttons": true,
 	"font_face": "Bitstream Vera Sans Mono",
-	"font_size": 15,
+	"font_size": 14,
 	"highlight_color_blue": true,
 	"highlight_line": true,
 	"highlight_modified_tabs": true,
@@ -15,15 +15,18 @@
 	[
 		"Vintage"
 	],
+	"mdpopups.use_sublime_highlighter": true,
 	"open_files_in_new_window": false,
+	"show_definitions": true,
 	"show_line_endings": true,
 	"status_bar_brighter": true,
 	"tab_size": 4,
 	"tabs_small": true,
-	"theme": "Afterglow-blue.sublime-theme",
+	"theme": "One Dark.sublime-theme",
 	"translate_spaces_to_tabs": true,
 	"translate_tabs_to_spaces": true,
 	"trim_trailing_white_space_on_save": true,
 	"wide_caret": true,
 	"word_wrap": true
 }
+
