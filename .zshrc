@@ -3,6 +3,7 @@ export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 ZSH_THEME="dpoggi-timestamp"
 source $ZSH/oh-my-zsh.sh
+autoload -Uz compinit && compinit -i
 
 # zsh options
 HISTFILE=~/.zsh_history
@@ -25,7 +26,7 @@ setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
 
 # plugins
-plugins=(git, github, brew)
+plugins=(git github brew zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 
 # performance tweaks
 zstyle ':completion:*' use-cache on
@@ -34,8 +35,8 @@ zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not 
 
 # welcome message
 echo "--------------------------------------------------------------------------------"
+#neofetch -E
 w
-#screenfetch -E
 echo "--------------------------------------------------------------------------------"
 
 # env

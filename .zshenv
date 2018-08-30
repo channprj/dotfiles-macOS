@@ -29,3 +29,9 @@ export PATH=$PATH:$GOROOT/bin
 # android
 export PATH=${PATH}:/Users/chann/library/android/sdk/tools:${PATH}:/Users/chann/library/android/sdk/platform-tools
 
+# eosio
+export PATH="/usr/local/opt/llvm@4/bin:$PATH"
+
+# docker
+fpath=(~/.zsh/completion $fpath)
+
