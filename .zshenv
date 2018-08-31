@@ -8,6 +8,7 @@ export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sb
 
 # config
 export GREP_OPTIONS='--color=auto'
+export GPG_TTY=$(tty)
 
 # pyenv
 export PATH="$HOME/.pyenv/shims:$PATH"
