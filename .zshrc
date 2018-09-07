@@ -2,8 +2,6 @@
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
 ZSH_THEME="dpoggi-timestamp"
-source $ZSH/oh-my-zsh.sh
-autoload -Uz compinit && compinit -i
 
 # zsh options
 HISTFILE=~/.zsh_history
@@ -24,14 +22,20 @@ setopt EXTENDED_HISTORY
 setopt HIST_SAVE_NO_DUPS
 setopt HIST_EXPIRE_DUPS_FIRST
 setopt HIST_FIND_NO_DUPS
+zstyle ':completion:*' verbose yes
+# zstyle ':completion:*:descriptions' format $'%F{green}%d'
+# zstyle ':completion:*:messages' format $'%F{yellow}%d'
+zstyle ':completion:*:descriptions' format $'\e[00;32m%d'
+zstyle ':completion:*:messages' format $'\e[00;33m%d'
+zstyle ':completion:*' group-name ''
+zstyle ':completion:*:manuals' separate-sections true
 
 # plugins
 plugins=(git github brew zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 
 # performance tweaks
-zstyle ':completion:*' use-cache on
-zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
-
+#zstyle ':completion:*' use-cache on
+#zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 # welcome message
 echo "--------------------------------------------------------------------------------"
@@ -48,6 +52,9 @@ source ~/.zshalias
 # functions
 source ~/.zshfunc
 
+# end of zsh
+source $ZSH/oh-my-zsh.sh
+autoload -U compinit && compinit
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
