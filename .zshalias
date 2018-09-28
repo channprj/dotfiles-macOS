@@ -1,8 +1,9 @@
 # Default
-export EDITOR='vim'
+export EDITOR="vim"
 
 # Dev Shortcuts
 alias pp="python"
+alias gorun="go run $(find . -name "*.go" -and -not -name "*_test.go" -maxdepth 1)"
 
 # Portals
 alias go_git="cd ~/git"

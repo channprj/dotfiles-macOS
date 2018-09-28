@@ -34,8 +34,8 @@ zstyle ':completion:*:manuals' separate-sections true
 plugins=(git github brew zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
 
 # performance tweaks
-#zstyle ':completion:*' use-cache on
-#zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
+zstyle ':completion:*' use-cache on
+zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 # welcome message
 echo "--------------------------------------------------------------------------------"
