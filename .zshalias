@@ -18,6 +18,7 @@ alias ipconfig="curl ifconfig.co"
 alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
 #alias cleos_docker="docker exec docker_nodeosd_1 /opt/eosio/bin/cleos --wallet-url http://localhost:8888"
 alias el="exa -alg"
+alias copypath='pwd | pbcopy'
 
 # Applications
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
