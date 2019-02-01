@@ -21,6 +21,10 @@ alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
 alias el="exa -alg"
 alias copypath='pwd | pbcopy'
 
+## Docker
+alias docker_remove_all="docker rm $(docker ps -aq)"
+alias docker_remove_exits="docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm"
+
 # Applications
 alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
 alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
