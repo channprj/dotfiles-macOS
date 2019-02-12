@@ -20,6 +20,7 @@ alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
 #alias cleos_docker="docker exec docker_nodeosd_1 /opt/eosio/bin/cleos --wallet-url http://localhost:8888"
 alias el="exa -alg"
 alias copypath='pwd | pbcopy'
+alias preview="fzf --preview 'bat --color \"always\" {}'"
 
 ## Docker
 alias docker_remove_all="docker rm $(docker ps -aq)"
