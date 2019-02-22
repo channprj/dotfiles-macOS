@@ -9,8 +9,8 @@ ZSH_THEME="dpoggi-timestamp"
 # zsh options
 HISTFILE=~/.zsh_history
 HIST_STAMPS="yyyy-mm-dd"
-SAVEHIST=10000
-HISTSIZE=10000
+SAVEHIST=5000
+HISTSIZE=5000
 setopt EXTENDED_HISTORY
 setopt APPEND_HISTORY
 setopt INC_APPEND_HISTORY
@@ -62,13 +62,18 @@ autoload -U compinit && compinit
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-
 # serverless
 # tabtab source for serverless package
 # uninstall by removing these lines or running `tabtab uninstall serverless`
-[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
+#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
 
 # tabtab source for sls package
 # uninstall by removing these lines or running `tabtab uninstall sls`
-[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
+#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
+
+# The next line updates PATH for the Google Cloud SDK.
+#if [ -f '/Users/chann/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/chann/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+
+# The next line enables shell command completion for gcloud.
+#if [ -f '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
