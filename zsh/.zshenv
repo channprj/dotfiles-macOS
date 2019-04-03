@@ -34,5 +34,5 @@ export PATH=$PATH:$HOME/.cargo/bin
 export PATH=${PATH}:/Users/chann/library/android/sdk/tools:${PATH}:/Users/chann/library/android/sdk/platform-tools
 
 # eosio
-export PATH="/usr/local/opt/llvm@4/bin:$PATH"
+#export PATH="/usr/local/opt/llvm@4/bin:$PATH"
 

@@ -41,6 +41,8 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 # welcome message
+figlet -f slant "  CHANN" | lolcat
+echo "            ...with MacBook Pro 2017"
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
@@ -51,6 +53,7 @@ source ~/.zshenv
 
 # aliases
 source ~/.zshalias
+source ~/.zshalias-company
 
 # functions
 source ~/.zshfunc
