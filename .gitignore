@@ -6,3 +6,6 @@
 .zsh_history
 .zcompdump*
 
+# For Work
+.*-company
+
