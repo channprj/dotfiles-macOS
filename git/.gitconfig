@@ -20,6 +20,8 @@
 	f = fetch
 	poo = push origin
 	st = status
+	df = diff
+	dfc = diff --cached
 	unadd = reset HEAD
 
 [diff]
