@@ -22,7 +22,7 @@ eval "$(pyenv virtualenv-init -)"
 #[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
 
 # golang
-export GOPATH=$HOME/go
+export GOPATH=$HOME/Go
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
