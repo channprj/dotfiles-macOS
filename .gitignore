@@ -6,6 +6,12 @@
 .zsh_history
 .zcompdump*
 
+# Temp
+*.backup
+*.tmp
+temp/
+backup/
+
 # For Work
 .*-company
 

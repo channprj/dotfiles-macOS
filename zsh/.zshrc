@@ -41,8 +41,9 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 # welcome message
-figlet -f slant "  CHANN" | lolcat
-echo "            ...with MacBook Pro 2017"
+echo "\n"
+figlet -f "ANSI Shadow" "  CHANN" | lolcat
+echo "\t\t\t...with MacBook Pro 2017"
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
@@ -79,4 +80,8 @@ autoload -U compinit && compinit
 
 # The next line enables shell command completion for gcloud.
 #if [ -f '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+
+# iterm2 shell integration
+# refer: https://www.iterm2.com/documentation-shell-integration.html
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
