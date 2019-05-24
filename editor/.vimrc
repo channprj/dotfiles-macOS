@@ -20,13 +20,12 @@ call plug#begin('~/.vim/plugged')
 """ PlugInstall List
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/vim-github-dashboard'
-Plug 'junegunn/seoul256.vim'
+"Plug 'junegunn/seoul256.vim'
 Plug 'powerline/powerline'
 Plug 'junegunn/goyo.vim'
 Plug 'airblade/vim-gitgutter'
 Plug 'davidhalter/jedi-vim'
 Plug 'dracula/vim'
-Plug 'posva/vim-vue'
 "let g:jedi#auto_initialization = 0
 
 Plug 'ervandew/supertab'
@@ -36,6 +35,9 @@ Plug 'ntpeters/vim-better-whitespace'
 
 Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
 
+"for fun
+"Plug 'johngrib/vim-game-code-break'
+
 call plug#end()
 
 """ colorscheme: seoul256
@@ -44,8 +46,8 @@ call plug#end()
 
 """ colorscheme: dracula
 syntax on
-colorscheme dracula
-"colorscheme molokai
+"colorscheme dracula
+colorscheme molokai
 
 """ Powerline
 "set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
@@ -54,3 +56,4 @@ colorscheme dracula
 
 """ fzf using Homebrew
 set rtp+=/usr/local/opt/fzf
+
