@@ -1,4 +1,7 @@
 {
+  "[go]": {
+    "editor.tabSize": 4,
+  },
   "[cpp]": {
     "editor.wordWrap": "on",
   },
@@ -6,7 +9,7 @@
     "editor.wordWrap": "off",
   },
   "[javascript]": {
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
   },
   "[markdown]": {
     "editor.wordWrap": "bounded",
@@ -15,36 +18,54 @@
     "editor.tabSize": 2
   },
   "[scss]": {
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
   },
   "[typescript]": {
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
   },
   "[php]": {
     "editor.wordWrap": "off",
   },
+  "[python]": {
+    "editor.wordWrap": "off",
+  },
   "breadcrumbs.enabled": true,
+  "colorize.languages": [
+    "javascript",
+  ],
   "css.lint.unknownProperties": "ignore",
-  "editor.fontFamily": "Bitstream Vera Sans Mono, Menlo, Monaco, 'Courier New', monospace",
+  "editor.fontFamily": "'DejaVu Sans Mono for Powerline', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 14,
   "editor.formatOnPaste": false,
   "editor.formatOnSave": false,
   "editor.minimap.enabled": true,
   "editor.minimap.maxColumn": 100,
   "editor.minimap.showSlider": "always",
-  "editor.multiCursorModifier": "ctrlCmd",
+  "editor.multiCursorModifier": "alt",
   "editor.renderWhitespace": "all",
   "editor.rulers": [120],
   "editor.wordWrap": "bounded",
   "editor.wordWrapColumn": 120,
+  "explorer.confirmDragAndDrop": false,
   "files.insertFinalNewline": true,
   "files.trimTrailingWhitespace": true,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
+  "go.autocompleteUnimportedPackages": true,
+  "go.formatTool": "gofmt",
+  "go.lintTool": "revive",
+  "go.lintFlags": ["-exclude=vendor/...", "-config=${workspaceFolder}/revive.toml"],
+  "go.inferGopath": true,
+  "go.lintOnSave": "workspace",
   "html.format.wrapLineLength": 0,
   "html.suggest.html5": true,
+  "javascript.format.enable": false,
+  "javascript.implicitProjectConfig.experimentalDecorators": true,
+  "javascript.updateImportsOnFileMove.enabled": "always",
   "markdown.preview.scrollEditorWithPreview": true,
-  "python.linting.pylintArgs": ["--disable=E1101,C0111,C0103", "--max-line-length=120" ],
+  "prettier.eslintIntegration": true,
+  "python.jediEnabled": false,
+  "python.linting.pylintArgs": ["--disable=E1101,C0111,C0103,W0512", "--max-line-length=120"],
   "python.pythonPath": "/Users/chann/.pyenv/shims/python",
   "scss.lint.unknownProperties": "ignore",
   "search.smartCase": true,
@@ -58,10 +79,12 @@
   "sync.syncExtensions": true,
   "window.zoomLevel": 0,
   "workbench.activityBar.visible": true,
-  "workbench.colorTheme": "One Dark Pro",
   "workbench.sideBar.location": "left",
   "workbench.startupEditor": "newUntitledFile",
   "workbench.statusBar.feedback.visible": false,
   "workbench.statusBar.visible": true,
+  "workbench.colorTheme": "One Dark Pro Vivid",
+  "editor.suggestSelection": "first",
+  "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
 }
 
