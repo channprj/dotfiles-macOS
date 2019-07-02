@@ -10,6 +10,9 @@ export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sb
 export GREP_OPTIONS='--color=auto'
 export GPG_TTY=$(tty)
 
+# direnv
+eval "$(direnv hook zsh)"
+
 # pyenv
 export PATH="$HOME/.pyenv/shims:$PATH"
 eval "$(pyenv init -)"
