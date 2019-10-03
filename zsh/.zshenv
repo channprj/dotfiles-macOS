@@ -25,13 +25,16 @@ eval "$(pyenv virtualenv-init -)"
 #[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
 
 # golang
-export GOPATH=$HOME/Go
+export GOPATH=$HOME/go
 export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
 # rust
 export PATH=$PATH:$HOME/.cargo/bin
+
+# node
+export PATH=$PATH:$HOME/.npm-global/bin
 
 # android
 export PATH=${PATH}:/Users/chann/library/android/sdk/tools:${PATH}:/Users/chann/library/android/sdk/platform-tools
