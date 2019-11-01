@@ -1,0 +1,4 @@
+set line-graphics = UTF-8
+
+set main-view = line-number:no,interval=5 id:yes date:relative-compact author:email-user commit-title:yes,graph,refs,overflow=no
+
