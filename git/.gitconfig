@@ -13,6 +13,7 @@
 [alias]
 	cm = commit -m
 	co = checkout
+	sw = switch
 	# lg = log --decorate --oneline --graph --all
 	lg = log --all --graph --pretty=format:'%C(auto)%h%Creset -%C(auto)%d%Creset %s %Cgreen(%cr) %C(bold blue)<%an>%Creset' --abbrev-commit --date=relative
 	p = pull
@@ -43,11 +44,6 @@
 	protocol = https
 [credential]
 	helper = osxkeychain
-[difftool "sourcetree"]
-	cmd = opendiff \"$LOCAL\" \"$REMOTE\"
-	path = 
-[mergetool "sourcetree"]
-	cmd = /Applications/Sourcetree.app/Contents/Resources/opendiff-w.sh \"$LOCAL\" \"$REMOTE\" -ancestor \"$BASE\" -merge \"$MERGED\"
-	trustExitCode = true
 [tag]
 	forceSignAnnotated = true
+
