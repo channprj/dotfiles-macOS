@@ -43,7 +43,7 @@ zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not 
 # welcome message
 echo "\n"
 figlet -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t...with MacBook Pro 15' 2019"
+echo "\t\t\t...with MacBook Pro 16' 2019"
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
