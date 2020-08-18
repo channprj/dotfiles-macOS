@@ -20,7 +20,8 @@
     "editor.wordWrap": "off",
     "editor.wordWrapColumn": 100,
     "editor.quickSuggestions": true,
-    "editor.tabSize": 2
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[scss]": {
     "editor.tabSize": 2
@@ -46,6 +47,10 @@
     "**/templates/*": "django-txt",
     "**/requirements{/**,*}.{txt,in}": "pip-requirements"
   },
+  "editor.codeActionsOnSave": [
+    "source.addMissingImports",
+    "source.fixAll.eslint"
+  ],
   "editor.fontFamily": "'DejaVu Sans Mono for Powerline', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 14,
   "editor.formatOnPaste": false,
@@ -59,8 +64,10 @@
   "editor.suggestSelection": "first",
   "editor.wordWrap": "bounded",
   "editor.wordWrapColumn": 120,
+  "emmet.triggerExpansionOnTab": true,
   "emmet.includeLanguages": {
-    "django-html": "html"
+    "django-html": "html",
+    "javascript": "javascriptreact"
   },
   "emmet.syntaxProfiles": {
     "javascript": "jsx"
@@ -89,9 +96,12 @@
   "markdown.preview.scrollEditorWithPreview": true,
   "python.analysis.disabled": ["inherit-non-class"],
   "python.autoComplete.addBrackets": true,
-  "python.formatting.provider": "autopep8",
+  "python.formatting.provider": "yapf",
   "python.formatting.blackArgs": ["--max-line-length=120"],
-  "python.formatting.yapfArgs": ["--max-line-length=120"],
+  "python.formatting.yapfArgs": [
+    "--style",
+    "{based_on_style: pep8, split_before_named_assigns=True, join_multiple_lines=False, space_between_ending_comma_and_closing_bracket=False, indent_dictionary_value=True,split_before_dict_set_generator=False,split_before_dot=True, column_limit: 120 }"
+  ],
   "python.formatting.autopep8Args": ["--max-line-length=120", "--aggressive"],
   // "python.jediEnabled": true,
   "python.linting.enabled": true,
@@ -120,5 +130,5 @@
   "workbench.sideBar.location": "left",
   "workbench.startupEditor": "newUntitledFile",
   "workbench.statusBar.visible": true,
-  "eslint.autoFixOnSave": true
+  "python.languageServer": "Pylance"
 }
