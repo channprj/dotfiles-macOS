@@ -1,10 +1,11 @@
 # for dev
 export GOROOT_BOOTSTRAP="/usr/local/bin/go"
-export ANDROID_HOME="/Users/chann/Library/Android/sdk"
+export ANDROID_HOME="/Users/channprj/Library/Android/sdk"
 export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
 
 # system
 export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/local/share/git-core/contrib/diff-highlight/"
+export PATH=$PATH:$HOME/bin
 
 # config
 export GREP_OPTIONS='--color=auto'
@@ -37,7 +38,7 @@ export PATH=$PATH:$HOME/.cargo/bin
 export PATH=$PATH:$HOME/.npm-global/bin
 
 # android
-export PATH=${PATH}:/Users/chann/library/android/sdk/tools:${PATH}:/Users/chann/library/android/sdk/platform-tools
+export PATH=${PATH}:/Users/channprj/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
 
 # eosio
 #export PATH="/usr/local/opt/llvm@4/bin:$PATH"

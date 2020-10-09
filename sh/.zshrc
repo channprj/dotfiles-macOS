@@ -76,10 +76,10 @@ autoload -U compinit && compinit
 #[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
 
 # The next line updates PATH for the Google Cloud SDK.
-#if [ -f '/Users/chann/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/chann/Downloads/google-cloud-sdk/path.zsh.inc'; fi
+#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc'; fi
 
 # The next line enables shell command completion for gcloud.
-#if [ -f '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/chann/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
+#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
 
 # iterm2 shell integration
 # refer: https://www.iterm2.com/documentation-shell-integration.html
