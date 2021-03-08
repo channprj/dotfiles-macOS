@@ -14,6 +14,8 @@ set tabstop=4
 set incsearch
 set backspace=eol,start,indent
 set history=1000
+syntax on
+
 
 call plug#begin('~/.vim/plugged')
 
@@ -21,8 +23,11 @@ call plug#begin('~/.vim/plugged')
 Plug 'junegunn/vim-easy-align'
 Plug 'junegunn/vim-github-dashboard'
 "Plug 'junegunn/seoul256.vim'
-Plug 'powerline/powerline'
 Plug 'junegunn/goyo.vim'
+Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
+
+Plug 'powerline/powerline'
+Plug 'sheerun/vim-polyglot'
 Plug 'airblade/vim-gitgutter'
 Plug 'davidhalter/jedi-vim'
 Plug 'dracula/vim'
@@ -33,21 +38,20 @@ Plug 'ntpeters/vim-better-whitespace'
 "Plug 'nathanaelkane/vim-indent-guides'
 "let g:indent_guides_enable_on_vim_startup = 1
 
-Plug 'junegunn/fzf', { 'dir': '~/.fzf', 'do': './install --all' }
-
 "for fun
 "Plug 'johngrib/vim-game-code-break'
 
 call plug#end()
 
-""" colorscheme: seoul256
-"let g:seoul256_background=232
 "colorscheme seoul256
+"let g:seoul256_background=232
 
-""" colorscheme: dracula
-syntax on
 "colorscheme dracula
-colorscheme molokai
+"colorscheme molokai
+colorscheme onedark
+if (has("termguicolors"))
+  set termguicolors
+endif
 
 """ Powerline
 "set rtp+=/Users/CHANN/.pyenv/versions/3.4.2/lib/python3.4/site-packages/powerline/bindings/vim
