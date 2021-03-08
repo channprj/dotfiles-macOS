@@ -12,6 +12,9 @@
 temp/
 backup/
 
+# Vim plugins
+editor/.vim/plugged/*
+
 # For Work
 .*-company
 
