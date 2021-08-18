@@ -46,4 +46,3 @@
 	helper = osxkeychain
 [tag]
 	forceSignAnnotated = true
-
