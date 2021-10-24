@@ -31,6 +31,11 @@ export GOROOT=/usr/local/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
+# goenv
+export GOENV_ROOT="$HOME/.goenv"
+export PATH="$GOENV_ROOT/bin:$PATH"
+eval "$(goenv init -)"
+
 # rust
 export PATH=$PATH:$HOME/.cargo/bin
 
@@ -38,8 +43,11 @@ export PATH=$PATH:$HOME/.cargo/bin
 export PATH=$PATH:$HOME/.npm-global/bin
 
 # android
-export PATH=${PATH}:/Users/channprj/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
+export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
 
-# eosio
+# crypto
 #export PATH="/usr/local/opt/llvm@4/bin:$PATH"
+export PATH="${PATH}:${HOME}/bin/src/kcn-darwin-10.10-amd64/bin"
+export PATH="${PATH}:${HOME}/bin/src/ken-darwin-10.10-amd64/bin"
+export PATH="${PATH}:${HOME}/bin/src/kpn-darwin-10.10-amd64/bin"
 

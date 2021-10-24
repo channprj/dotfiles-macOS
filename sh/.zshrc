@@ -34,7 +34,14 @@ zstyle ':completion:*' group-name ''
 zstyle ':completion:*:manuals' separate-sections true
 
 # plugins
-plugins=(git github brew zsh-completions zsh-autosuggestions zsh-syntax-highlighting)
+plugins=(
+  git
+  github
+  brew
+  zsh-completions
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
 
 # performance tweaks
 zstyle ':completion:*' use-cache on
