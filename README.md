@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="https://github.com/channprj/dotfiles-macOS/raw/master/assets/img/terminal.png" alt="screenshot" width="600px">
+  <img src="https://github.com/channprj/dotfiles-macOS/raw/main/assets/img/terminal.png" alt="screenshot" width="600px">
 </p>
 
 # Dotfiles
