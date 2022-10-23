@@ -4,7 +4,7 @@ export LC_ALL=en_US.UTF-8
 # zsh and oh-my-zsh
 export ZSH=$HOME/.oh-my-zsh
 export UPDATE_ZSH_DAYS=13
-ZSH_THEME="dpoggi-timestamp"
+ZSH_THEME="dpoggi"
 
 # zsh options
 HISTFILE=~/.zsh_history
@@ -50,7 +50,7 @@ zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not 
 # welcome message
 echo "\n"
 figlet -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t...with MacBook Pro 16' 2019"
+echo "\t\t\t...with MacBook Air M2 2022"
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
