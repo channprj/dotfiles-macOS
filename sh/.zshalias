@@ -7,7 +7,7 @@ alias gorun="go run $(find . -name "*.go" -and -not -name "*_test.go" -maxdepth 
 alias gget="go get -u -v"
 
 # Portals
-alias go_git="cd ~/git"
+alias go_work="cd ~/workspace"
 
 # Commands
 alias reload_zsh="exec $SHELL -l"
