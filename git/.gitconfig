@@ -28,16 +28,7 @@
 [diff]
 	compactionHeuristic = true
 [interactive]
-	diffFilter = diff-highlight
-[pager]
-	log = diff-highlight | less
-	show = diff-highlight | less
-	diff = diff-highlight | less
-[color "diff-highlight"]
-	oldNormal = red bold
-	oldHighlight = red bold 52
-	newNormal = green bold
-	newHighlight = green bold 22
+	diffFilter = diff-so-fancy --patch
 [commit]
 	gpgsign = true
 [hub]
@@ -46,3 +37,13 @@
 	helper = osxkeychain
 [tag]
 	forceSignAnnotated = true
+[color]
+	ui = true
+[color "diff"]
+	meta = 11
+	frag = magenta bold
+	func = 146 bold
+	commit = yellow bold
+	old = red bold
+	new = green bold
+	whitespace = red reverse
