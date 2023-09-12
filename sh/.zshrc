@@ -38,6 +38,7 @@ plugins=(
   git
   github
   brew
+  docker
   zsh-completions
   zsh-autosuggestions
   zsh-syntax-highlighting
@@ -50,21 +51,11 @@ zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not 
 # welcome message
 echo "\n"
 figlet -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t...with MacBook Air M2 2022"
+echo "\t\t\t...with Macbook Pro 16' M2 Pro"
 echo "--------------------------------------------------------------------------------"
-#neofetch -E
+# neofetch -E
 w
 echo "--------------------------------------------------------------------------------"
-
-# env
-source ~/.zshenv
-
-# aliases
-source ~/.zshalias
-#source ~/.zshalias-company
-
-# functions
-source ~/.zshfunc
 
 # end of zsh
 source $ZSH/oh-my-zsh.sh
@@ -73,22 +64,17 @@ autoload -U compinit && compinit
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# serverless
-# tabtab source for serverless package
-# uninstall by removing these lines or running `tabtab uninstall serverless`
-#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
-
-# tabtab source for sls package
-# uninstall by removing these lines or running `tabtab uninstall sls`
-#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
-
-# The next line updates PATH for the Google Cloud SDK.
-#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
-
 # iterm2 shell integration
 # refer: https://www.iterm2.com/documentation-shell-integration.html
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+# aliases
+source ~/.zshalias
+source ~/.zshalias-company
+
+# env
+source ~/.zshenv
+
+# functions
+source ~/.zshfunc
 
