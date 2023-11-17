@@ -14,20 +14,20 @@ alias reload_zsh="exec $SHELL -l"
 alias rm_ds="find . -name '.DS_Store' -type f -delete -print"  # remove .DS_Store recursively
 alias flushdns="sudo killall -HUP mDNSResponder"  # for Sierra
 alias clean_launchpad="defaults write com.apple.dock ResetLaunchPad -bool true; killall Dock"  # for Sierra
-alias disable_iPhone_backup="defaults write com.apple.iTunes DeviceBackupsDisabled -bool false"
+alias disable_iphone_backup="defaults write com.apple.iTunes DeviceBackupsDisabled -bool false"
 alias ipconfig="curl ifconfig.co"
 alias portcheck="sudo lsof -iTCP -sTCP:LISTEN -n -P"
-#alias cleos_docker="docker exec docker_nodeosd_1 /opt/eosio/bin/cleos --wallet-url http://localhost:8888"
 alias el="exa -alg"
-alias copypath='pwd | pbcopy'
+alias cp_path='pwd | pbcopy'
 alias preview="fzf --preview 'bat --color \"always\" {}'"
+alias cp_git_shortsha="git log -1 --pretty=format:%h | pbcopy"
 
 ## Docker
-alias docker_remove_all="docker rm $(docker ps -aq)"
-alias docker_remove_exits="docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm"
+alias docker_rm_all="docker rm $(docker ps -aq)"
+alias docker_rm_exits="docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm"
 
 # Applications
-alias subl="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
+alias sublime="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
 alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
 alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
 alias chromium="/Applications/Chromium.app/Contents/MacOS/Chromium"
@@ -35,3 +35,5 @@ alias firefox="open -a /Applications/Firefox\ Developer\ Edition.app"
 
 # Overrides
 alias cat="ccat"
+alias ls='eza'
+
