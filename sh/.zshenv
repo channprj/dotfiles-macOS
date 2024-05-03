@@ -5,6 +5,7 @@ export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
 
 # system
 export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/opt/git/share/git-core/contrib/diff-highlight"
+export PATH=$PATH:/Applications/Keybase.app/Contents/SharedSupport/bin
 export PATH=$PATH:$HOME/bin
 
 # config
