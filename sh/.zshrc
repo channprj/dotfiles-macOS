@@ -41,7 +41,7 @@ plugins=(
   docker
   zsh-completions
   zsh-autosuggestions
-  zsh-syntax-highlighting
+#  zsh-syntax-highlighting
 )
 
 # performance tweaks
@@ -62,7 +62,7 @@ source $ZSH/oh-my-zsh.sh
 autoload -U compinit && compinit
 
 # fzf
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+eval "$(fzf --zsh)"
 
 # iterm2 shell integration
 # refer: https://www.iterm2.com/documentation-shell-integration.html
@@ -77,4 +77,7 @@ source ~/.zshenv
 
 # functions
 source ~/.zshfunc
+
+# zsh
+source /opt/homebrew/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh
 
