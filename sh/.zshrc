@@ -41,7 +41,7 @@ plugins=(
   docker
   zsh-completions
   zsh-autosuggestions
-#  zsh-syntax-highlighting
+  zsh-syntax-highlighting
 )
 
 # performance tweaks
