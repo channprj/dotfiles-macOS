@@ -2,59 +2,86 @@
   "[go]": {
     "editor.tabSize": 4
   },
-  "[cpp]": {
-    "editor.wordWrap": "on"
-  },
   "[html]": {
-    "editor.wordWrap": "off"
+    "editor.wordWrap": "off",
+    "editor.defaultFormatter": "vscode.html-language-features"
   },
   "[javascript]": {
     "editor.tabSize": 2,
     "editor.defaultFormatter": "esbenp.prettier-vscode",
-    "editor.formatOnSave": true
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
+  },
+  "java.import.gradle.java.home": "/Users/channprj/Library/Java/JavaVirtualMachines/corretto-17.0.7/Contents/Home",
+  "black-formatter.showNotifications": "onError",
+  "[javascriptreact]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
+  },
+  "[typescriptreact]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
   },
   "[json]": {
     "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
   "[markdown]": {
-    "editor.wordWrap": "off",
-    "editor.wordWrapColumn": 100,
-    "editor.quickSuggestions": true,
-    "editor.tabSize": 2,
-    "editor.defaultFormatter": "esbenp.prettier-vscode"
+    "editor.wordWrap": "bounded",
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.quickSuggestions": {
+      "comments": "on",
+      "strings": "on",
+      "other": "on"
+    },
+    "editor.tabSize": 2
   },
   "[scss]": {
     "editor.tabSize": 2
   },
-  "[typescript]": {
-    "editor.tabSize": 2
+  "[css]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
   },
-  "[php]": {
-    "editor.wordWrap": "off"
+  "[typescript]": {
+    "editor.tabSize": 2,
+    "editor.defaultFormatter": "esbenp.prettier-vscode",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
   },
   "[python]": {
-    "editor.wordWrap": "off",
-    "editor.formatOnSave": true
+    "editor.defaultFormatter": "ms-python.black-formatter",
+    "editor.codeActionsOnSave": {
+      "source.organizeImports": "always",
+      "source.unusedImports": "always"
+    }
   },
   "breadcrumbs.enabled": true,
   "colorize.languages": ["javascript"],
-  "C_Cpp.updateChannel": "Insiders",
   "css.lint.unknownProperties": "ignore",
   "debug.internalConsoleOptions": "openOnSessionStart",
   "files.associations": {
     "*.html": "html",
     "**/templates/*.html": "django-html",
-    "**/templates/*": "django-txt",
-    "**/requirements{/**,*}.{txt,in}": "pip-requirements"
+    "**/requirements{/**,*}.{txt,in}": "pip-requirements",
+    "*.py-tpl": "python"
   },
-  "editor.codeActionsOnSave": [
-    "source.addMissingImports",
-    "source.fixAll.eslint"
-  ],
   "editor.fontFamily": "'DejaVu Sans Mono for Powerline', Menlo, Monaco, 'Courier New', monospace",
   "editor.fontSize": 14,
   "editor.formatOnPaste": false,
   "editor.formatOnSave": true,
+  "editor.formatOnType": false,
   "editor.minimap.enabled": true,
   "editor.minimap.maxColumn": 100,
   "editor.minimap.showSlider": "always",
@@ -79,7 +106,6 @@
   "files.trimTrailingWhitespace": true,
   "git.autofetch": true,
   "git.enableSmartCommit": true,
-  "go.autocompleteUnimportedPackages": true,
   "go.formatTool": "gofmt",
   "go.inferGopath": true,
   "go.lintFlags": [
@@ -91,44 +117,169 @@
   "html.format.wrapLineLength": 0,
   "html.suggest.html5": true,
   "javascript.format.enable": true,
-  "javascript.implicitProjectConfig.experimentalDecorators": true,
   "javascript.updateImportsOnFileMove.enabled": "always",
   "markdown.preview.scrollEditorWithPreview": true,
-  "python.analysis.disabled": ["inherit-non-class"],
-  "python.autoComplete.addBrackets": true,
-  "python.formatting.provider": "yapf",
-  "python.formatting.blackArgs": ["--max-line-length=120"],
-  "python.formatting.yapfArgs": [
-    "--style",
-    "{based_on_style: pep8, split_before_named_assigns=True, join_multiple_lines=False, space_between_ending_comma_and_closing_bracket=False, indent_dictionary_value=True,split_before_dict_set_generator=False,split_before_dot=True, column_limit: 120 }"
+  "python.analysis.autoFormatStrings": true,
+  "python.analysis.autoImportCompletions": true,
+  "python.analysis.autoIndent": true,
+  "python.analysis.aiCodeActions": {
+    "enabled": true,
+    "diagnostics": true
+  },
+  "python.analysis.completeFunctionParens": true,
+  "python.analysis.diagnosticMode": "workspace",
+  "python.analysis.extraPaths": ["/"],
+  "python.analysis.exclude": [
+    ".direnv/**",
+    ".venv/**",
+    "**/node_modules/**",
+    "**/venv/**",
+    "migrations/**",
+    "notebooks/**"
   ],
-  "python.formatting.autopep8Args": ["--max-line-length=120", "--aggressive"],
-  // "python.jediEnabled": true,
-  "python.linting.enabled": true,
-  "python.linting.pylintArgs": [
-    "--disable=E1101,C0111,C0103,W0512",
-    "--max-line-length=120"
+  "python.analysis.indexing": true,
+  "python.analysis.packageIndexDepths": [
+    {
+      "name": "rest_framework",
+      "depth": 20,
+      "includeAllSymbols": true
+    },
+    {
+      "name": "django",
+      "depth": 20,
+      "includeAllSymbols": true
+    },
+    {
+      "name": "drf_spectacular",
+      "depth": 20,
+      "includeAllSymbols": true
+    },
+    {
+      "name": "factory",
+      "depth": 20,
+      "includeAllSymbols": true
+    },
+    {
+      "name": "faker",
+      "depth": 20,
+      "includeAllSymbols": true
+    }
   ],
-  "python.jediEnabled": false,
-  "python.pythonPath": "/Users/chann/.pyenv/shims/python",
-  "scss.lint.unknownProperties": "ignore",
+  "python.analysis.userFileIndexingLimit": -1,
+  // "python.autoComplete.extraPaths": ["apps/", "./*"],
+  "python.languageServer": "Pylance",
   "search.smartCase": true,
-  "sync.autoDownload": false,
-  "sync.autoUpload": false,
-  "sync.forceDownload": false,
-  "sync.forceUpload": true,
-  "sync.gist": "9e874b2009f8fa0537af0db82c3ddecf",
-  "sync.quietSync": false,
-  "sync.removeExtensions": true,
-  "sync.syncExtensions": true,
   "vsintellicode.modify.editor.suggestSelection": "automaticallyOverrodeDefaultValue",
-  "window.zoomLevel": 0,
-  "workbench.activityBar.visible": true,
-  "workbench.colorTheme": "One Dark Pro",
   "workbench.editor.enablePreview": false,
   "workbench.editor.enablePreviewFromQuickOpen": false,
-  "workbench.sideBar.location": "left",
   "workbench.startupEditor": "newUntitledFile",
-  "workbench.statusBar.visible": true,
-  "python.languageServer": "Pylance"
+  "files.autoSave": "onWindowChange",
+  "githubIssues.queries": [
+    {
+      "label": "My Issues",
+      "query": "default"
+    },
+    {
+      "label": "Created Issues",
+      "query": "author:${user} state:open repo:${owner}/${repository} sort:created-desc"
+    }
+  ],
+  "workbench.editor.wrapTabs": true,
+  "workbench.editorAssociations": {
+    "*.ipynb": "jupyter-notebook"
+  },
+  "go.toolsManagement.autoUpdate": true,
+  "liveServer.settings.donotShowInfoMsg": true,
+  "yaml.format.printWidth": 120,
+  "yaml.format.proseWrap": "never",
+  "gitlens.views.lineHistory.avatars": false,
+  "redhat.telemetry.enabled": false,
+  "notebook.cellToolbarLocation": {
+    "default": "right",
+    "jupyter-notebook": "left"
+  },
+  "autoDocstring.quoteStyle": "'''",
+  "editor.guides.bracketPairs": "active",
+  "security.workspace.trust.untrustedFiles": "open",
+  "editor.unicodeHighlight.nonBasicASCII": false,
+  "editor.inlineSuggest.enabled": true,
+  "typescript.updateImportsOnFileMove.enabled": "always",
+  "editor.stickyScroll.enabled": true,
+  "editor.stickyScroll.maxLineCount": 8,
+  "editor.stickyTabStops": true,
+  "diffEditor.maxComputationTime": 0,
+  "diffEditor.maxFileSize": 100,
+  "files.autoSaveDelay": 200,
+  "workbench.localHistory.maxFileSize": 1024,
+  "[jsonc]": {
+    "editor.defaultFormatter": "esbenp.prettier-vscode"
+  },
+  "python.diagnostics.sourceMapsEnabled": true,
+  // "prettier.arrowParens": "avoid",
+  "files.exclude": {
+    ".expo/": true,
+    "**/__pycache__": true,
+    "**/.direnv": true,
+    "**/.next": true,
+    "**/.venv": true,
+    "**/node_modules": true
+  },
+  "editor.quickSuggestions": {
+    "other": true,
+    "comments": true,
+    "strings": true
+  },
+  "editor.tabCompletion": "on",
+  "editor.suggest.localityBonus": true,
+  "git.openRepositoryInParentFolders": "always",
+  "extensions.autoUpdate": "onlyEnabledExtensions",
+  "githubPullRequests.pullBranch": "never",
+  "markdown-pdf.displayHeaderFooter": false,
+  "markdown-pdf.highlightStyle": "atom-one-dark.css",
+  "workbench.iconTheme": "material-icon-theme",
+  "githubPullRequests.commentExpandState": "collapseAll",
+  "vim.easymotion": true,
+  "vim.incsearch": true,
+  "vim.useSystemClipboard": true,
+  "vim.useCtrlKeys": true,
+"vim.hlsearch": true,
+  "isort.args": ["--profile", "black"],
+  "typescript.preferences.includePackageJsonAutoImports": "on",
+  "react-native-tools.showUserTips": false,
+  "terminal.external.osxExec": "iTerm.app",
+  "github.copilot.enable": {
+    "*": true
+  },
+  "css.lint.unknownAtRules": "ignore",
+  "workbench.colorTheme": "Flexoki Dark",
+  "autoflake-extension.exclude": [
+    "venv",
+    "env",
+    ".venv",
+    ".env",
+    "ENV",
+    "env.bak",
+    "venv.bak",
+    ".direnv"
+  ],
+  "autoflake-extension.ignore-init-module-imports": true,
+  "autoflake-extension.remove-unused-variables": true,
+  "autoflake-extension.remove-duplicate-keys": true,
+  "github.copilot.editor.enableAutoCompletions": true,
+  "dart.showTodos": true,
+  "workbench.activityBar.location": "top",
+  "direnv.path.executable": "/opt/homebrew/bin/direnv",
+  "tailwindCSS.files.exclude": [
+    "**/.git/**",
+    "**/node_modules/**",
+    "**/.hg/**",
+    "**/.svn/**",
+    "**/yarn.lock"
+  ],
+  "files.watcherExclude": {
+    "**/__pycache__": true
+  },
+  "chat.editing.alwaysSaveWithGeneratedChanges": true,
+  "aws.telemetry": false
 }
+
