@@ -37,3 +37,5 @@ alias firefox="open -a /Applications/Firefox\ Developer\ Edition.app"
 alias cat="ccat"
 alias ls='eza'
 
+# claude
+alias claude="/Users/channprj/.claude/local/claude"

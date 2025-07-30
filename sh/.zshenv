@@ -52,3 +52,8 @@ export PATH=$PATH:$HOME/.npm-global/bin
 
 # android
 export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
+
+# uv
+. "$HOME/.local/bin/env"
+eval "$(uv generate-shell-completion zsh)"
+eval "$(uvx --generate-shell-completion zsh)"
