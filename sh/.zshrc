@@ -49,13 +49,7 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
 # welcome message
-echo "\n"
-figlet -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t...with Mac Mini M4"
-echo "--------------------------------------------------------------------------------"
-#neofetch -E
-w
-echo "--------------------------------------------------------------------------------"
+source ~/.zsh-welcome
 
 # env
 source ~/.zshenv
@@ -100,3 +94,5 @@ test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell
 # bun
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
+
+. "$HOME/.local/bin/env"
