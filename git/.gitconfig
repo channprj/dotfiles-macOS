@@ -4,7 +4,7 @@
 	required = true
 [user]
 	name = CHANN
-	email = chann@chann.kr
+	email = iam@chann.dev
 	signingkey = EC9A01F394E0A778
 [core]
 	excludesfile = /Users/chann/.gitignore_global
