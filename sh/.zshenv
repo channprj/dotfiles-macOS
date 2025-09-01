@@ -1,3 +1,5 @@
+autoload -Uz compinit && compinit
+
 # for dev
 export GOROOT_BOOTSTRAP="/usr/local/bin/go"
 export ANDROID_HOME="/Users/channprj/Library/Android/sdk"
@@ -57,3 +59,4 @@ export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/li
 . "$HOME/.local/bin/env"
 eval "$(uv generate-shell-completion zsh)"
 eval "$(uvx --generate-shell-completion zsh)"
+

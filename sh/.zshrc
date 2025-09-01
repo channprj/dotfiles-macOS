@@ -48,6 +48,9 @@ plugins=(
 zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not added to repo: separate file for each machine)
 
+# autoload
+autoload -Uz compinit && compinit
+
 # welcome message
 source ~/.zsh-welcome
 
@@ -63,7 +66,6 @@ source ~/.zshfunc
 
 # end of zsh
 source $ZSH/oh-my-zsh.sh
-autoload -U compinit && compinit
 
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
@@ -77,22 +79,14 @@ autoload -U compinit && compinit
 # uninstall by removing these lines or running `tabtab uninstall sls`
 #[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
 
-# The next line updates PATH for the Google Cloud SDK.
-#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/path.zsh.inc'; fi
-
-# The next line enables shell command completion for gcloud.
-#if [ -f '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc' ]; then . '/Users/channprj/Downloads/google-cloud-sdk/completion.zsh.inc'; fi
-
 # iterm2 shell integration
 # refer: https://www.iterm2.com/documentation-shell-integration.html
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
+# orbstack
+source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 
-# bun completions
-[ -s "/Users/channprj/.bun/_bun" ] && source "/Users/channprj/.bun/_bun"
+# gcloud
+if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
+if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
 
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-. "$HOME/.local/bin/env"
