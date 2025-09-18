@@ -1,4 +1,8 @@
+# autoload
 autoload -Uz compinit && compinit
+
+# add local bin to path
+export PATH="$HOME/.local/bin:$PATH"
 
 # for dev
 export GOROOT_BOOTSTRAP="/usr/local/bin/go"

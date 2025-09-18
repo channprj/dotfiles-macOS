@@ -5,6 +5,7 @@ export EDITOR="vim"
 alias pp="python"
 alias gorun="go run $(find . -name "*.go" -and -not -name "*_test.go" -maxdepth 1)"
 alias gget="go get -u -v"
+alias nv="nvim"
 
 # Portals
 alias go_work="cd ~/workspace"
@@ -39,3 +40,4 @@ alias ls='eza'
 
 # claude
 alias claude="/Users/channprj/.claude/local/claude"
+
