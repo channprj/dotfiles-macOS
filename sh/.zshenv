@@ -41,7 +41,7 @@ eval "$(pyenv init -)"
 
 # golang
 export GOPATH=$HOME/go
-export GOROOT=/usr/local/opt/go/libexec
+export GOROOT=/opt/homebrew/opt/go/libexec
 export PATH=$PATH:$GOPATH/bin
 export PATH=$PATH:$GOROOT/bin
 
@@ -52,6 +52,7 @@ eval "$(goenv init -)"
 
 # rust
 export PATH=$PATH:$HOME/.cargo/bin
+. "$HOME/.cargo/env"
 
 # node
 export PATH=$PATH:$HOME/.npm-global/bin
