@@ -61,3 +61,10 @@ export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/li
 eval "$(uv generate-shell-completion zsh)"
 eval "$(uvx --generate-shell-completion zsh)"
 
+# pnpm
+export PNPM_HOME="/Users/heechanpark/Library/pnpm"
+case ":$PATH:" in
+  *":$PNPM_HOME:"*) ;;
+  *) export PATH="$PNPM_HOME:$PATH" ;;
+esac
+
