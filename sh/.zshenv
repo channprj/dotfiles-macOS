@@ -25,9 +25,13 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(direnv hook zsh)"
 
 # pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
+# for IntelMac
+# export PATH="$HOME/.pyenv/shims:$PATH"
+# eval "$(pyenv init -)"
+# eval "$(pyenv virtualenv-init -)"
+export PYENV_ROOT="$HOME/.pyenv"
+command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
 eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
 
 # autoenv
 #source /usr/local/opt/autoenv/activate.sh
@@ -62,7 +66,7 @@ eval "$(uv generate-shell-completion zsh)"
 eval "$(uvx --generate-shell-completion zsh)"
 
 # pnpm
-export PNPM_HOME="/Users/heechanpark/Library/pnpm"
+export PNPM_HOME="$HOME/Library/pnpm"
 case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
