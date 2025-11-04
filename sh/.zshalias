@@ -26,6 +26,8 @@ alias cp_git_shortsha="git log -1 --pretty=format:%h | pbcopy"
 ## Docker
 alias docker_rm_all="docker rm $(docker ps -aq)"
 alias docker_rm_exits="docker ps -a | grep Exit | cut -d ' ' -f 1 | xargs sudo docker rm"
+alias docker_prune="docker system prune -af"
+alias dc_up_dev="docker compose -f docker-compose.dev.yml up"
 
 # Applications
 alias sublime="/Applications/Sublime\ Text.app/Contents/SharedSupport/bin/subl"
