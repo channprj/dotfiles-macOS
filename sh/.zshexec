@@ -1,0 +1,54 @@
+export DEV_COMPOSE_FILE="./docker-compose.dev.yml"
+
+_dc_dev() {
+  : "${DEV_COMPOSE_FILE:?Set DEV_COMPOSE_FILE to your dev compose file path.}"
+  command docker compose -f "$DEV_COMPOSE_FILE" "$@"
+}
+
+# 실행 함수
+dc-up-dev()   { _dc_dev up   "$@"; }
+dc-down-dev() { _dc_dev down "$@"; }
+dc-logs-dev() { _dc_dev logs "$@"; }
+
+# --- 아래는 '완성용 프록시 함수' (이름 규칙: _<명령어>) ---
+# dc-up-dev에서 탭을 누르면, 실제론 "docker compose up ..." 문맥으로 _docker 호출
+_dc_up_dev_completion() {
+  local -a save_words; save_words=("${words[@]}")
+  local save_curcontext="$curcontext"
+
+  # words를 'docker compose up ...' 구조로 바꿔서 _docker에게 전달
+  words=( docker compose up "${words[@]:2}" )
+  CURRENT=$#words
+  _docker
+
+  # 원상복구 (안전)
+  words=("${save_words[@]}")
+  curcontext="$save_curcontext"
+}
+
+_dc_down_dev_completion() {
+  local -a save_words; save_words=("${words[@]}")
+  local save_curcontext="$curcontext"
+  words=( docker compose down "${words[@]:2}" )
+  CURRENT=$#words
+  _docker
+  words=("${save_words[@]}")
+  curcontext="$save_curcontext"
+}
+
+_dc_logs_dev_completion() {
+  local -a save_words; save_words=("${words[@]}")
+  local save_curcontext="$curcontext"
+  words=( docker compose logs "${words[@]:2}" )
+  CURRENT=$#words
+  _docker
+  words=("${save_words[@]}")
+  curcontext="$save_curcontext"
+}
+
+# compdef는 .zshrc에서 해도 되지만, 여기서 바로 매핑해도 됩니다:
+# (단, _docker가 로드된 이후여야 함. 위 .zshrc 순서를 지키면 OK)
+compdef _dc_up_dev_completion   dc-up-dev
+compdef _dc_down_dev_completion dc-down-dev
+compdef _dc_logs_dev_completion dc-logs-dev
+

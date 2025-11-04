@@ -52,14 +52,17 @@ zstyle ':completion:*' cache-path ~/.zshcache  # specify cache file to use (not 
 autoload -Uz compinit && compinit
 
 # welcome message
-source ~/.zsh-welcome
+[[ -f "$HOME/.zsh-welcome" ]] && source "$HOME/.zsh-welcome"
 
 # env
-source ~/.zshenv
+[[ -f "$HOME/.zshenv" ]] && source "$HOME/.zshenv"
 
 # aliases
-source ~/.zshalias
-source ~/.zshalias-company
+[[ -f "$HOME/.zshalias" ]] && source "$HOME/.zshalias"
+[[ -f "$HOME/.zshalias-company" ]] && source "$HOME/.zshalias-company"
+
+# exec
+[[ -f "$HOME/.zshexec"  ]] && source "$HOME/.zshexec"
 
 # functions
 source ~/.zshfunc
@@ -89,4 +92,15 @@ source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 # gcloud
 if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
 if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
+
+
+# bun completions
+[ -s "/Users/channprj/.bun/_bun" ] && source "/Users/channprj/.bun/_bun"
+
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# local
+export PATH="$HOME/.local/bin:$PATH"
 
