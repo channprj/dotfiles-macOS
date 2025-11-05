@@ -29,12 +29,6 @@ export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
 eval "$(pyenv virtualenv-init -)"
 
-# autoenv
-#source /usr/local/opt/autoenv/activate.sh
-
-# travis gem
-#[ -f $HOME/.travis/travis.sh ] && source $HOME/.travis/travis.sh
-
 # golang
 export GOPATH=$HOME/go
 export GOROOT=/opt/homebrew/opt/go/libexec
@@ -52,6 +46,9 @@ export PATH=$PATH:$HOME/.cargo/bin
 
 # node
 export PATH=$PATH:$HOME/.npm-global/bin
+
+# psql
+export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 # android
 export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
