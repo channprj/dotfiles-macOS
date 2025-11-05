@@ -25,13 +25,9 @@ eval "$(/opt/homebrew/bin/brew shellenv)"
 eval "$(direnv hook zsh)"
 
 # pyenv
-# for IntelMac
-# export PATH="$HOME/.pyenv/shims:$PATH"
-# eval "$(pyenv init -)"
-# eval "$(pyenv virtualenv-init -)"
-export PYENV_ROOT="$HOME/.pyenv"
-command -v pyenv >/dev/null || export PATH="$PYENV_ROOT/bin:$PATH"
+export PATH="$HOME/.pyenv/bin:$PATH"
 eval "$(pyenv init -)"
+eval "$(pyenv virtualenv-init -)"
 
 # autoenv
 #source /usr/local/opt/autoenv/activate.sh
@@ -60,6 +56,13 @@ export PATH=$PATH:$HOME/.npm-global/bin
 # android
 export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
 
+# bun
+export BUN_INSTALL="$HOME/.bun"
+export PATH="$BUN_INSTALL/bin:$PATH"
+
+# local
+export PATH="$HOME/.local/bin:$PATH"
+
 # uv
 . "$HOME/.local/bin/env"
 eval "$(uv generate-shell-completion zsh)"
@@ -71,4 +74,5 @@ case ":$PATH:" in
   *":$PNPM_HOME:"*) ;;
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
+# pnpm end
 

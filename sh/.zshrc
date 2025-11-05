@@ -93,14 +93,6 @@ source ~/.orbstack/shell/init.zsh 2>/dev/null || :
 if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc'; fi
 if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
 
-
 # bun completions
 [ -s "/Users/channprj/.bun/_bun" ] && source "/Users/channprj/.bun/_bun"
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-# local
-export PATH="$HOME/.local/bin:$PATH"
 
