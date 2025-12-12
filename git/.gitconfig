@@ -3,7 +3,7 @@
 	smudge = git lfs smudge %f
 	required = true
 [user]
-	name = CHANN
+	name = chann
 	email = iam@chann.dev
 	signingkey = EC9A01F394E0A778
 [core]
