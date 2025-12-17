@@ -2,7 +2,7 @@
   "model": "opus",
   "statusLine": {
     "type": "command",
-    "command": "bash /Users/heechanpark/.claude/statusline-enhanced.sh"
+    "command": "bash ~/.claude/statusline-enhanced.sh"
   },
   "alwaysThinkingEnabled": true,
   "enabledPlugins": {
