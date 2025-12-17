@@ -1,8 +1,11 @@
 {
   "model": "opus",
-  "alwaysThinkingEnabled": true,
   "statusLine": {
     "type": "command",
-    "command": "input=$(cat); model=$(echo \"$input\" | jq -r '.model.display_name'); cwd=$(echo \"$input\" | jq -r '.workspace.current_dir'); style=$(echo \"$input\" | jq -r '.output_style.name'); cost=$(echo \"$input\" | jq -r '.cost.total_cost_usd // 0'); user=$(whoami); host=$(hostname -s); dir=$(basename \"$cwd\"); git_info=\"\"; if git -C \"$cwd\" rev-parse --git-dir > /dev/null 2>&1; then branch=$(git -C \"$cwd\" --no-optional-locks branch --show-current 2>/dev/null); if [ -n \"$branch\" ]; then if git -C \"$cwd\" --no-optional-locks diff-index --quiet HEAD -- 2>/dev/null; then git_info=$(printf \"\\033[33m(\\033[32m○\\033[33m %s)\\033[0m\" \"$branch\"); else git_info=$(printf \"\\033[33m(\\033[31m⚡\\033[33m %s)\\033[0m\" \"$branch\"); fi; fi; fi; printf \"\\033[32m%s\\033[0m@\\033[36m%s\\033[0m:\\033[35m%s\\033[0m\" \"$user\" \"$host\" \"$dir\"; [ -n \"$git_info\" ] && printf \" %s\" \"$git_info\"; printf \" | \\033[34m%s\\033[0m\" \"$model\"; [ \"$style\" != \"null\" ] && [ -n \"$style\" ] && printf \" | \\033[33m%s\\033[0m\" \"$style\"; printf \" | \\033[32m$%.3f\\033[0m\" \"$cost\"; echo"
+    "command": "bash /Users/heechanpark/.claude/statusline-enhanced.sh"
+  },
+  "alwaysThinkingEnabled": true,
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true
   }
 }
