@@ -7,9 +7,9 @@ if [ -f ~/Library/KeyBindings/DefaultkeyBinding.dict ]; then
 fi
 
 mkdir -p ~/Library/KeyBindings
-cat << EOF > ~/Library/KeyBindings/DefaultkeyBinding.dict 
+cat << EOF > ~/Library/KeyBindings/DefaultkeyBinding.dict
 {
-    "₩" = ("insertText:", "\`");
+    "₩" = ("insertText:", "`");
 }
 EOF
 
