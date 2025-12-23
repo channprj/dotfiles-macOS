@@ -35,6 +35,7 @@ alias chrome="/Applications/Google\ Chrome.app/Contents/MacOS/Google\ Chrome"
 alias chrome-canary="/Applications/Google\ Chrome\ Canary.app/Contents/MacOS/Google\ Chrome\ Canary"
 alias chromium="/Applications/Chromium.app/Contents/MacOS/Chromium"
 alias firefox="open -a /Applications/Firefox\ Developer\ Edition.app"
+alias tailscale="/Applications/Tailscale.app/Contents/MacOS/tailscale"
 
 # Overrides
 alias cat="ccat"
