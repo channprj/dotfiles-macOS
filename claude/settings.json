@@ -1,0 +1,19 @@
+{
+  "model": "opus",
+  "statusLine": {
+    "type": "command",
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0
+  },
+  "enabledPlugins": {
+    "superpowers@superpowers-marketplace": true,
+    "context7@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "python-development@claude-code-workflows": true,
+    "javascript-typescript@claude-code-workflows": true,
+    "backend-development@claude-code-workflows": true,
+    "security-scanning@claude-code-workflows": true,
+    "full-stack-orchestration@claude-code-workflows": true
+  },
+  "alwaysThinkingEnabled": true
+}
