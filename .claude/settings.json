@@ -2,7 +2,8 @@
   "model": "opus",
   "statusLine": {
     "type": "command",
-    "command": "bash ~/.claude/statusline-enhanced.sh"
+    "command": "~/.claude/ccline/ccline",
+    "padding": 0
   },
   "alwaysThinkingEnabled": true,
   "enabledPlugins": {

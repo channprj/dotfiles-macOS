@@ -1,2 +1,12 @@
-- 항상 기존의 여러 코드를 참고하며 일관성 있는 패턴으로 작성하고 유지보수성을 고려할 것.
+# CLAUDE.md
+
+- Always refer to existing code patterns to maintain maximum consistency.
+- Always think about maintainability and do your best for better readability.
+- Keep code consistent and follow a uniform, developer-friendly.
+- Add comments only when truly necessary. No need to be overly verbose. Use English for comments.
+- Write docstrings for functions and classes if necessary.
+
+## Git Workflow
+
+- When creating a commit, always use the /commit custom command. This command follows the commit message rules defined in ~/.claude/commands/commit.md.
 
