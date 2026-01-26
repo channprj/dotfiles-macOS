@@ -1,9 +1,43 @@
 {
-  "model": "opus",
+  "permissions": {
+    "allow": [
+      "Bash(./manage.py:*)",
+      "Bash(cat:*)",
+      "Bash(chmod:*)",
+      "Bash(curl:*)",
+      "Bash(direnv:*)",
+      "Bash(django-admin:*)",
+      "Bash(docker:*)",
+      "Bash(done)",
+      "Bash(echo:*)",
+      "Bash(find:*)",
+      "Bash(find:*)",
+      "Bash(git:*)",
+      "Bash(grep:*)",
+      "Bash(head:*)",
+      "Bash(ls:*)",
+      "Bash(mkdir:*)",
+      "Bash(mv:*)",
+      "Bash(npm:*)",
+      "Bash(npx:*)",
+      "Bash(python -c:*)",
+      "Bash(python -m py_compile:*)",
+      "Bash(python manage.py:*)",
+      "Bash(python3:*)",
+      "Bash(uv:*)",
+      "Bash(wc:*)",
+      "Skill(superpowers:brainstorming)",
+      "Skill(superpowers:executing-plans)",
+      "Skill(superpowers:requesting-code-review)",
+      "Skill(superpowers:systematic-debugging)",
+      "WebSearch",
+      "WebFetch"
+    ],
+    "defaultMode": "default"
+  },
   "statusLine": {
     "type": "command",
-    "command": "~/.claude/ccline/ccline",
-    "padding": 0
+    "command": "bash -c '\"${HOME}/.bun/bin/bun\" \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
   },
   "enabledPlugins": {
     "superpowers@superpowers-marketplace": true,
@@ -13,7 +47,18 @@
     "javascript-typescript@claude-code-workflows": true,
     "backend-development@claude-code-workflows": true,
     "security-scanning@claude-code-workflows": true,
-    "full-stack-orchestration@claude-code-workflows": true
+    "full-stack-orchestration@claude-code-workflows": true,
+    "atlassian@claude-plugins-official": true,
+    "claude-hud@claude-hud": true
   },
-  "alwaysThinkingEnabled": true
+  "alwaysThinkingEnabled": true,
+  "mcpServers": {
+    "better-icons": {
+      "command": "npx",
+      "args": [
+        "-y",
+        "better-icons"
+      ]
+    }
+  }
 }
