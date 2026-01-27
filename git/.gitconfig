@@ -4,12 +4,14 @@
 	required = true
 [user]
 	name = chann
-	email = iam@chann.dev
+	email = chann@chann.dev
 	signingkey = EC9A01F394E0A778
 [core]
 	excludesfile = /Users/chann/.gitignore_global
 	editor = vim
+	# pager = diff-so-fancy | less --tabs=4 -RFX
 	pager = delta
+	quotepath = false
 [alias]
 	cm = commit -m
 	co = checkout
@@ -27,14 +29,23 @@
 
 [diff]
 	compactionHeuristic = true
+	tool = vscode
+[difftool "vscode"]
+	cmd = code --wait --diff $LOCAL $REMOTE
+[merge]
+	tool = vscode
+	conflictStyle = zdiff3
+[mergetool "vscode"]
+	cmd = code --wait $MERGED
 [interactive]
+	# diffFilter = diff-so-fancy --patch
 	diffFilter = delta --color-only
 [commit]
 	gpgsign = true
 [hub]
 	protocol = https
 [credential]
-	helper = osxkeychain
+	helper = cache --timeout=2419200
 [tag]
 	forceSignAnnotated = true
 [color]
@@ -47,13 +58,12 @@
 	old = red bold
 	new = green bold
 	whitespace = red reverse
-[push]
-	autoSetupRemote = true
 [pull]
 	rebase = true
+[init]
+	defaultBranch = main
+[push]
+	autoSetupRemote = true
 [delta]
     navigate = true  # use n and N to move between diff sections
     dark = true      # or light = true, or omit for auto-detection
-[merge]
-    conflictStyle = zdiff3
-

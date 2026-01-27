@@ -7,3 +7,6 @@
 .zsh_history
 .zcompdump*
 
+# Claude for Local
+.claude/settings.local.json
+
