@@ -73,15 +73,6 @@ source $ZSH/oh-my-zsh.sh
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# serverless
-# tabtab source for serverless package
-# uninstall by removing these lines or running `tabtab uninstall serverless`
-#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/serverless.zsh
-
-# tabtab source for sls package
-# uninstall by removing these lines or running `tabtab uninstall sls`
-#[[ -f /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh ]] && . /usr/local/lib/node_modules/serverless/node_modules/tabtab/.completions/sls.zsh
-
 # iterm2 shell integration
 # refer: https://www.iterm2.com/documentation-shell-integration.html
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
@@ -94,5 +85,14 @@ if [ -f '/opt/homebrew/share/google-cloud-sdk/path.zsh.inc' ]; then . '/opt/home
 if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc'; fi
 
 # bun completions
-[ -s "/Users/channprj/.bun/_bun" ] && source "/Users/channprj/.bun/_bun"
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+
+# opencode
+export PATH=$HOME/.opencode/bin:$PATH
+
+# STM32
+export STM32CubeMX_PATH=/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources
+
+# OpenClaw Completion
+source "$HOME/.openclaw/completions/openclaw.zsh"
 

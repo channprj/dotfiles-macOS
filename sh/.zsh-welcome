@@ -1,7 +1,7 @@
 # welcome message
 echo "\n"
 figlet -d ~/.figlet-fonts -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t\t...with Macbook Air 16' M4"
+echo "\t\t\t\t...with Mac mini M4"
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
