@@ -6,8 +6,13 @@ cursor-style-blink = false
 shell-integration-features = no-cursor
 
 shell-integration = zsh
-font-family = JetBrains Mono
+
 theme = iTerm2 Default
+
+font-family = JetBrains Mono
+font-family = D2Coding Nerd
+font-size = 12
+
 mouse-hide-while-typing = true
 scrollback-limit = 1000000
 
@@ -32,6 +37,8 @@ keybind = super+r=reload_config
 window-save-state = always
 
 resize-overlay = never
-#window-padding-color = extend
-#window-padding-balance = true
+window-padding-color = extend
+window-padding-balance = true
+bell-features = no-system,no-audio,attention,title,border
+quit-after-last-window-closed = true
 
