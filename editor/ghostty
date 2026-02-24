@@ -1,0 +1,37 @@
+# location: ~/.config/ghostty/config
+# reference: https://ghostty.org/docs/config
+
+cursor-style = block
+cursor-style-blink = false
+shell-integration-features = no-cursor
+
+shell-integration = zsh
+font-family = JetBrains Mono
+theme = iTerm2 Default
+mouse-hide-while-typing = true
+scrollback-limit = 1000000
+
+keybind = ctrl+n=new_window
+
+keybind = ctrl+h=goto_split:left
+keybind = ctrl+j=goto_split:bottom
+keybind = ctrl+k=goto_split:top
+keybind = ctrl+l=goto_split:right
+
+keybind = ctrl+a>h=new_split:left
+keybind = ctrl+a>j=new_split:down
+keybind = ctrl+a>k=new_split:up
+keybind = ctrl+a>l=new_split:right
+keybind = ctrl+a>f=toggle_split_zoom
+
+keybind = ctrl+a>n=next_tab
+keybind = ctrl+a>p=previous_tab
+
+keybind = super+r=reload_config
+
+window-save-state = always
+
+resize-overlay = never
+#window-padding-color = extend
+#window-padding-balance = true
+
