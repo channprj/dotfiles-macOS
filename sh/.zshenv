@@ -51,7 +51,7 @@ export PATH=$PATH:$HOME/.npm-global/bin
 export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
 
 # android
-export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:/Users/channprj/library/android/sdk/platform-tools
+export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:$HOME/library/android/sdk/platform-tools
 
 # bun
 export BUN_INSTALL="$HOME/.bun"
@@ -72,4 +72,7 @@ case ":$PATH:" in
   *) export PATH="$PNPM_HOME:$PATH" ;;
 esac
 # pnpm end
+
+# claude code
+export ENABLE_BACKGROUND_TASKS=1
 

@@ -52,3 +52,53 @@ compdef _dc_up_dev_completion   dc-up-dev
 compdef _dc_down_dev_completion dc-down-dev
 compdef _dc_logs_dev_completion dc-logs-dev
 
+# Django management command wrapper with caching
+dj() {
+    docker compose exec api uv run ./manage.py "$@"
+}
+
+if [ -n "$ZSH_VERSION" ]; then
+    _dj_completion() {
+        local -a commands
+        local state cache_file="/tmp/.dj_commands_cache_$(pwd | md5sum | cut -d' ' -f1)"
+
+        _arguments '1: :->command' '*::arg:->args'
+
+        case $state in
+            command)
+                # 캐시 파일이 없거나 1시간 이상 지났으면 갱신
+                if [ ! -f "$cache_file" ] || [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -gt 3600 ]; then
+                    if [ -f "docker-compose.yml" ] || [ -f "compose.yml" ]; then
+                        docker compose exec -T api uv run ./manage.py help --commands 2>/dev/null | grep -v '^\[' | sort > "$cache_file"
+                    fi
+                fi
+
+                if [ -f "$cache_file" ]; then
+                    commands=(${(f)"$(cat $cache_file)"})
+                    _describe 'django commands' commands
+                fi
+                ;;
+            args)
+                case $words[1] in
+                    test)
+                        _files -W apps -/
+                        ;;
+                    migrate|makemigrations|showmigrations)
+                        local apps
+                        apps=(${(f)"$(find apps/* -maxdepth 0 -type d 2>/dev/null | xargs -n1 basename)"})
+                        _describe 'django apps' apps
+                        ;;
+                esac
+                ;;
+        esac
+    }
+
+    compdef _dj_completion dj
+fi
+
+# 캐시 수동 갱신 함수 (명령어 추가 후):
+dj-refresh() {
+    rm -f /tmp/.dj_commands_cache_*
+    echo "Django commands cache cleared"
+}
+
