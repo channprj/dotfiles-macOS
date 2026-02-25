@@ -42,3 +42,8 @@ window-padding-balance = true
 bell-features = no-system,no-audio,attention,title,border
 quit-after-last-window-closed = true
 
+#macos-non-native-fullscreen = visible-menu
+macos-non-native-fullscreen = true
+#background-opacity = 0.6
+#background-blur = true
+background-opacity-cells = true
