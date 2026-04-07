@@ -1,4 +1,11 @@
 {
+  "attribution": {
+    "commit": "",
+    "pr": ""
+  },
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "permissions": {
     "allow": [
       "Bash(./manage.py:*)",
@@ -19,6 +26,7 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(npm:*)",
+      "Bash(npx tsc:*)",
       "Bash(npx:*)",
       "Bash(python -c:*)",
       "Bash(python -m py_compile:*)",
@@ -33,25 +41,28 @@
       "WebSearch",
       "WebFetch"
     ],
-    "defaultMode": "default"
+    "defaultMode": "auto"
   },
   "statusLine": {
     "type": "command",
-    "command": "bash -c '\"${HOME}/.bun/bin/bun\" \"$(ls -td ~/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
+    "command": "bash -c '\"${HOME}/.bun/bin/bun\" \"$(ls -td ${HOME}/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
   },
   "enabledPlugins": {
-    "superpowers@superpowers-marketplace": true,
-    "context7@claude-plugins-official": true,
-    "ralph-loop@claude-plugins-official": true,
-    "python-development@claude-code-workflows": true,
-    "javascript-typescript@claude-code-workflows": true,
     "backend-development@claude-code-workflows": true,
-    "security-scanning@claude-code-workflows": true,
+    "clangd-lsp@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
+    "context7@claude-plugins-official": true,
     "full-stack-orchestration@claude-code-workflows": true,
-    "atlassian@claude-plugins-official": true,
-    "claude-hud@claude-hud": true
+    "javascript-typescript@claude-code-workflows": true,
+    "python-development@claude-code-workflows": true,
+    "ralph-loop@claude-plugins-official": true,
+    "security-scanning@claude-code-workflows": true,
+    "superpowers@superpowers-marketplace": true,
+    "telegram@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
+  "effortLevel": "high",
+  "skipDangerousModePermissionPrompt": true,
   "mcpServers": {
     "better-icons": {
       "command": "npx",
@@ -60,5 +71,6 @@
         "better-icons"
       ]
     }
-  }
+  },
+  "skipAutoPermissionPrompt": true
 }
