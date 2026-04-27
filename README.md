@@ -8,12 +8,6 @@ My Personal Dotfiles.
 
 > Work in Progress...
 
-## To Do
-
-- [ ] Automatic configure scripts 
-- [ ] Documentation
-- [ ] Git sync
-
 ## Reference
 
 - https://github.com/ohmyzsh/ohmyzsh/wiki/External-themes#dpoggi-newline-timestamp
