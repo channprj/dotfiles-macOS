@@ -21,3 +21,6 @@ editor/.vim/plugged/*
 # Claude Code local settings
 .claude/settings.local.json
 
+# Agent skill trees are tracked via a single manifest instead of vendored files
+agents/claude/skills/
+agents/codex/skills/
