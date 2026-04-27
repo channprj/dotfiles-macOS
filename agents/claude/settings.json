@@ -1,10 +1,10 @@
 {
+  "env": {
+    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
+  },
   "attribution": {
     "commit": "",
     "pr": ""
-  },
-  "env": {
-    "CLAUDE_CODE_EXPERIMENTAL_AGENT_TEAMS": "1"
   },
   "permissions": {
     "allow": [
@@ -18,7 +18,6 @@
       "Bash(done)",
       "Bash(echo:*)",
       "Bash(find:*)",
-      "Bash(find:*)",
       "Bash(git:*)",
       "Bash(grep:*)",
       "Bash(head:*)",
@@ -26,8 +25,11 @@
       "Bash(mkdir:*)",
       "Bash(mv:*)",
       "Bash(npm:*)",
+      "Bash(npm run type-check:*)",
       "Bash(npx tsc:*)",
       "Bash(npx:*)",
+      "Bash(npm run routes:generate:*)",
+      "Bash(npx @tanstack/router-cli generate)",
       "Bash(python -c:*)",
       "Bash(python -m py_compile:*)",
       "Bash(python manage.py:*)",
@@ -39,7 +41,9 @@
       "Skill(superpowers:requesting-code-review)",
       "Skill(superpowers:systematic-debugging)",
       "WebSearch",
-      "WebFetch"
+      "WebFetch(domain:headlessui.com)",
+      "WebFetch(domain:www.figma.com)",
+      "mcp__pencil"
     ],
     "defaultMode": "auto"
   },
@@ -48,21 +52,18 @@
     "command": "bash -c '\"${HOME}/.bun/bin/bun\" \"$(ls -td ${HOME}/.claude/plugins/cache/claude-hud/claude-hud/*/ 2>/dev/null | head -1)src/index.ts\"'"
   },
   "enabledPlugins": {
-    "backend-development@claude-code-workflows": true,
-    "clangd-lsp@claude-plugins-official": true,
-    "claude-hud@claude-hud": true,
-    "context7@claude-plugins-official": true,
-    "full-stack-orchestration@claude-code-workflows": true,
-    "javascript-typescript@claude-code-workflows": true,
-    "python-development@claude-code-workflows": true,
-    "ralph-loop@claude-plugins-official": true,
-    "security-scanning@claude-code-workflows": true,
     "superpowers@superpowers-marketplace": true,
+    "context7@claude-plugins-official": true,
+    "ralph-loop@claude-plugins-official": true,
+    "atlassian@claude-plugins-official": true,
+    "claude-hud@claude-hud": true,
+    "clangd-lsp@claude-plugins-official": true,
     "telegram@claude-plugins-official": true
   },
   "alwaysThinkingEnabled": true,
-  "effortLevel": "high",
+  "effortLevel": "xhigh",
   "skipDangerousModePermissionPrompt": true,
+  "skipAutoPermissionPrompt": true,
   "mcpServers": {
     "better-icons": {
       "command": "npx",
@@ -72,5 +73,5 @@
       ]
     }
   },
-  "skipAutoPermissionPrompt": true
+  "verbose": true
 }

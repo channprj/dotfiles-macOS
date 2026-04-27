@@ -22,4 +22,3 @@ My Personal Dotfiles.
 - https://github.com/simnalamburt/.dotfiles
 - https://github.com/malkoG/dotfiles
 
-

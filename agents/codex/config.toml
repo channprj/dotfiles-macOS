@@ -1,0 +1,27 @@
+model = "gpt-5.4"
+model_context_window = 900000
+model_auto_compact_token_limit = 800000
+model_reasoning_effort = "xhigh"
+model_supports_reasoning_summaries = true
+personality = "pragmatic"
+service_tier = "fast"
+
+[agents]
+max_threads = 20
+
+[features]
+fast_mode = true
+collaboration_modes = true
+multi_agent = true
+
+[tui]
+status_line = [ "model-with-reasoning", "context-remaining", "current-dir", "model-name", "git-branch", "context-used", "five-hour-limit", "codex-version" ]
+
+[tui.model_availability_nux]
+"gpt-5.5" = 1
+
+[plugins."gmail@openai-curated"]
+enabled = true
+
+[plugins."github@openai-curated"]
+enabled = true
