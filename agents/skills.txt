@@ -1,107 +1,79 @@
-# Installed agent skills inventory
-# Last synced: 2026-04-27
+# Shared agent skills manifest
 #
-# This repo tracks agent skills as a manifest only.
-# The actual skill files under ~/.claude/skills and ~/.codex/skills are not vendored here.
+# Install with:
+#   python3 agents/install_skills.py install
+#   python3 agents/install_skills.py install -r agents/skills.txt
 #
-# Columns:
-#   1) agent  - claude | codex
-#   2) skill  - installed skill name
-#   3) source - shared | local | external | system
+# Format:
+#   npx <repo-or-url> --skill <skill> [--skill <skill> ...]
+#   github <owner/repo> <path/to/skill> [--ref <ref>]
 #
-# Source meanings:
-#   shared   - symlinked from the shared ~/.agents/skills pool
-#   local    - agent-specific local directory under ~/.claude/skills or ~/.codex/skills
-#   external - symlinked from another checkout, currently gstack-managed skills
-#   system   - bundled Codex system skill under ~/.codex/skills/.system
+# This file manages only the shared ~/.agents/skills pool.
+# Local, external, and Codex system skills remain documented in agents/skills.inventory.tsv.
 
-claude	agent-browser	shared
-claude	agents-sdk	shared
-claude	algorithmic-art	shared
-claude	brainstorming	shared
-claude	browser-use	local
-claude	building-native-ui	shared
-claude	canvas-design	shared
-claude	chrome-cdp	shared
-claude	cloudflare	shared
-claude	cloudflare-email-service	shared
-claude	dispatching-parallel-agents	shared
-claude	docx	shared
-claude	dogfood	shared
-claude	durable-objects	shared
-claude	epub-translator	local
-claude	executing-plans	shared
-claude	expo-dev-client	shared
-claude	find-skills	shared
-claude	finishing-a-development-branch	shared
-claude	firecrawl	shared
-claude	frontend-design	shared
-claude	gstack	shared
-claude	heroui-migration	shared
-claude	heroui-native	shared
-claude	heroui-react	shared
-claude	mcp-builder	shared
-claude	pdf	shared
-claude	pdf-translator	local
-claude	pptx	shared
-claude	prd	shared
-claude	ralph-tui-create-json	shared
-claude	ralph-tui-prd	shared
-claude	receiving-code-review	shared
-claude	remotion-best-practices	shared
-claude	requesting-code-review	shared
-claude	sandbox-sdk	shared
-claude	shadcn	shared
-claude	skill-creator	shared
-claude	subagent-driven-development	shared
-claude	systematic-debugging	shared
-claude	template-skill	shared
-claude	test-driven-development	shared
-claude	upgrading-expo	shared
-claude	using-git-worktrees	shared
-claude	using-superpowers	shared
-claude	verification-before-completion	shared
-claude	web-design-guidelines	shared
-claude	web-perf	shared
-claude	workers-best-practices	shared
-claude	wrangler	shared
-claude	writing-plans	shared
-claude	writing-skills	shared
-claude	xlsx	shared
-codex	.system/imagegen	system
-codex	.system/openai-docs	system
-codex	.system/plugin-creator	system
-codex	.system/skill-creator	system
-codex	.system/skill-installer	system
-codex	agent-browser	shared
-codex	expo-dev-client	shared
-codex	gstack	local
-codex	gstack-autoplan	external
-codex	gstack-benchmark	external
-codex	gstack-browse	external
-codex	gstack-canary	external
-codex	gstack-careful	external
-codex	gstack-cso	external
-codex	gstack-design-consultation	external
-codex	gstack-design-review	external
-codex	gstack-document-release	external
-codex	gstack-freeze	external
-codex	gstack-guard	external
-codex	gstack-investigate	external
-codex	gstack-land-and-deploy	external
-codex	gstack-office-hours	external
-codex	gstack-plan-ceo-review	external
-codex	gstack-plan-design-review	external
-codex	gstack-plan-eng-review	external
-codex	gstack-qa	external
-codex	gstack-qa-only	external
-codex	gstack-retro	external
-codex	gstack-review	external
-codex	gstack-setup-browser-cookies	external
-codex	gstack-setup-deploy	external
-codex	gstack-ship	external
-codex	gstack-unfreeze	external
-codex	gstack-upgrade	external
-codex	remotion-best-practices	shared
-codex	upgrading-expo	shared
-codex	web-design-guidelines	shared
+npx anthropics/skills \
+  --skill algorithmic-art \
+  --skill canvas-design \
+  --skill docx \
+  --skill frontend-design \
+  --skill mcp-builder \
+  --skill pdf \
+  --skill pptx \
+  --skill skill-creator \
+  --skill template-skill \
+  --skill xlsx
+
+npx cloudflare/skills \
+  --skill agents-sdk \
+  --skill cloudflare \
+  --skill cloudflare-email-service \
+  --skill durable-objects \
+  --skill sandbox-sdk \
+  --skill web-perf \
+  --skill workers-best-practices \
+  --skill wrangler
+
+npx expo/skills \
+  --skill building-native-ui \
+  --skill expo-dev-client \
+  --skill upgrading-expo
+
+npx firecrawl/cli --skill firecrawl
+npx garrytan/gstack --skill gstack
+npx github/awesome-copilot --skill prd
+
+npx heroui-inc/heroui \
+  --skill heroui-migration \
+  --skill heroui-native \
+  --skill heroui-react
+
+npx obra/superpowers \
+  --skill brainstorming \
+  --skill dispatching-parallel-agents \
+  --skill executing-plans \
+  --skill finishing-a-development-branch \
+  --skill receiving-code-review \
+  --skill requesting-code-review \
+  --skill subagent-driven-development \
+  --skill systematic-debugging \
+  --skill test-driven-development \
+  --skill using-git-worktrees \
+  --skill using-superpowers \
+  --skill verification-before-completion \
+  --skill writing-plans \
+  --skill writing-skills
+
+npx pasky/chrome-cdp-skill --skill chrome-cdp
+npx remotion-dev/skills --skill remotion-best-practices
+npx shadcn/ui --skill shadcn
+
+npx subsy/ralph-tui \
+  --skill ralph-tui-create-json \
+  --skill ralph-tui-prd
+
+npx vercel-labs/agent-browser \
+  --skill agent-browser \
+  --skill dogfood
+
+npx vercel-labs/agent-skills --skill web-design-guidelines
+npx vercel-labs/skills --skill find-skills
