@@ -16,7 +16,11 @@ export PATH=$PATH:$HOME/bin
 
 # config
 export GREP_OPTIONS='--color=auto'
-export GPG_TTY=$(tty)
+if [[ -t 0 ]]; then
+  export GPG_TTY=$(tty)
+elif [[ "$GPG_TTY" == "not a tty" ]]; then
+  unset GPG_TTY
+fi
 
 # brew
 eval "$(/opt/homebrew/bin/brew shellenv)"
@@ -75,4 +79,3 @@ esac
 
 # claude code
 export ENABLE_BACKGROUND_TASKS=1
-
