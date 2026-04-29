@@ -23,6 +23,7 @@ alias el="exa -alg"
 alias cp_path='pwd | pbcopy'
 alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias cp_git_shortsha="git log -1 --pretty=format:%h | pbcopy"
+alias update_all_agents='npm i -g @anthropic-ai/claude-code @openai/codex @google/gemini-cli opencode-ai'
 
 ## Docker
 alias docker_rm_all="docker rm $(docker ps -aq)"
