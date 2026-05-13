@@ -1,12 +1,22 @@
-# macOS Metadata
+# macOS metadata
 .DS_Store
 *~
 
-# ZSH Metadata
+# zsh metadata
 .zsh-update
 .zsh_history
 .zcompdump*
 
-# Claude for Local
+# ai agents
 .claude/settings.local.json
+.agent/
+.ralph-tui/
+.ralph/
+.beads/
+
+# misc
+tmp/
+temp/
+trash/
+.trash/
 
