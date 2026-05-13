@@ -15,6 +15,10 @@ backup/
 # Vim plugins
 editor/.vim/plugged/*
 
+# Vim runtime files
+editor/.vim/.netrwhist
+.netrwhist
+
 # For Work
 .*-company
 
