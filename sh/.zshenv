@@ -25,6 +25,9 @@ fi
 # brew
 eval "$(/opt/homebrew/bin/brew shellenv)"
 
+# local
+export PATH="$HOME/.local/bin:$PATH"
+
 # direnv
 eval "$(direnv hook zsh)"
 
@@ -61,8 +64,6 @@ export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:$HOME/library/andr
 export BUN_INSTALL="$HOME/.bun"
 export PATH="$BUN_INSTALL/bin:$PATH"
 
-# local
-export PATH="$HOME/.local/bin:$PATH"
 
 # uv
 . "$HOME/.local/bin/env"
@@ -79,3 +80,6 @@ esac
 
 # claude code
 export ENABLE_BACKGROUND_TASKS=1
+
+# opencode
+export PATH=$HOME/.opencode/bin:$PATH

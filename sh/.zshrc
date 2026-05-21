@@ -73,8 +73,7 @@ source $ZSH/oh-my-zsh.sh
 # fzf
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
-# iterm2 shell integration
-# refer: https://www.iterm2.com/documentation-shell-integration.html
+# iterm2 shell integration - refer: https://www.iterm2.com/documentation-shell-integration.html
 test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
 
 # orbstack
@@ -87,12 +86,5 @@ if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/op
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# opencode
-export PATH=$HOME/.opencode/bin:$PATH
-
-# STM32
-export STM32CubeMX_PATH=/Applications/STMicroelectronics/STM32CubeMX.app/Contents/Resources
-
 # OpenClaw Completion
 source "$HOME/.openclaw/completions/openclaw.zsh"
-
