@@ -8,11 +8,18 @@
 .zcompdump*
 
 # ai agents
-.claude/settings.local.json
+.claude/
+.codex/
+.gemini/
+.antigravitycli/
+.opencode/
 .agent/
+.agents/
 .ralph-tui/
 .ralph/
 .beads/
+.diffs/
+.reviews/
 
 # misc
 tmp/
