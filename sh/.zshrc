@@ -88,3 +88,8 @@ if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/op
 
 # OpenClaw Completion
 source "$HOME/.openclaw/completions/openclaw.zsh"
+
+# >>> markdowner Ctrl+G launcher >>>
+export EDITOR="mdner"
+export VISUAL="mdner"
+# <<< markdowner Ctrl+G launcher <<<
