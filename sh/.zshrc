@@ -86,9 +86,6 @@ if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/op
 # bun completions
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
-# OpenClaw Completion
-source "$HOME/.openclaw/completions/openclaw.zsh"
-
 # >>> markdowner Ctrl+G launcher >>>
 export EDITOR="mdner"
 export VISUAL="mdner"
