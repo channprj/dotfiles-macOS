@@ -20,6 +20,8 @@
 .beads/
 .diffs/
 .reviews/
+docs/plans/
+docs/superpowers/
 
 # misc
 tmp/
