@@ -87,6 +87,6 @@ if [ -f '/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc' ]; then . '/op
 [ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
 
 # >>> markdowner Ctrl+G launcher >>>
-export EDITOR="mdner"
-export VISUAL="mdner"
+export EDITOR="mdner --wait"
+export VISUAL="mdner --wait"
 # <<< markdowner Ctrl+G launcher <<<
