@@ -21,6 +21,7 @@
 .diffs/
 .reviews/
 .handoffs/
+.diff-summaries/
 docs/plans/
 docs/superpowers/
 
