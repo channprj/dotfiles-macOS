@@ -1,2 +1,5 @@
-# WIP
-
+# macOS permissions
+reset-iterm2-permissions() {
+  tccutil reset SystemPolicyRemovableVolumes com.googlecode.iterm2
+  tccutil reset SystemPolicyAllFiles com.googlecode.iterm2
+}
