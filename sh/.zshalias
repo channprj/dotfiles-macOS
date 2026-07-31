@@ -42,6 +42,3 @@ alias tailscale="/Applications/Tailscale.app/Contents/MacOS/tailscale"
 # Overrides
 alias cat="ccat"
 alias ls='eza'
-
-# Herdr
-alias hsa='herdr session attach "${PWD:t}"'

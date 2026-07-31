@@ -3,3 +3,94 @@ reset-iterm2-permissions() {
   tccutil reset SystemPolicyRemovableVolumes com.googlecode.iterm2
   tccutil reset SystemPolicyAllFiles com.googlecode.iterm2
 }
+
+# Attach a named Herdr session and make the invoking directory its active workspace.
+hsa() {
+  emulate -L zsh
+  setopt localoptions pipefail
+
+  local invocation_cwd="$PWD"
+  local canonical_cwd="${invocation_cwd:A}"
+  local session_name="${invocation_cwd:t}"
+  local server_status=""
+  local snapshot=""
+  local pane_rows=""
+  local workspace_id=""
+  local pane_cwd=""
+  local pane_workspace_id=""
+  local bootstrap_pid=""
+  local server_ready=0
+  local attempt
+
+  # `${PWD:t}` is empty at the filesystem root, but Herdr requires a name.
+  [[ -n "$session_name" ]] || session_name="root"
+
+  if (( ! $+commands[herdr] && ! $+functions[herdr] )); then
+    print -u2 "hsa: herdr is not installed or not in PATH"
+    return 127
+  fi
+  if (( ! $+commands[jq] )); then
+    print -u2 "hsa: jq is required to inspect the Herdr session"
+    return 127
+  fi
+
+  server_status="$(herdr --session "$session_name" status server 2>/dev/null)"
+  if [[ "$server_status" != *"status: running"* ]]; then
+    # Starting an attach without a terminal launches Herdr's detached server.
+    # The temporary client is stopped after the API socket becomes available.
+    herdr session attach "$session_name" </dev/null >/dev/null 2>&1 &
+    bootstrap_pid=$!
+
+    for attempt in {1..100}; do
+      server_status="$(herdr --session "$session_name" status server 2>/dev/null)"
+      if [[ "$server_status" == *"status: running"* ]]; then
+        server_ready=1
+        break
+      fi
+      sleep 0.05
+    done
+
+    if kill -0 "$bootstrap_pid" 2>/dev/null; then
+      kill "$bootstrap_pid" 2>/dev/null || true
+    fi
+    wait "$bootstrap_pid" 2>/dev/null || true
+
+    if (( ! server_ready )); then
+      print -u2 "hsa: Herdr session '$session_name' did not start"
+      return 1
+    fi
+  fi
+
+  if ! snapshot="$(herdr --session "$session_name" api snapshot 2>/dev/null)"; then
+    print -u2 "hsa: could not inspect Herdr session '$session_name'"
+    return 1
+  fi
+  if ! pane_rows="$(
+    print -r -- "$snapshot" |
+      jq -r '.result.snapshot.panes[]? | select(.cwd != null and .workspace_id != null) | [.cwd, .workspace_id] | @tsv' 2>/dev/null
+  )"; then
+    print -u2 "hsa: Herdr returned an invalid session snapshot"
+    return 1
+  fi
+
+  while IFS=$'\t' read -r pane_cwd pane_workspace_id; do
+    if [[ -n "$pane_cwd" && "${pane_cwd:A}" == "$canonical_cwd" ]]; then
+      workspace_id="$pane_workspace_id"
+      break
+    fi
+  done <<<"$pane_rows"
+
+  if [[ -n "$workspace_id" ]]; then
+    if ! herdr --session "$session_name" workspace focus "$workspace_id" >/dev/null; then
+      print -u2 "hsa: could not focus '$invocation_cwd' in session '$session_name'"
+      return 1
+    fi
+  else
+    if ! herdr --session "$session_name" workspace create --cwd "$invocation_cwd" --focus >/dev/null; then
+      print -u2 "hsa: could not create a workspace for '$invocation_cwd'"
+      return 1
+    fi
+  fi
+
+  herdr session attach "$session_name"
+}
