@@ -23,7 +23,7 @@ alias el="exa -alg"
 alias cp_path='pwd | pbcopy'
 alias preview="fzf --preview 'bat --color \"always\" {}'"
 alias cp_git_shortsha="git log -1 --pretty=format:%h | pbcopy"
-alias update-agents='claude update; agy update; codex update; opencode upgrade; npm i -g @github/copilot gnhf @th0rgal/ralph-wiggum codeburn; hermes update;'
+alias update-agents='claude update; agy update; codex update; opencode upgrade; npm i -g @github/copilot gnhf @th0rgal/ralph-wiggum codeburn;'
 
 ## Docker
 alias docker_rm_all="docker rm $(docker ps -aq)"
