@@ -83,7 +83,7 @@ assert_eq dpoggi-timestamp "$theme" "installed terminal theme was not selected"
 excludes_file="$(HOME="$TEST_HOME" git config --file "$REPO_ROOT/git/.gitconfig" --path --get core.excludesfile)"
 assert_eq "$TEST_HOME/.gitignore_global" "$excludes_file" "global Git excludes path is not portable"
 
-if rg -n 'GREP_OPTIONS|/Users/' "$REPO_ROOT/sh" "$REPO_ROOT/git/.gitconfig" >/dev/null; then
+if grep -R -n -E 'GREP_OPTIONS|/Users/' "$REPO_ROOT/sh" "$REPO_ROOT/git/.gitconfig" >/dev/null; then
   fail "active shell or Git configuration contains a retired machine-specific setting"
 fi
 
