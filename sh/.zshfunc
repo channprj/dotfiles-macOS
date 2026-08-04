@@ -4,10 +4,118 @@ reset-iterm2-permissions() {
   tccutil reset SystemPolicyAllFiles com.googlecode.iterm2
 }
 
+# Stop and delete the Herdr session named after the invoking directory.
+_hsa_delete() {
+  emulate -L zsh
+  setopt localoptions pipefail
+
+  local invocation_cwd="$PWD"
+  local session_name="${invocation_cwd:t}"
+  local sessions_json=""
+  local session_state=""
+  local reply=""
+  local arg
+  local force=0
+
+  [[ -n "$session_name" ]] || session_name="root"
+
+  for arg in "$@"; do
+    case "$arg" in
+      -f | --force)
+        force=1
+        ;;
+      *)
+        print -u2 "hsa: unknown delete option: $arg"
+        print -u2 "usage: hsa delete [-f|--force]"
+        return 2
+        ;;
+    esac
+  done
+
+  if (( ! $+commands[herdr] && ! $+functions[herdr] )); then
+    print -u2 "hsa: herdr is not installed or not in PATH"
+    return 127
+  fi
+  if (( ! $+commands[jq] )); then
+    print -u2 "hsa: jq is required to inspect Herdr sessions"
+    return 127
+  fi
+
+  if ! sessions_json="$(herdr session list --json 2>/dev/null)"; then
+    print -u2 "hsa: could not list Herdr sessions"
+    return 1
+  fi
+  if ! session_state="$(
+    print -r -- "$sessions_json" |
+      jq -er --arg name "$session_name" '
+        (if type == "array" then .
+         elif type == "object" and (.sessions | type) == "array" then .sessions
+         else error("invalid Herdr session list")
+         end) as $sessions
+        | [$sessions[] | select(.name == $name)]
+        | if length == 0 then "missing"
+          elif .[0].running == true then "running"
+          else "stopped"
+          end
+      ' 2>/dev/null
+  )"; then
+    print -u2 "hsa: Herdr returned an invalid session list"
+    return 1
+  fi
+
+  if [[ "$session_state" == "missing" ]]; then
+    print "hsa: Herdr session '$session_name' does not exist"
+    return 0
+  fi
+
+  if (( ! force )); then
+    if [[ ! -t 0 ]]; then
+      print -u2 "hsa: confirmation requires a terminal; use --force for non-interactive deletion"
+      return 1
+    fi
+
+    print -n -- "Stop and delete Herdr session '$session_name'? [y/N] "
+    IFS= read -r reply || reply=""
+    if [[ "$reply" != [yY] ]]; then
+      print "hsa: deletion cancelled"
+      return 0
+    fi
+  fi
+
+  if [[ "$session_state" == "running" ]]; then
+    if ! herdr session stop "$session_name" >/dev/null; then
+      print -u2 "hsa: could not stop Herdr session '$session_name'"
+      return 1
+    fi
+  fi
+
+  if ! herdr session delete "$session_name" >/dev/null; then
+    print -u2 "hsa: could not delete Herdr session '$session_name'"
+    return 1
+  fi
+
+  print "hsa: stopped and deleted Herdr session '$session_name'"
+}
+
 # Attach a named Herdr session and make the invoking directory its active workspace.
 hsa() {
   emulate -L zsh
   setopt localoptions pipefail
+
+  if (( $# > 0 )); then
+    case "$1" in
+      delete)
+        shift
+        _hsa_delete "$@"
+        return $?
+        ;;
+      *)
+        print -u2 "hsa: unknown command: $1"
+        print -u2 "usage: hsa [delete [-f|--force]]"
+        return 2
+        ;;
+    esac
+  fi
 
   local invocation_cwd="$PWD"
   local canonical_cwd="${invocation_cwd:A}"

@@ -1,0 +1,84 @@
+#!/usr/bin/expect -f
+
+set timeout 5
+log_user 0
+
+set repo_root [file normalize [file join [file dirname [info script]] ..]]
+set test_root [exec mktemp -d /tmp/hsa-prompt-test.XXXXXX]
+set child_script [file join $test_root child.zsh]
+
+set child [open $child_script w]
+puts $child {#!/usr/bin/env zsh}
+puts $child {emulate -L zsh}
+puts $child {setopt errexit nounset pipefail}
+puts $child "source $repo_root/sh/.zshfunc"
+puts $child {herdr() {
+  print -r -- "$*" >>"$HSA_CALLS"
+  case "$*" in
+    "session list --json")
+      print -r -- "{\"sessions\":[{\"name\":\"$HSA_SESSION_NAME\",\"running\":$HSA_RUNNING}]}"
+      ;;
+    "session stop $HSA_SESSION_NAME" | "session delete $HSA_SESSION_NAME")
+      ;;
+    *)
+      return 1
+      ;;
+  esac
+}}
+puts $child {cd -- "$HSA_PROJECT_DIR"
+hsa delete}
+close $child
+
+proc read_calls {path} {
+  set handle [open $path r]
+  set contents [string trim [read $handle]]
+  close $handle
+  return $contents
+}
+
+proc assert_calls {path expected} {
+  set actual [read_calls $path]
+  if {$actual ne $expected} {
+    puts stderr "unexpected Herdr calls"
+    puts stderr "expected:\n$expected"
+    puts stderr "actual:\n$actual"
+    exit 1
+  }
+}
+
+set cancel_dir [file join $test_root prompt-cancel]
+set cancel_calls [file join $test_root cancel.calls]
+file mkdir $cancel_dir
+close [open $cancel_calls w]
+
+spawn env \
+  HSA_CALLS=$cancel_calls \
+  HSA_PROJECT_DIR=$cancel_dir \
+  HSA_RUNNING=false \
+  HSA_SESSION_NAME=prompt-cancel \
+  /bin/zsh -f $child_script
+expect -exact "Stop and delete Herdr session 'prompt-cancel'? \[y/N\] "
+send -- "n\r"
+expect -exact "hsa: deletion cancelled"
+expect eof
+assert_calls $cancel_calls "session list --json"
+
+set accept_dir [file join $test_root prompt-accept]
+set accept_calls [file join $test_root accept.calls]
+file mkdir $accept_dir
+close [open $accept_calls w]
+
+spawn env \
+  HSA_CALLS=$accept_calls \
+  HSA_PROJECT_DIR=$accept_dir \
+  HSA_RUNNING=true \
+  HSA_SESSION_NAME=prompt-accept \
+  /bin/zsh -f $child_script
+expect -exact "Stop and delete Herdr session 'prompt-accept'? \[y/N\] "
+send -- "y\r"
+expect -exact "hsa: stopped and deleted Herdr session 'prompt-accept'"
+expect eof
+assert_calls $accept_calls "session list --json\nsession stop prompt-accept\nsession delete prompt-accept"
+
+file delete -force $test_root
+puts "PASS: hsa delete requires and honors interactive confirmation"
