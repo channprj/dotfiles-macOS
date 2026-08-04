@@ -51,10 +51,21 @@ manifest_value() {
 }
 
 test_dry_run_and_invalid_module_do_not_mutate() {
+  local output=""
+
   new_case dry-run
   printf '%s\n' original >"$CASE_HOME/.zshrc"
 
-  install_case --dry-run --all >/dev/null
+  output="$(install_case --dry-run --all)"
+  [[ "$output" == *"Install dry-run"* ]] || fail "dry-run heading is missing"
+  [[ "$output" == *"$CASE_HOME/.zshrc"* ]] || fail "dry-run destination is missing"
+  [[ "$output" == *"$REPO_ROOT/sh/.zshrc"* ]] || fail "dry-run source is missing"
+  [[ "$output" == *"move current file, then create symlink"* ]] || fail "dry-run method is missing"
+  [[ "$output" == *"$CASE_BACKUP/installations/<new-installation-id>/originals/.zshrc"* ]] ||
+    fail "dry-run backup destination is missing"
+  [[ "$output" == *"not required (destination is absent)"* ]] ||
+    fail "dry-run should explain when a backup is unnecessary"
+  [[ "$output" != *$'\033['* ]] || fail "non-terminal dry-run emitted color escapes"
   [[ ! -e "$CASE_BACKUP" ]] || fail "dry-run created the backup root"
   assert_eq original "$(<"$CASE_HOME/.zshrc")" "dry-run changed an existing file"
 
@@ -64,6 +75,25 @@ test_dry_run_and_invalid_module_do_not_mutate() {
     assert_eq 2 "$?" "unknown module exit status"
   fi
   [[ ! -e "$CASE_BACKUP" ]] || fail "invalid module created the backup root"
+}
+
+test_dry_run_colors_only_for_terminals() {
+  local output=""
+
+  new_case dry-run-color
+  output="$(
+    TERM=xterm-256color NO_COLOR='' HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+      /usr/bin/script -q /dev/null "$REPO_ROOT/install.sh" --dry-run 2>/dev/null
+  )"
+  [[ "$output" == *$'\033[1m'* ]] || fail "terminal dry-run is missing bold highlighting"
+  [[ "$output" == *$'\033[0;32m'* ]] || fail "terminal dry-run is missing action colors"
+
+  output="$(
+    TERM=xterm-256color NO_COLOR=1 HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+      /usr/bin/script -q /dev/null "$REPO_ROOT/install.sh" --dry-run 2>/dev/null
+  )"
+  [[ "$output" != *$'\033['* ]] || fail "NO_COLOR did not disable highlighting"
+  [[ ! -e "$CASE_BACKUP" ]] || fail "colored dry-run created the backup root"
 }
 
 test_default_install_restores_every_original_kind() {
@@ -98,6 +128,31 @@ test_default_install_restores_every_original_kind() {
   [[ ! -e "$CASE_HOME/.zshenv" ]] || fail "originally absent target was left behind"
   [[ -f "$CASE_BACKUP/legacy/marker" ]] || fail "unrelated backup was removed"
   [[ -L "$CASE_BACKUP/latest" ]] || fail "legacy latest pointer was removed"
+}
+
+test_uninstall_dry_run_explains_restore_paths() {
+  local install_dir=""
+  local output=""
+
+  new_case uninstall-dry-run
+  printf '%s\n' original >"$CASE_HOME/.zshrc"
+  install_case >/dev/null
+  install_dir="$(active_install_dir)"
+
+  output="$(HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" "$REPO_ROOT/uninstall.sh" --dry-run)"
+  [[ "$output" == *"Uninstall dry-run"* ]] || fail "uninstall dry-run heading is missing"
+  [[ "$output" == *"$CASE_HOME/.zshrc"* ]] || fail "uninstall dry-run destination is missing"
+  [[ "$output" == *"$REPO_ROOT/sh/.zshrc"* ]] || fail "uninstall dry-run source is missing"
+  [[ "$output" == *"remove managed symlink, then restore original"* ]] ||
+    fail "uninstall dry-run restore method is missing"
+  [[ "$output" == *"$install_dir/originals/.zshrc"* ]] ||
+    fail "uninstall dry-run backup source is missing"
+  [[ "$output" == *"destination will be absent"* ]] ||
+    fail "uninstall dry-run removal result is missing"
+  assert_eq original "$(<"$install_dir/originals/.zshrc")" "uninstall dry-run changed the backup"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "uninstall dry-run removed a managed link"
+
+  uninstall_case >/dev/null
 }
 
 test_adopts_existing_repository_symlink() {
@@ -297,7 +352,9 @@ test_uninstall_without_active_receipt_is_idempotent() {
 }
 
 test_dry_run_and_invalid_module_do_not_mutate
+test_dry_run_colors_only_for_terminals
 test_default_install_restores_every_original_kind
+test_uninstall_dry_run_explains_restore_paths
 test_adopts_existing_repository_symlink
 test_modules_accumulate_and_reinstall_is_idempotent
 test_all_is_the_union_of_modules

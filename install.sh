@@ -384,7 +384,7 @@ build_plan() {
 
 }
 
-print_plan() {
+print_apply_plan() {
   local index=0
   local action=""
 
@@ -396,6 +396,88 @@ print_plan() {
       relink) info "repair ~/${PLAN_DESTINATIONS[$index]} for repository relocation" ;;
       backup-link) info "backup and link ~/${PLAN_DESTINATIONS[$index]}" ;;
       link) info "link ~/${PLAN_DESTINATIONS[$index]}" ;;
+    esac
+    index=$((index + 1))
+  done
+}
+
+planned_installation_dir() {
+  if [[ -n "$ACTIVE_INSTALL_DIR" ]]; then
+    printf '%s' "$ACTIVE_INSTALL_DIR"
+  else
+    printf '%s/installations/<new-installation-id>' "$BACKUP_ROOT"
+  fi
+}
+
+print_dry_run_plan() {
+  local index=0
+  local action=""
+  local destination=""
+  local backup=""
+  local installation_dir=""
+
+  installation_dir="$(planned_installation_dir)"
+  dotfiles_plan_heading "Install dry-run"
+  dotfiles_plan_detail repository "$DOTFILES_DIR" "$c_magenta"
+  dotfiles_plan_detail "backup root" "$BACKUP_ROOT" "$c_yellow"
+  dotfiles_plan_detail receipt "$installation_dir/manifest.tsv"
+  dotfiles_plan_detail changes "$PLAN_CHANGE_COUNT of ${#PLAN_DESTINATIONS[@]} managed targets"
+  log ""
+
+  while (( index < ${#PLAN_DESTINATIONS[@]} )); do
+    action="${PLAN_ACTIONS[$index]}"
+    destination="$HOME/${PLAN_DESTINATIONS[$index]}"
+    backup="${PLAN_BACKUPS[$index]}"
+
+    case "$action" in
+      unchanged)
+        dotfiles_plan_item "$c_dim" UNCHANGED "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "keep existing managed symlink"
+        dotfiles_plan_detail current "${PLAN_KINDS[$index]}"
+        if [[ "$backup" == - ]]; then
+          dotfiles_plan_detail backup "not required (original: ${PLAN_KINDS[$index]})"
+        else
+          dotfiles_plan_detail backup "retained at $installation_dir/$backup" "$c_yellow"
+        fi
+        ;;
+      adopt)
+        dotfiles_plan_item "$c_cyan" ADOPT "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "record existing symlink without replacing it"
+        dotfiles_plan_detail current "symlink already points to source"
+        dotfiles_plan_detail backup "not required (existing repository symlink)"
+        ;;
+      relink)
+        dotfiles_plan_item "$c_yellow" RELINK "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "replace owned symlink after repository relocation"
+        dotfiles_plan_detail previous "${PLAN_OLD_TARGETS[$index]}"
+        if [[ "$backup" == - ]]; then
+          dotfiles_plan_detail backup "not required (original: ${PLAN_KINDS[$index]})"
+        else
+          dotfiles_plan_detail backup "retained at $installation_dir/$backup" "$c_yellow"
+        fi
+        ;;
+      backup-link)
+        dotfiles_plan_item "$c_yellow" "BACKUP + LINK" "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "move current ${PLAN_KINDS[$index]}, then create symlink"
+        dotfiles_plan_detail current "${PLAN_KINDS[$index]}"
+        dotfiles_plan_detail backup "$installation_dir/$backup" "$c_yellow"
+        ;;
+      link)
+        dotfiles_plan_item "$c_green" LINK "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "create symlink (destination -> source)"
+        dotfiles_plan_detail current absent
+        dotfiles_plan_detail backup "not required (destination is absent)"
+        ;;
     esac
     index=$((index + 1))
   done
@@ -747,9 +829,13 @@ main() {
   merge_active_inventory || return 1
 
   build_plan || return 1
-  info "dotfiles repo: $DOTFILES_DIR"
-  info "backup root: $BACKUP_ROOT"
-  print_plan
+  if (( DRY_RUN )); then
+    print_dry_run_plan
+  else
+    info "dotfiles repo: $DOTFILES_DIR"
+    info "backup root: $BACKUP_ROOT"
+    print_apply_plan
+  fi
   dotfiles_warn_lazyvim_dependencies
 
   if (( DRY_RUN )); then

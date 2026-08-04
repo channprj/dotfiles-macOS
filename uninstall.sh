@@ -188,7 +188,7 @@ preflight_uninstall() {
   done
 }
 
-print_plan() {
+print_apply_plan() {
   local index=0
 
   while (( index < ${#MANIFEST_DESTINATIONS[@]} )); do
@@ -196,6 +196,43 @@ print_plan() {
       info "remove managed link ~/${MANIFEST_DESTINATIONS[$index]}"
     else
       info "remove link and restore ~/${MANIFEST_DESTINATIONS[$index]}"
+    fi
+    index=$((index + 1))
+  done
+}
+
+print_dry_run_plan() {
+  local index=0
+  local destination=""
+  local backup=""
+
+  dotfiles_plan_heading "Uninstall dry-run"
+  dotfiles_plan_detail "backup root" "$BACKUP_ROOT" "$c_yellow"
+  dotfiles_plan_detail installation "$ACTIVE_INSTALL_DIR"
+  dotfiles_plan_detail receipt "$ACTIVE_INSTALL_DIR/manifest.tsv"
+  dotfiles_plan_detail changes "${#MANIFEST_DESTINATIONS[@]} managed targets"
+  log ""
+
+  while (( index < ${#MANIFEST_DESTINATIONS[@]} )); do
+    destination="$HOME/${MANIFEST_DESTINATIONS[$index]}"
+    backup="${MANIFEST_BACKUPS[$index]}"
+
+    if [[ "$backup" == - ]]; then
+      dotfiles_plan_item "$c_red" REMOVE "$destination"
+      dotfiles_plan_detail module "${MANIFEST_MODULES[$index]}"
+      dotfiles_plan_detail source "${MANIFEST_LINK_TARGETS[$index]}" "$c_magenta"
+      dotfiles_plan_detail method "remove managed symlink"
+      dotfiles_plan_detail original "${MANIFEST_KINDS[$index]}"
+      dotfiles_plan_detail backup "not required (original: ${MANIFEST_KINDS[$index]})"
+      dotfiles_plan_detail result "destination will be absent"
+    else
+      dotfiles_plan_item "$c_yellow" RESTORE "$destination"
+      dotfiles_plan_detail module "${MANIFEST_MODULES[$index]}"
+      dotfiles_plan_detail source "${MANIFEST_LINK_TARGETS[$index]}" "$c_magenta"
+      dotfiles_plan_detail method "remove managed symlink, then restore original"
+      dotfiles_plan_detail original "${MANIFEST_KINDS[$index]}"
+      dotfiles_plan_detail backup "$ACTIVE_INSTALL_DIR/$backup" "$c_yellow"
+      dotfiles_plan_detail result "backup will move to destination"
     fi
     index=$((index + 1))
   done
@@ -369,12 +406,13 @@ main() {
 
   load_manifest || return 1
   preflight_uninstall || return 1
-  info "active installation: $ACTIVE_INSTALL_ID"
-  print_plan
   if (( DRY_RUN )); then
+    print_dry_run_plan
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
+  info "active installation: $ACTIVE_INSTALL_ID"
+  print_apply_plan
 
   dotfiles_acquire_lock uninstall || return 1
   dotfiles_check_incomplete_receipts || return 1

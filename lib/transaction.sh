@@ -5,19 +5,26 @@ DOTFILES_LOCK_DIR="$BACKUP_ROOT/lock"
 
 dotfiles_init_colors() {
   c_reset=''
+  c_bold=''
   c_dim=''
   c_red=''
   c_green=''
   c_yellow=''
   c_blue=''
+  c_cyan=''
+  c_magenta=''
 
-  if [[ -t 1 && -z "${NO_COLOR:-}" ]]; then
+  if [[ -t 1 && -z "${NO_COLOR:-}" && "${TERM:-}" != dumb ]]; then
     c_reset='\033[0m'
+    c_bold='\033[1m'
     c_dim='\033[2m'
     c_red='\033[0;31m'
     c_green='\033[0;32m'
     c_yellow='\033[0;33m'
     c_blue='\033[0;34m'
+    c_cyan='\033[0;36m'
+    # shellcheck disable=SC2034 # consumed by install.sh and uninstall.sh
+    c_magenta='\033[0;35m'
   fi
 }
 
@@ -27,6 +34,28 @@ ok() { log "${c_green}[+]${c_reset} $*"; }
 warn() { log "${c_yellow}[!]${c_reset} $*"; }
 err() { log "${c_red}[x]${c_reset} $*" >&2; }
 skip() { log "  ${c_dim}skip:${c_reset} $*"; }
+
+dotfiles_plan_heading() {
+  printf '\n%b%s%b\n' "${c_bold}${c_blue}" "$1" "$c_reset"
+}
+
+dotfiles_plan_item() {
+  local color="$1"
+  local action="$2"
+  local destination="$3"
+
+  printf '  %b%-13s%b %b%s%b\n' \
+    "$color" "$action" "$c_reset" "${c_bold}${c_cyan}" "$destination" "$c_reset"
+}
+
+dotfiles_plan_detail() {
+  local label="$1"
+  local value="$2"
+  local color="${3:-}"
+
+  printf '    %b%-11s%b %b%s%b\n' \
+    "$c_dim" "$label" "$c_reset" "$color" "$value" "$c_reset"
+}
 
 dotfiles_path_exists() {
   [[ -e "$1" || -L "$1" ]]
