@@ -2,8 +2,8 @@
 
 set -euo pipefail
 
-SCRIPT_DIR=$(CDPATH= cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
-REPO_ROOT=$(CDPATH= cd -- "$SCRIPT_DIR/.." && pwd)
+SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+REPO_ROOT=$(CDPATH='' cd -- "$SCRIPT_DIR/.." && pwd)
 NVIM_DIR="$REPO_ROOT/editor/nvim"
 
 fail() {

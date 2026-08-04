@@ -1,11 +1,10 @@
 # shellcheck shell=bash
 #
-# Source of truth for the dotfile symlink mapping.
-# Sourced by both install.sh and uninstall.sh.
-#
+# Static source-of-truth for managed symlinks.
 # Format: "<repo-relative-source>:<HOME-relative-destination>"
-LINKS=(
-  # shell
+
+# shellcheck disable=SC2034
+LINKS_DEFAULT=(
   "sh/.zshrc:.zshrc"
   "sh/.zshenv:.zshenv"
   "sh/.zshalias:.zshalias"
@@ -13,18 +12,26 @@ LINKS=(
   "sh/.zshexec:.zshexec"
   "sh/.zsh-welcome:.zsh-welcome"
   "sh/.direnvrc:.direnvrc"
-  "sh/Brewfile:Brewfile"
-  # git
   "git/.gitconfig:.gitconfig"
   "git/.gitignore_global:.gitignore_global"
   "git/.tigrc:.tigrc"
-  # vim
   "editor/.vimrc:.vimrc"
   "editor/.vim:.vim"
-  # ghostty (terminal)
+  "editor/nvim:.config/nvim"
+)
+
+# shellcheck disable=SC2034
+LINKS_TERMINAL=(
   "editor/ghostty:.config/ghostty/config"
-  # gnupg
-  "sh/gnupg/gpg-agent.conf:.gnupg/gpg-agent.conf"
-  # oh-my-zsh custom theme
   "sh/zsh/custom-zsh-theme/dpoggi-timestamp.zsh-theme:.oh-my-zsh/custom/themes/dpoggi-timestamp.zsh-theme"
+)
+
+# shellcheck disable=SC2034
+LINKS_GNUPG=(
+  "sh/gnupg/gpg-agent.conf:.gnupg/gpg-agent.conf"
+)
+
+# shellcheck disable=SC2034
+LINKS_BREW=(
+  "sh/Brewfile:Brewfile"
 )
