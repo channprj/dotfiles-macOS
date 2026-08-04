@@ -12,6 +12,24 @@
 temp/
 backup/
 
+# Secrets and machine-local credentials
+.env
+.env.*
+!.env.example
+!.env.sample
+!.env.template
+*.key
+*.pem
+*.p12
+*.pfx
+*.jks
+*.keystore
+credentials.json
+secrets.*
+
+# Local security audit artifacts
+.gstack/
+
 # Vim plugins
 editor/.vim/plugged/*
 
