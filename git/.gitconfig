@@ -7,7 +7,7 @@
 	email = chann@chann.dev
 	signingkey = EC9A01F394E0A778
 [core]
-	excludesfile = /Users/chann/.gitignore_global
+	excludesfile = ~/.gitignore_global
 	editor = vim
 	# pager = diff-so-fancy | less --tabs=4 -RFX
 	pager = delta

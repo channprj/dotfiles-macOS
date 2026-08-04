@@ -1,85 +1,39 @@
-# autoload
-autoload -Uz compinit && compinit
+# Environment shared by interactive and non-interactive Zsh processes.
+# Keep this file quiet: prompts, completions, and command hooks belong in .zshrc.
 
-# add local bin to path
-export PATH="$HOME/.local/bin:$PATH"
+export LC_ALL="${LC_ALL:-en_US.UTF-8}"
+export GOPATH="${GOPATH:-$HOME/go}"
+export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
+export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
+export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-$ANDROID_HOME/ndk-bundle}"
+export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
+export PNPM_HOME="${PNPM_HOME:-$HOME/Library/pnpm}"
+export ENABLE_BACKGROUND_TASKS="${ENABLE_BACKGROUND_TASKS:-1}"
 
-# for dev
-export GOROOT_BOOTSTRAP="/usr/local/bin/go"
-export ANDROID_HOME="/Users/channprj/Library/Android/sdk"
-export ANDROID_NDK_HOME=$ANDROID_HOME/ndk-bundle
+# Zsh keeps PATH and the `path` array synchronized. The uniqueness attribute
+# preserves the incoming system PATH while removing duplicate entries.
+typeset -U path PATH
+path=(
+  "$HOME/.local/bin"
+  "$HOME/bin"
+  "$HOME/.opencode/bin"
+  "$HOME/.cargo/bin"
+  "$HOME/.npm-global/bin"
+  "$BUN_INSTALL/bin"
+  "$PNPM_HOME"
+  "$GOENV_ROOT/bin"
+  "$GOPATH/bin"
+  "$ANDROID_HOME/tools"
+  "$ANDROID_HOME/platform-tools"
+  "/opt/homebrew/bin"
+  "/opt/homebrew/sbin"
+  "/opt/homebrew/opt/libpq/bin"
+  "/usr/local/bin"
+  "/usr/local/sbin"
+  $path
+)
 
-# system
-export PATH="/opt/local/bin:/opt/local/sbin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/opt/homebrew/opt/git/share/git-core/contrib/diff-highlight"
-export PATH=$PATH:/Applications/Keybase.app/Contents/SharedSupport/bin
-export PATH=$PATH:$HOME/bin
+[[ -d "/Applications/Keybase.app/Contents/SharedSupport/bin" ]] &&
+  path+=("/Applications/Keybase.app/Contents/SharedSupport/bin")
 
-# config
-export GREP_OPTIONS='--color=auto'
-if [[ -t 0 ]]; then
-  export GPG_TTY=$(tty)
-elif [[ "$GPG_TTY" == "not a tty" ]]; then
-  unset GPG_TTY
-fi
-
-# brew
-eval "$(/opt/homebrew/bin/brew shellenv)"
-
-# local
-export PATH="$HOME/.local/bin:$PATH"
-
-# direnv
-eval "$(direnv hook zsh)"
-
-# pyenv
-export PATH="$HOME/.pyenv/bin:$PATH"
-eval "$(pyenv init -)"
-eval "$(pyenv virtualenv-init -)"
-
-# golang
-export GOPATH=$HOME/go
-export GOROOT=/opt/homebrew/opt/go/libexec
-export PATH=$PATH:$GOPATH/bin
-export PATH=$PATH:$GOROOT/bin
-
-# goenv
-export GOENV_ROOT="$HOME/.goenv"
-export PATH="$GOENV_ROOT/bin:$PATH"
-eval "$(goenv init -)"
-
-# rust
-export PATH=$PATH:$HOME/.cargo/bin
-. "$HOME/.cargo/env"
-
-# node
-export PATH=$PATH:$HOME/.npm-global/bin
-
-# psql
-export PATH="/opt/homebrew/opt/libpq/bin:$PATH"
-
-# android
-export PATH=${PATH}:${HOME}/library/android/sdk/tools:${PATH}:$HOME/library/android/sdk/platform-tools
-
-# bun
-export BUN_INSTALL="$HOME/.bun"
-export PATH="$BUN_INSTALL/bin:$PATH"
-
-
-# uv
-. "$HOME/.local/bin/env"
-eval "$(uv generate-shell-completion zsh)"
-eval "$(uvx --generate-shell-completion zsh)"
-
-# pnpm
-export PNPM_HOME="$HOME/Library/pnpm"
-case ":$PATH:" in
-  *":$PNPM_HOME:"*) ;;
-  *) export PATH="$PNPM_HOME:$PATH" ;;
-esac
-# pnpm end
-
-# claude code
-export ENABLE_BACKGROUND_TASKS=1
-
-# opencode
-export PATH=$HOME/.opencode/bin:$PATH
+export PATH

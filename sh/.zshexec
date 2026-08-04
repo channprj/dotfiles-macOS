@@ -48,9 +48,11 @@ _dc_logs_dev_completion() {
 
 # compdef는 .zshrc에서 해도 되지만, 여기서 바로 매핑해도 됩니다:
 # (단, _docker가 로드된 이후여야 함. 위 .zshrc 순서를 지키면 OK)
-compdef _dc_up_dev_completion   dc-up-dev
-compdef _dc_down_dev_completion dc-down-dev
-compdef _dc_logs_dev_completion dc-logs-dev
+if (( $+functions[compdef] )); then
+  compdef _dc_up_dev_completion dc-up-dev
+  compdef _dc_down_dev_completion dc-down-dev
+  compdef _dc_logs_dev_completion dc-logs-dev
+fi
 
 # Django management command wrapper with caching
 dj() {
@@ -60,21 +62,33 @@ dj() {
 if [ -n "$ZSH_VERSION" ]; then
     _dj_completion() {
         local -a commands
-        local state cache_file="/tmp/.dj_commands_cache_$(pwd | md5sum | cut -d' ' -f1)"
+        local state cache_key cache_file modified_at=0
+
+        if (( $+commands[md5] )); then
+            cache_key="$(print -rn -- "$PWD" | md5)"
+        elif (( $+commands[md5sum] )); then
+            cache_key="$(print -rn -- "$PWD" | md5sum | cut -d' ' -f1)"
+        else
+            cache_key="$(print -rn -- "$PWD" | cksum | cut -d' ' -f1)"
+        fi
+        cache_file="${TMPDIR:-/tmp}/.dj_commands_cache_${cache_key}"
 
         _arguments '1: :->command' '*::arg:->args'
 
         case $state in
             command)
                 # 캐시 파일이 없거나 1시간 이상 지났으면 갱신
-                if [ ! -f "$cache_file" ] || [ $(($(date +%s) - $(stat -c %Y "$cache_file" 2>/dev/null || echo 0))) -gt 3600 ]; then
+                if [[ -f "$cache_file" ]]; then
+                    modified_at="$(stat -f %m "$cache_file" 2>/dev/null || stat -c %Y "$cache_file" 2>/dev/null || print 0)"
+                fi
+                if [[ ! -f "$cache_file" ]] || (( $(date +%s) - modified_at > 3600 )); then
                     if [ -f "docker-compose.yml" ] || [ -f "compose.yml" ]; then
                         docker compose exec -T api uv run ./manage.py help --commands 2>/dev/null | grep -v '^\[' | sort > "$cache_file"
                     fi
                 fi
 
                 if [ -f "$cache_file" ]; then
-                    commands=(${(f)"$(cat $cache_file)"})
+                    commands=(${(f)"$(<"$cache_file")"})
                     _describe 'django commands' commands
                 fi
                 ;;
@@ -85,7 +99,7 @@ if [ -n "$ZSH_VERSION" ]; then
                         ;;
                     migrate|makemigrations|showmigrations)
                         local apps
-                        apps=(${(f)"$(find apps/* -maxdepth 0 -type d 2>/dev/null | xargs -n1 basename)"})
+                        apps=(${(f)"$(find apps -mindepth 1 -maxdepth 1 -type d -exec basename {} \; 2>/dev/null)"})
                         _describe 'django apps' apps
                         ;;
                 esac
@@ -93,12 +107,11 @@ if [ -n "$ZSH_VERSION" ]; then
         esac
     }
 
-    compdef _dj_completion dj
+    (( $+functions[compdef] )) && compdef _dj_completion dj
 fi
 
 # 캐시 수동 갱신 함수 (명령어 추가 후):
 dj-refresh() {
-    rm -f /tmp/.dj_commands_cache_*
+    command rm -f -- "${TMPDIR:-/tmp}"/.dj_commands_cache_*(N)
     echo "Django commands cache cleared"
 }
-
