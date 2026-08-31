@@ -37,18 +37,30 @@ noninteractive="$({
     /bin/zsh -c '
       source "$ZDOTDIR/.zshenv"
       unique_path=("${(u)path[@]}")
+      integer path_index=1 pyenv_index=0 homebrew_index=0
+      typeset path_entry
+      for path_entry in "${path[@]}"; do
+        [[ "$path_entry" == "$HOME/.pyenv/shims" ]] && pyenv_index=$path_index
+        [[ "$path_entry" == "/opt/homebrew/bin" ]] && homebrew_index=$path_index
+        (( path_index++ ))
+      done
       print -r -- __DOTFILES_MARKER__
       print -r -- "$ANDROID_HOME"
       print -r -- "${#path}:${#unique_path}"
+      print -r -- "$pyenv_index:$homebrew_index"
     '
 } 2>&1)"
 noninteractive_lines=("${(@f)noninteractive}")
 
-assert_eq 3 "${#noninteractive_lines}" ".zshenv emitted unexpected output"
+assert_eq 4 "${#noninteractive_lines}" ".zshenv emitted unexpected output"
 assert_eq __DOTFILES_MARKER__ "$noninteractive_lines[1]" ".zshenv changed command output"
 assert_eq "$TEST_HOME/Library/Android/sdk" "$noninteractive_lines[2]" "Android path is not HOME-relative"
 path_counts=("${(@s/:/)noninteractive_lines[3]}")
 assert_eq "$path_counts[1]" "$path_counts[2]" "PATH contains duplicate entries"
+path_order=("${(@s/:/)noninteractive_lines[4]}")
+(( path_order[1] > 0 )) || fail "pyenv shims are missing from PATH"
+(( path_order[2] > 0 )) || fail "Homebrew bin is missing from PATH"
+(( path_order[1] < path_order[2] )) || fail "pyenv shims do not precede Homebrew bin"
 
 # Reset PATH after .zshenv so optional tools are absent while .zshrc loads.
 rm "$TEST_HOME/.zshenv"

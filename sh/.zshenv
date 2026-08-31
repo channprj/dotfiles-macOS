@@ -25,6 +25,9 @@ path=(
   "$GOPATH/bin"
   "$ANDROID_HOME/tools"
   "$ANDROID_HOME/platform-tools"
+  # pyenv shims must precede Homebrew/system python3 (framework builds that
+  # exec Python.app) in non-interactive shells too; `pyenv init` lives in .zshrc.
+  "$HOME/.pyenv/shims"
   "/opt/homebrew/bin"
   "/opt/homebrew/sbin"
   "/opt/homebrew/opt/libpq/bin"
