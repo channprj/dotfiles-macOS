@@ -37,6 +37,7 @@ cd ~/dotfiles
 | Git | `.gitconfig`, `.gitignore_global`, `.tigrc` | `~/`의 같은 이름 |
 | Vim | `editor/.vimrc`, `editor/.vim` | `~/.vimrc`, `~/.vim` |
 | LazyVim | `editor/nvim` | `~/.config/nvim` |
+| Herdr | `herdr/config.toml` | `~/.config/herdr/config.toml` |
 
 전체 매핑은 [lib/links.sh](lib/links.sh)이 단일 기준입니다.
 
@@ -129,7 +130,11 @@ Neovim, Git, tree-sitter CLI, C 컴파일러, curl, fzf, ripgrep, fd가 주요 �
 도구이며 lazygit은 선택 도구입니다. 자세한 현재 요구사항은
 [LazyVim 설치 문서](https://www.lazyvim.org/installation)를 확인하세요.
 
-## Herdr 세션 정리
+## Herdr 설정과 세션 정리
+
+기본 설치는 검토된 `herdr/config.toml`을 `~/.config/herdr/config.toml`로 연결합니다.
+세션 상태, 로그, lock, backup과 Herdr가 생성·갱신하는 agent integration 파일은
+machine-local runtime 자료이므로 추적하지 않습니다.
 
 `hsa`는 현재 디렉터리 이름의 Herdr 세션에 연결합니다. 다음 명령은 같은 세션을
 중지한 뒤 삭제합니다.

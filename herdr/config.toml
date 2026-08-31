@@ -1,0 +1,37 @@
+onboarding = false
+
+[keys]
+previous_workspace = "prefix+shift+k"
+next_workspace = "prefix+shift+j"
+
+reload_config = ["f5", "prefix+r"]
+detach = "prefix+d"
+
+# Navigate mode: j/k walk the workspace list, arrows move pane focus.
+navigate_workspace_up = "k"
+navigate_workspace_down = "j"
+navigate_pane_up = "up"
+navigate_pane_down = "down"
+
+settings = "prefix+s"
+
+[ui]
+show_agent_labels_on_pane_borders = true
+
+[ui.sound]
+enabled = false
+
+[ui.toast]
+#delivery = "terminal"
+delivery = "system"
+
+[theme]
+name = "catppuccin"
+light_name = "catppuccin-latte"
+auto_switch = true
+
+[session]
+resume_agents_on_restore = true
+
+[experimental]
+kitty_graphics = true

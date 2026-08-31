@@ -130,6 +130,29 @@ test_default_install_restores_every_original_kind() {
   [[ -L "$CASE_BACKUP/latest" ]] || fail "legacy latest pointer was removed"
 }
 
+test_default_install_manages_herdr_config() {
+  local manifest=""
+
+  new_case herdr-config
+  mkdir -p "$CASE_HOME/.config/herdr"
+  printf '%s\n' original-herdr-config >"$CASE_HOME/.config/herdr/config.toml"
+
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  [[ -L "$CASE_HOME/.config/herdr/config.toml" ]] || fail "Herdr config was not linked by default"
+  assert_eq "$REPO_ROOT/herdr/config.toml" \
+    "$(readlink "$CASE_HOME/.config/herdr/config.toml")" \
+    "Herdr config link target"
+  assert_eq file \
+    "$(manifest_value "$manifest" .config/herdr/config.toml 4)" \
+    "Herdr config original kind"
+
+  uninstall_case >/dev/null
+  assert_eq original-herdr-config \
+    "$(<"$CASE_HOME/.config/herdr/config.toml")" \
+    "original Herdr config was not restored"
+}
+
 test_uninstall_dry_run_explains_restore_paths() {
   local install_dir=""
   local output=""
@@ -189,7 +212,7 @@ test_modules_accumulate_and_reinstall_is_idempotent() {
   [[ -L "$CASE_HOME/.gnupg/gpg-agent.conf" ]] || fail "gnupg module was not linked"
   [[ -L "$CASE_HOME/Brewfile" ]] || fail "brew module was not linked"
   assert_eq 700 "$(stat -f '%Lp' "$CASE_HOME/.gnupg")" ".gnupg permissions"
-  assert_eq 17 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
+  assert_eq 18 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
 
   uninstall_case >/dev/null
   [[ ! -e "$CASE_HOME/.config/ghostty/config" ]] || fail "terminal module was not uninstalled"
@@ -203,7 +226,7 @@ test_all_is_the_union_of_modules() {
   new_case all-modules
   install_case --all --module terminal >/dev/null
   manifest="$(active_install_dir)/manifest.tsv"
-  assert_eq 17 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
+  assert_eq 18 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
   uninstall_case >/dev/null
 }
 
@@ -354,6 +377,7 @@ test_uninstall_without_active_receipt_is_idempotent() {
 test_dry_run_and_invalid_module_do_not_mutate
 test_dry_run_colors_only_for_terminals
 test_default_install_restores_every_original_kind
+test_default_install_manages_herdr_config
 test_uninstall_dry_run_explains_restore_paths
 test_adopts_existing_repository_symlink
 test_modules_accumulate_and_reinstall_is_idempotent
