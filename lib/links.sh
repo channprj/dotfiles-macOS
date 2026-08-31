@@ -18,6 +18,7 @@ LINKS_DEFAULT=(
   "editor/.vimrc:.vimrc"
   "editor/.vim:.vim"
   "editor/nvim:.config/nvim"
+  "herdr/config.toml:.config/herdr/config.toml"
 )
 
 # shellcheck disable=SC2034
