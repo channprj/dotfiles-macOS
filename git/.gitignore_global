@@ -28,6 +28,7 @@ docs/superpowers/
 # misc
 tmp/
 temp/
+.tasks/
 trash/
 .trash/
 
