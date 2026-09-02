@@ -7,6 +7,7 @@ export LANG="en_US.UTF-8"
 export LC_ALL="en_US.UTF-8"
 export GOPATH="${GOPATH:-$HOME/go}"
 export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
+export PYENV_ROOT="${PYENV_ROOT:-$HOME/.pyenv}"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
 export ANDROID_NDK_HOME="${ANDROID_NDK_HOME:-$ANDROID_HOME/ndk-bundle}"
 export BUN_INSTALL="${BUN_INSTALL:-$HOME/.bun}"
@@ -28,9 +29,10 @@ path=(
   "$GOPATH/bin"
   "$ANDROID_HOME/tools"
   "$ANDROID_HOME/platform-tools"
-  # pyenv shims must precede Homebrew/system python3 (framework builds that
-  # exec Python.app) in non-interactive shells too; `pyenv init` lives in .zshrc.
-  "$HOME/.pyenv/shims"
+  # pyenv and its shims must precede Homebrew/system Python in non-interactive
+  # shells too; interactive initialization still lives in .zshrc.
+  "$PYENV_ROOT/bin"
+  "$PYENV_ROOT/shims"
   "/opt/homebrew/bin"
   "/opt/homebrew/sbin"
   "/opt/homebrew/opt/libpq/bin"
