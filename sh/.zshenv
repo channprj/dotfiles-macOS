@@ -1,7 +1,10 @@
 # Environment shared by interactive and non-interactive Zsh processes.
 # Keep this file quiet: prompts, completions, and command hooks belong in .zshrc.
 
-export LC_ALL="${LC_ALL:-en_US.UTF-8}"
+# Force an English locale regardless of what the terminal or system region
+# hands down (macOS passes LANG=ko_KR.UTF-8 here).
+export LANG="en_US.UTF-8"
+export LC_ALL="en_US.UTF-8"
 export GOPATH="${GOPATH:-$HOME/go}"
 export GOENV_ROOT="${GOENV_ROOT:-$HOME/.goenv}"
 export ANDROID_HOME="${ANDROID_HOME:-$HOME/Library/Android/sdk}"
