@@ -106,6 +106,8 @@ fi
   source "/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc"
 [[ -r "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
-# Preserve the existing Markdowner launcher policy.
+
+# >>> markdowner Ctrl+G launcher >>>
 export EDITOR="mdner --wait"
 export VISUAL="mdner --wait"
+# <<< markdowner Ctrl+G launcher <<<
