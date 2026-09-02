@@ -43,3 +43,4 @@ path=(
   path+=("/Applications/Keybase.app/Contents/SharedSupport/bin")
 
 export PATH
+[[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
