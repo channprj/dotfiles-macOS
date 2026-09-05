@@ -1,3 +1,28 @@
+# Claude Code providers
+synthetic_apply_claude() {
+  emulate -L zsh
+
+  if [[ -z "${SYNTHETIC_API_KEY:-}" ]]; then
+    print -u2 "synthetic_apply_claude: SYNTHETIC_API_KEY is not set"
+    return 1
+  fi
+  if (( ! $+commands[claude] )); then
+    print -u2 "synthetic_apply_claude: claude is not installed or not in PATH"
+    return 127
+  fi
+
+  env \
+    ANTHROPIC_BASE_URL="https://api.synthetic.new/anthropic" \
+    ANTHROPIC_AUTH_TOKEN="$SYNTHETIC_API_KEY" \
+    ANTHROPIC_DEFAULT_OPUS_MODEL="syn:large:vision" \
+    ANTHROPIC_DEFAULT_SONNET_MODEL="syn:large:vision" \
+    ANTHROPIC_DEFAULT_HAIKU_MODEL="syn:small:text" \
+    CLAUDE_CODE_SUBAGENT_MODEL="syn:large:vision" \
+    CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC=1 \
+    CLAUDE_CODE_ATTRIBUTION_HEADER=0 \
+    claude "$@"
+}
+
 # macOS permissions
 reset-iterm2-permissions() {
   tccutil reset SystemPolicyRemovableVolumes com.googlecode.iterm2
