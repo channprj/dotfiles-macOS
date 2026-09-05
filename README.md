@@ -112,6 +112,26 @@ DOTFILES_BACKUP_DIR=/secure/path ./uninstall.sh
 삭제하지 말고 먼저 남은 상태를 확인해야 합니다. 성공한 언인스톨은 소비한 활성
 설치만 제거하며 기존 `vim-*`, `latest` 등 무관한 백업은 보존합니다.
 
+## Synthetic로 Claude Code 실행
+
+`synthetic_apply_claude`는 Claude Code를 Synthetic의 Anthropic 호환 endpoint와
+지정 모델로 실행합니다. API 키는 저장소에 기록하지 말고 기존 비밀정보 관리
+방식으로 `SYNTHETIC_API_KEY` 환경변수에 주입하세요. 설치 후 새 셸을 열거나 현재
+셸에서 함수 파일을 다시 불러옵니다.
+
+```sh
+source ~/.zshfunc
+export SYNTHETIC_API_KEY='<your-key>'
+
+synthetic_apply_claude
+synthetic_apply_claude --help
+```
+
+Synthetic 관련 override는 실행한 Claude 자식 프로세스에만 적용됩니다. 명령이
+끝나면 기존 셸 환경으로 자동 복귀하므로 별도 reset 명령은 필요하지 않으며,
+평소처럼 `claude`를 실행하면 기존 provider 설정을 사용합니다. 현재 셸에서도 API
+키를 제거하려면 `unset SYNTHETIC_API_KEY`를 실행하세요.
+
 ## LazyVim과 패키지 준비
 
 [LazyVim Starter](https://github.com/LazyVim/starter)의 고정 스냅샷과
