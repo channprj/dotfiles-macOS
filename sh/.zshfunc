@@ -2,9 +2,20 @@
 synthetic_apply_claude() {
   emulate -L zsh
 
-  if [[ -z "${SYNTHETIC_API_KEY:-}" ]]; then
-    print -u2 "synthetic_apply_claude: SYNTHETIC_API_KEY is not set"
-    return 1
+  local synthetic_api_key="${SYNTHETIC_API_KEY:-}"
+  local keychain_account="${USER:-${USERNAME:-}}"
+
+  if [[ -z "$synthetic_api_key" ]]; then
+    if (( ! $+commands[security] )) ||
+      ! synthetic_api_key="$(
+        security find-generic-password \
+          -a "$keychain_account" \
+          -s "synthetic.new.api-key" \
+          -w 2>/dev/null
+      )" || [[ -z "$synthetic_api_key" ]]; then
+      print -u2 "synthetic_apply_claude: API key was not found in SYNTHETIC_API_KEY or Keychain"
+      return 1
+    fi
   fi
   if (( ! $+commands[claude] )); then
     print -u2 "synthetic_apply_claude: claude is not installed or not in PATH"
@@ -13,7 +24,7 @@ synthetic_apply_claude() {
 
   env \
     ANTHROPIC_BASE_URL="https://api.synthetic.new/anthropic" \
-    ANTHROPIC_AUTH_TOKEN="$SYNTHETIC_API_KEY" \
+    ANTHROPIC_AUTH_TOKEN="$synthetic_api_key" \
     ANTHROPIC_DEFAULT_OPUS_MODEL="syn:large:vision" \
     ANTHROPIC_DEFAULT_SONNET_MODEL="syn:large:vision" \
     ANTHROPIC_DEFAULT_HAIKU_MODEL="syn:small:text" \

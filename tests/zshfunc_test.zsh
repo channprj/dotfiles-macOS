@@ -57,8 +57,21 @@ cat >"$test_tmp/bin/claude" <<'EOF'
 EOF
 chmod +x "$test_tmp/bin/claude"
 
+cat >"$test_tmp/bin/security" <<'EOF'
+#!/bin/zsh
+
+expected="find-generic-password -a $SYNTHETIC_KEYCHAIN_ACCOUNT -s synthetic.new.api-key -w"
+[[ "$*" == "$expected" ]] || exit 64
+[[ "${SYNTHETIC_KEYCHAIN_RESULT:-missing}" == "present" ]] || exit 44
+print -r -- "$SYNTHETIC_KEYCHAIN_API_KEY"
+EOF
+chmod +x "$test_tmp/bin/security"
+
 export PATH="$test_tmp/bin:$PATH"
 export SYNTHETIC_CLAUDE_CAPTURE="$test_tmp/claude-capture"
+export SYNTHETIC_KEYCHAIN_ACCOUNT="$USER"
+export SYNTHETIC_KEYCHAIN_API_KEY="keychain-test-key"
+export SYNTHETIC_KEYCHAIN_RESULT="present"
 export SYNTHETIC_API_KEY="synthetic-test-key"
 export ANTHROPIC_BASE_URL="parent-base"
 export ANTHROPIC_AUTH_TOKEN="parent-token"
@@ -119,21 +132,39 @@ fi
 
 rm -f -- "$SYNTHETIC_CLAUDE_CAPTURE"
 unset SYNTHETIC_API_KEY
+synthetic_apply_claude --version
+keychain_capture="$(<"$SYNTHETIC_CLAUDE_CAPTURE")"
+if [[ "$keychain_capture" != *"ANTHROPIC_AUTH_TOKEN=keychain-test-key"* ]]; then
+  print -u2 "synthetic_apply_claude did not use the Keychain API key"
+  exit 1
+fi
+if [[ "$keychain_capture" != *"ARG=--version"* ]]; then
+  print -u2 "synthetic_apply_claude did not forward arguments with the Keychain API key"
+  exit 1
+fi
+if (( ${+SYNTHETIC_API_KEY} )); then
+  print -u2 "synthetic_apply_claude exported the Keychain API key to the parent environment"
+  exit 1
+fi
+
+rm -f -- "$SYNTHETIC_CLAUDE_CAPTURE"
+export SYNTHETIC_KEYCHAIN_RESULT="missing"
 missing_key_error="$test_tmp/missing-key-error"
 if synthetic_apply_claude --version >/dev/null 2>"$missing_key_error"; then
-  print -u2 "synthetic_apply_claude accepted a missing API key"
+  print -u2 "synthetic_apply_claude accepted missing environment and Keychain API keys"
   exit 1
 fi
 if [[ -e "$SYNTHETIC_CLAUDE_CAPTURE" ]]; then
   print -u2 "synthetic_apply_claude invoked Claude without an API key"
   exit 1
 fi
-if [[ "$(<"$missing_key_error")" != "synthetic_apply_claude: SYNTHETIC_API_KEY is not set" ]]; then
+if [[ "$(<"$missing_key_error")" != "synthetic_apply_claude: API key was not found in SYNTHETIC_API_KEY or Keychain" ]]; then
   print -u2 "synthetic_apply_claude returned an unexpected missing-key error"
   exit 1
 fi
 
 export SYNTHETIC_API_KEY="synthetic-test-key"
+export SYNTHETIC_KEYCHAIN_RESULT="present"
 original_path="$PATH"
 PATH="$test_tmp/empty"
 rehash
