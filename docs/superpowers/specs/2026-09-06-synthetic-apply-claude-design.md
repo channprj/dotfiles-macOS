@@ -13,16 +13,17 @@ invocation must retain its existing provider configuration.
 synthetic_apply_claude [claude arguments...]
 ```
 
-The helper reads `SYNTHETIC_API_KEY` from the current environment and forwards
-all arguments to `claude` unchanged. It fails with a clear diagnostic when the
-key is empty or Claude Code is unavailable.
+The helper reads `SYNTHETIC_API_KEY` from the current environment, falling back
+to the `synthetic.new.api-key` item in the user's macOS Keychain. It forwards
+all arguments to `claude` unchanged and fails with a clear diagnostic when both
+key sources are empty or Claude Code is unavailable.
 
 ## Environment contract
 
 Only the child `claude` process receives these overrides:
 
 - `ANTHROPIC_BASE_URL=https://api.synthetic.new/anthropic`
-- `ANTHROPIC_AUTH_TOKEN=$SYNTHETIC_API_KEY`
+- `ANTHROPIC_AUTH_TOKEN` set to the environment or Keychain API key
 - `ANTHROPIC_DEFAULT_OPUS_MODEL=syn:large:vision`
 - `ANTHROPIC_DEFAULT_SONNET_MODEL=syn:large:vision`
 - `ANTHROPIC_DEFAULT_HAIKU_MODEL=syn:small:text`
@@ -41,8 +42,9 @@ The function belongs in `sh/.zshfunc`, which the managed `sh/.zshrc` already
 sources through `~/.zshfunc`. The existing dotfiles installer links that file,
 and the transactional uninstaller remains the installation-level recovery path.
 
-The README will document setup, invocation, automatic environment rollback,
-and the fact that API keys must not be committed to the repository.
+The README will document Keychain setup, the optional environment override,
+invocation, automatic environment rollback, and the fact that API keys must
+not be committed to the repository.
 
 ## Verification
 
@@ -52,8 +54,10 @@ The Zsh function test will use a local Claude stub and a dummy key to prove:
 2. every required environment override reaches the child process;
 3. arguments, including values containing spaces, are forwarded unchanged;
 4. pre-existing parent-shell provider variables remain unchanged afterward;
-5. a missing key fails before Claude is invoked; and
-6. the full deterministic dotfiles test suite remains green.
+5. the environment variable takes precedence over Keychain;
+6. the Keychain fallback does not export the key to the parent environment;
+7. missing keys in both sources fail before Claude is invoked; and
+8. the full deterministic dotfiles test suite remains green.
 
 No live Synthetic request is part of deterministic verification because it
 would require an external credential and service availability.

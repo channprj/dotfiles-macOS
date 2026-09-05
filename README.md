@@ -115,22 +115,39 @@ DOTFILES_BACKUP_DIR=/secure/path ./uninstall.sh
 ## Synthetic로 Claude Code 실행
 
 `synthetic_apply_claude`는 Claude Code를 Synthetic의 Anthropic 호환 endpoint와
-지정 모델로 실행합니다. API 키는 저장소에 기록하지 말고 기존 비밀정보 관리
-방식으로 `SYNTHETIC_API_KEY` 환경변수에 주입하세요. 설치 후 새 셸을 열거나 현재
-셸에서 함수 파일을 다시 불러옵니다.
+지정 모델로 실행합니다. API 키는 저장소나 셸 설정에 기록하지 말고 macOS
+Keychain에 저장하세요. 마지막 `-w`가 키를 대화형으로 입력받으므로 명령 인자와
+셸 기록에 키가 남지 않습니다.
 
 ```sh
-source ~/.zshfunc
-export SYNTHETIC_API_KEY='<your-key>'
+security add-generic-password \
+  -a "$USER" \
+  -s "synthetic.new.api-key" \
+  -l "Synthetic API Key" \
+  -U \
+  -w
 
+source ~/.zshfunc
 synthetic_apply_claude
 synthetic_apply_claude --help
 ```
 
+`SYNTHETIC_API_KEY`가 이미 설정되어 있으면 해당 값을 우선 사용하고, 없으면
+Keychain의 `synthetic.new.api-key` 항목을 자동으로 읽습니다. 일회성 키를 사용할
+때만 다음처럼 현재 명령에 환경변수를 지정할 수 있습니다.
+
+```sh
+SYNTHETIC_API_KEY='<temporary-key>' synthetic_apply_claude
+```
+
 Synthetic 관련 override는 실행한 Claude 자식 프로세스에만 적용됩니다. 명령이
 끝나면 기존 셸 환경으로 자동 복귀하므로 별도 reset 명령은 필요하지 않으며,
-평소처럼 `claude`를 실행하면 기존 provider 설정을 사용합니다. 현재 셸에서도 API
-키를 제거하려면 `unset SYNTHETIC_API_KEY`를 실행하세요.
+평소처럼 `claude`를 실행하면 기존 provider 설정을 사용합니다. 저장한 키를
+삭제하려면 다음 명령을 실행하세요.
+
+```sh
+security delete-generic-password -a "$USER" -s "synthetic.new.api-key"
+```
 
 ## LazyVim과 패키지 준비
 
