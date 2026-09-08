@@ -26,7 +26,7 @@ bash_files=(
 )
 
 /bin/bash -n "${bash_files[@]}"
-for zsh_file in sh/.zshenv sh/.zshrc sh/.zshalias sh/.zshexec sh/.zshfunc tests/hsa_test.zsh tests/shell_startup_test.zsh tests/zshfunc_test.zsh; do
+for zsh_file in sh/.zshenv sh/.zshrc sh/.zshalias sh/.zshexec sh/.zshfunc tests/hsa_test.zsh tests/shell_startup_test.zsh tests/zshfunc_test.zsh tests/gh_account_test.zsh; do
   /bin/zsh -n "$zsh_file"
 done
 
@@ -43,6 +43,7 @@ fi
 /bin/zsh tests/hsa_test.zsh
 /usr/bin/expect tests/hsa_prompt_test.exp
 /bin/zsh tests/zshfunc_test.zsh
+/bin/zsh tests/gh_account_test.zsh
 /bin/bash tests/install_test.bash
 /bin/bash tests/lazyvim_test.sh
 
