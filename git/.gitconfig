@@ -46,6 +46,10 @@
 	protocol = https
 [credential]
 	helper = cache --timeout=2419200
+[credential "https://github.com"]
+	username = channprj
+	helper =
+	helper = "!f() { test \"$1\" = get || return 0; github_user=$(git config --get credential.https://github.com.username) || return; github_token=$(gh auth token --hostname github.com --user \"$github_user\") || return; printf 'username=%s\\npassword=%s\\n' \"$github_user\" \"$github_token\"; }; f"
 [tag]
 	forceSignAnnotated = true
 [color]
@@ -67,3 +71,7 @@
 [delta]
     navigate = true  # use n and N to move between diff sections
     dark = true      # or light = true, or omit for auto-detection
+
+# corp
+[includeIf "gitdir:~/workspace/corp/"]
+	path = ~/.gitconfig-corp
