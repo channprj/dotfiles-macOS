@@ -34,6 +34,44 @@ synthetic_apply_claude() {
     claude "$@"
 }
 
+# Keep this command bundle a function so unavailable updaters do not make
+# zsh-syntax-highlighting mark the entire command as an unknown alias.
+# Remove the old alias when reloading an existing shell.
+(( $+aliases[update-agents] )) && unalias update-agents
+update-agents() {
+  emulate -L zsh
+  setopt pipefail
+
+  local update_failed=0
+
+  if command -v claude >/dev/null 2>&1; then
+    claude update
+  else
+    curl -fsSL https://claude.ai/install.sh | bash
+  fi || update_failed=1
+
+  if command -v agy >/dev/null 2>&1; then
+    agy update
+  else
+    curl -fsSL https://antigravity.google/cli/install.sh | bash
+  fi || update_failed=1
+
+  if command -v codex >/dev/null 2>&1; then
+    codex update
+  else
+    curl -fsSL https://chatgpt.com/codex/install.sh | sh
+  fi || update_failed=1
+
+  if command -v opencode >/dev/null 2>&1; then
+    opencode upgrade
+  else
+    curl -fsSL https://opencode.ai/install | bash
+  fi || update_failed=1
+
+  npm i -g @github/copilot gnhf @th0rgal/ralph-wiggum codeburn || update_failed=1
+  return "$update_failed"
+}
+
 # macOS permissions
 reset-iterm2-permissions() {
   tccutil reset SystemPolicyRemovableVolumes com.googlecode.iterm2
