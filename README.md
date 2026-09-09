@@ -122,19 +122,14 @@ DOTFILES_BACKUP_DIR=/secure/path ./uninstall.sh
 ## Synthetic로 Claude Code 실행
 
 `synthetic_apply_claude`는 Claude Code를 Synthetic의 Anthropic 호환 endpoint와
-지정 모델로 실행합니다. API 키는 저장소나 셸 설정에 기록하지 말고 macOS
-Keychain에 저장하세요. 마지막 `-w`가 키를 대화형으로 입력받으므로 명령 인자와
-셸 기록에 키가 남지 않습니다.
+지정 모델로 실행합니다. `config`를 실행하면 macOS Keychain의 숨김 입력
+프롬프트에서 API 키를 입력하고 저장할 수 있습니다. 같은 명령으로 기존 키를
+갱신할 수 있으며, 명령 인자와 셸 기록에 키가 남지 않습니다. 키 설정에는
+Claude Code가 설치되어 있지 않아도 됩니다.
 
 ```sh
-security add-generic-password \
-  -a "$USER" \
-  -s "synthetic.new.api-key" \
-  -l "Synthetic API Key" \
-  -U \
-  -w
-
 source ~/.zshfunc
+synthetic_apply_claude config
 synthetic_apply_claude
 synthetic_apply_claude --help
 ```
