@@ -35,7 +35,7 @@ if [[ "${(j:\n:)calls}" != "${(j:\n:)expected}" ]]; then
 fi
 
 test_tmp="$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-zshfunc-test.XXXXXX")"
-trap 'rm -rf -- "$test_tmp"' EXIT
+trap '/bin/rm -rf -- "$test_tmp"' EXIT
 mkdir -p "$test_tmp/bin" "$test_tmp/empty"
 
 cat >"$test_tmp/bin/claude" <<'EOF'
@@ -60,6 +60,10 @@ chmod +x "$test_tmp/bin/claude"
 cat >"$test_tmp/bin/security" <<'EOF'
 #!/bin/zsh
 
+print -rl -- "$@" >"$SYNTHETIC_KEYCHAIN_CAPTURE"
+if [[ "${1:-}" == "add-generic-password" ]]; then
+  exit "${SYNTHETIC_KEYCHAIN_SAVE_STATUS:-0}"
+fi
 expected="find-generic-password -a $SYNTHETIC_KEYCHAIN_ACCOUNT -s synthetic.new.api-key -w"
 [[ "$*" == "$expected" ]] || exit 64
 [[ "${SYNTHETIC_KEYCHAIN_RESULT:-missing}" == "present" ]] || exit 44
@@ -69,6 +73,7 @@ chmod +x "$test_tmp/bin/security"
 
 export PATH="$test_tmp/bin:$PATH"
 export SYNTHETIC_CLAUDE_CAPTURE="$test_tmp/claude-capture"
+export SYNTHETIC_KEYCHAIN_CAPTURE="$test_tmp/keychain-capture"
 export SYNTHETIC_KEYCHAIN_ACCOUNT="$USER"
 export SYNTHETIC_KEYCHAIN_API_KEY="keychain-test-key"
 export SYNTHETIC_KEYCHAIN_RESULT="present"
@@ -163,11 +168,66 @@ if [[ "$(<"$missing_key_error")" != "synthetic_apply_claude: API key was not fou
   exit 1
 fi
 
+# Configuration must work before either an API key or Claude is installed.
+mv "$test_tmp/bin/claude" "$test_tmp/claude"
+original_path="$PATH"
+PATH="$test_tmp/bin"
+rehash
+config_output="$test_tmp/config-output"
+if ! synthetic_apply_claude config >"$config_output" 2>&1; then
+  print -u2 "synthetic_apply_claude config required an existing API key or Claude executable"
+  exit 1
+fi
+typeset -a expected_config_args=(
+  add-generic-password
+  -a "$USER"
+  -s synthetic.new.api-key
+  -l "Synthetic API Key"
+  -U
+  -w
+)
+if [[ "$(<"$SYNTHETIC_KEYCHAIN_CAPTURE")" != "${(F)expected_config_args}" ]]; then
+  print -u2 "config did not request an interactive Keychain password update"
+  exit 1
+fi
+if [[ -e "$SYNTHETIC_CLAUDE_CAPTURE" ]] || (( ${+SYNTHETIC_API_KEY} )); then
+  print -u2 "config launched Claude or exported an API key"
+  exit 1
+fi
+
+# An environment override must not bypass configuration or hide save failures.
+export SYNTHETIC_API_KEY="synthetic-test-key"
+export SYNTHETIC_KEYCHAIN_SAVE_STATUS=37
+config_status=0
+synthetic_apply_claude config >"$config_output" 2>&1 || config_status=$?
+if (( config_status != 37 )) || [[ "$(<"$config_output")" == *"saved"* ]]; then
+  print -u2 "config did not propagate the Keychain save failure"
+  exit 1
+fi
+unset SYNTHETIC_KEYCHAIN_SAVE_STATUS
+PATH="$original_path"
+rehash
+mv "$test_tmp/claude" "$test_tmp/bin/claude"
+
+rm -f -- "$SYNTHETIC_KEYCHAIN_CAPTURE"
+config_status=0
+synthetic_apply_claude config unexpected-argument >"$config_output" 2>&1 || config_status=$?
+if (( config_status != 2 )) || [[ -e "$SYNTHETIC_KEYCHAIN_CAPTURE" || -e "$SYNTHETIC_CLAUDE_CAPTURE" ]]; then
+  print -u2 "config accepted extra arguments or ran a command before rejecting them"
+  exit 1
+fi
+
 export SYNTHETIC_API_KEY="synthetic-test-key"
 export SYNTHETIC_KEYCHAIN_RESULT="present"
 original_path="$PATH"
 PATH="$test_tmp/empty"
 rehash
+config_status=0
+synthetic_apply_claude config >"$config_output" 2>&1 || config_status=$?
+if (( config_status != 127 )) || [[ "$(<"$config_output")" != *"security"* ]]; then
+  print -u2 "config did not report the missing Keychain command"
+  exit 1
+fi
 missing_claude_error="$test_tmp/missing-claude-error"
 if synthetic_apply_claude --version >/dev/null 2>"$missing_claude_error"; then
   print -u2 "synthetic_apply_claude accepted a missing Claude executable"
