@@ -2,9 +2,31 @@
 synthetic_apply_claude() {
   emulate -L zsh
 
-  local synthetic_api_key="${SYNTHETIC_API_KEY:-}"
   local keychain_account="${USER:-${USERNAME:-}}"
 
+  if [[ "${1:-}" == "config" ]]; then
+    if (( $# != 1 )); then
+      print -u2 "usage: synthetic_apply_claude config"
+      return 2
+    fi
+    if (( ! $+commands[security] )); then
+      print -u2 "synthetic_apply_claude: security is not installed or not in PATH"
+      return 127
+    fi
+
+    print "Enter your Synthetic API key at the Keychain password prompts."
+    # Keep -w last and argument-free so security prompts without exposing the key.
+    security add-generic-password \
+      -a "$keychain_account" \
+      -s "synthetic.new.api-key" \
+      -l "Synthetic API Key" \
+      -U \
+      -w || return $?
+    print "synthetic_apply_claude: API key saved to Keychain"
+    return 0
+  fi
+
+  local synthetic_api_key="${SYNTHETIC_API_KEY:-}"
   if [[ -z "$synthetic_api_key" ]]; then
     if (( ! $+commands[security] )) ||
       ! synthetic_api_key="$(
