@@ -18,6 +18,7 @@ settings = "prefix+s"
 [ui]
 show_agent_labels_on_pane_borders = true
 
+agent_panel_sort = "spaces"
 [ui.sound]
 enabled = false
 
