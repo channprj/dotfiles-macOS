@@ -1,16 +1,16 @@
 # Claude Code providers
-synthetic_apply_claude() {
+synthetic_claude() {
   emulate -L zsh
 
   local keychain_account="${USER:-${USERNAME:-}}"
 
   if [[ "${1:-}" == "config" ]]; then
     if (( $# != 1 )); then
-      print -u2 "usage: synthetic_apply_claude config"
+      print -u2 "usage: synthetic_claude config"
       return 2
     fi
     if (( ! $+commands[security] )); then
-      print -u2 "synthetic_apply_claude: security is not installed or not in PATH"
+      print -u2 "synthetic_claude: security is not installed or not in PATH"
       return 127
     fi
 
@@ -22,7 +22,7 @@ synthetic_apply_claude() {
       -l "Synthetic API Key" \
       -U \
       -w || return $?
-    print "synthetic_apply_claude: API key saved to Keychain"
+    print "synthetic_claude: API key saved to Keychain"
     return 0
   fi
 
@@ -35,12 +35,12 @@ synthetic_apply_claude() {
           -s "synthetic.new.api-key" \
           -w 2>/dev/null
       )" || [[ -z "$synthetic_api_key" ]]; then
-      print -u2 "synthetic_apply_claude: API key was not found in SYNTHETIC_API_KEY or Keychain"
+      print -u2 "synthetic_claude: API key was not found in SYNTHETIC_API_KEY or Keychain"
       return 1
     fi
   fi
   if (( ! $+commands[claude] )); then
-    print -u2 "synthetic_apply_claude: claude is not installed or not in PATH"
+    print -u2 "synthetic_claude: claude is not installed or not in PATH"
     return 127
   fi
 
