@@ -44,6 +44,7 @@ cat >"$test_tmp/bin/claude" <<'EOF'
 {
   print -r -- "ANTHROPIC_BASE_URL=$ANTHROPIC_BASE_URL"
   print -r -- "ANTHROPIC_AUTH_TOKEN=$ANTHROPIC_AUTH_TOKEN"
+  print -r -- "ANTHROPIC_MODEL=${ANTHROPIC_MODEL-}"
   print -r -- "ANTHROPIC_DEFAULT_OPUS_MODEL=$ANTHROPIC_DEFAULT_OPUS_MODEL"
   print -r -- "ANTHROPIC_DEFAULT_SONNET_MODEL=$ANTHROPIC_DEFAULT_SONNET_MODEL"
   print -r -- "ANTHROPIC_DEFAULT_HAIKU_MODEL=$ANTHROPIC_DEFAULT_HAIKU_MODEL"
@@ -80,6 +81,7 @@ export SYNTHETIC_KEYCHAIN_RESULT="present"
 export SYNTHETIC_API_KEY="synthetic-test-key"
 export ANTHROPIC_BASE_URL="parent-base"
 export ANTHROPIC_AUTH_TOKEN="parent-token"
+export ANTHROPIC_MODEL="parent-model"
 export ANTHROPIC_DEFAULT_OPUS_MODEL="parent-opus"
 export ANTHROPIC_DEFAULT_SONNET_MODEL="parent-sonnet"
 export ANTHROPIC_DEFAULT_HAIKU_MODEL="parent-haiku"
@@ -92,7 +94,8 @@ synthetic_apply_claude --model "argument with spaces"
 typeset -a expected_capture=(
   "ANTHROPIC_BASE_URL=https://api.synthetic.new/anthropic"
   "ANTHROPIC_AUTH_TOKEN=synthetic-test-key"
-  "ANTHROPIC_DEFAULT_OPUS_MODEL=syn:large:vision"
+  "ANTHROPIC_MODEL=hf:zai-org/GLM-5.3-Flash"
+  "ANTHROPIC_DEFAULT_OPUS_MODEL=hf:zai-org/GLM-5.3-Flash"
   "ANTHROPIC_DEFAULT_SONNET_MODEL=syn:large:vision"
   "ANTHROPIC_DEFAULT_HAIKU_MODEL=syn:small:text"
   "CLAUDE_CODE_SUBAGENT_MODEL=syn:large:vision"
@@ -113,6 +116,7 @@ fi
 typeset -a expected_parent_environment=(
   "parent-base"
   "parent-token"
+  "parent-model"
   "parent-opus"
   "parent-sonnet"
   "parent-haiku"
@@ -123,6 +127,7 @@ typeset -a expected_parent_environment=(
 typeset -a actual_parent_environment=(
   "$ANTHROPIC_BASE_URL"
   "$ANTHROPIC_AUTH_TOKEN"
+  "$ANTHROPIC_MODEL"
   "$ANTHROPIC_DEFAULT_OPUS_MODEL"
   "$ANTHROPIC_DEFAULT_SONNET_MODEL"
   "$ANTHROPIC_DEFAULT_HAIKU_MODEL"
@@ -132,6 +137,19 @@ typeset -a actual_parent_environment=(
 )
 if [[ "${(j:\n:)actual_parent_environment}" != "${(j:\n:)expected_parent_environment}" ]]; then
   print -u2 "synthetic_apply_claude changed the parent environment"
+  exit 1
+fi
+
+# A bare invocation must select Synthetic even without a shell model override.
+unset ANTHROPIC_MODEL
+synthetic_apply_claude
+default_capture="$(<"$SYNTHETIC_CLAUDE_CAPTURE")"
+if [[ "$default_capture" != *"ANTHROPIC_MODEL=hf:zai-org/GLM-5.3-Flash"* || "$default_capture" == *"ARG="* ]]; then
+  print -u2 "a bare synthetic_apply_claude invocation did not select the Synthetic model"
+  exit 1
+fi
+if (( ${+ANTHROPIC_MODEL} )); then
+  print -u2 "synthetic_apply_claude persisted its model in the parent environment"
   exit 1
 fi
 
