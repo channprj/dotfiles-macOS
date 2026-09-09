@@ -14,7 +14,7 @@
 
 ## Minimal reproduction
 
-`env -i HOME="$HOME" PATH="/usr/bin:/bin:/usr/sbin:/sbin" /bin/zsh -dfc 'source /Users/chan.park/dotfiles/sh/.zshenv; whence -p pyenv || exit 127'` exits 127. An explicit inspection of Zsh's `path` array prints `MISSING` for `$HOME/.pyenv/bin`.
+`env -i HOME="$HOME" PATH="/usr/bin:/bin:/usr/sbin:/sbin" /bin/zsh -dfc 'source "$HOME/dotfiles/sh/.zshenv"; whence -p pyenv || exit 127'` exits 127. An explicit inspection of Zsh's `path` array prints `MISSING` for `$HOME/.pyenv/bin`.
 
 ## Hypothesis ledger
 
