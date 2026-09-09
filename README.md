@@ -121,7 +121,7 @@ DOTFILES_BACKUP_DIR=/secure/path ./uninstall.sh
 
 ## Synthetic로 Claude Code 실행
 
-`synthetic_apply_claude`는 Claude Code를 Synthetic의 Anthropic 호환 endpoint와
+`synthetic_claude`는 Claude Code를 Synthetic의 Anthropic 호환 endpoint와
 지정 모델로 실행합니다. `config`를 실행하면 macOS Keychain의 숨김 입력
 프롬프트에서 API 키를 입력하고 저장할 수 있습니다. 같은 명령으로 기존 키를
 갱신할 수 있으며, 명령 인자와 셸 기록에 키가 남지 않습니다. 키 설정에는
@@ -129,17 +129,21 @@ Claude Code가 설치되어 있지 않아도 됩니다.
 
 ```sh
 source ~/.zshfunc
-synthetic_apply_claude config
-synthetic_apply_claude
-synthetic_apply_claude --help
+synthetic_claude config
+synthetic_claude
+synthetic_claude --help
 ```
+
+시작 모델과 Opus 기본 모델은 `hf:zai-org/GLM-5.3-Flash`로 지정합니다.
+시작 모델은 Claude 설정에 저장된 모델보다 우선 적용하며, `--model` 옵션을
+직접 전달하면 해당 모델을 사용합니다.
 
 `SYNTHETIC_API_KEY`가 이미 설정되어 있으면 해당 값을 우선 사용하고, 없으면
 Keychain의 `synthetic.new.api-key` 항목을 자동으로 읽습니다. 일회성 키를 사용할
 때만 다음처럼 현재 명령에 환경변수를 지정할 수 있습니다.
 
 ```sh
-SYNTHETIC_API_KEY='<temporary-key>' synthetic_apply_claude
+SYNTHETIC_API_KEY='<temporary-key>' synthetic_claude
 ```
 
 Synthetic 관련 override는 실행한 Claude 자식 프로세스에만 적용됩니다. 명령이
