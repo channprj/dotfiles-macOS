@@ -52,6 +52,12 @@ MUTATION_OLD_TARGETS=()
 MUTATION_NEW_TARGETS=()
 RUN_CREATED_PARENTS=()
 MANAGED_PARENTS=()
+ZSH_PLUGIN_FORMULAE=(
+  zsh-completions
+  zsh-autosuggestions
+  zsh-syntax-highlighting
+)
+MISSING_ZSH_PLUGIN_FORMULAE=()
 
 # shellcheck source=lib/links.sh
 source "$DOTFILES_DIR/lib/links.sh"
@@ -483,6 +489,42 @@ print_dry_run_plan() {
   done
 }
 
+resolve_missing_zsh_plugins() {
+  local formula=""
+
+  if ! command -v brew >/dev/null 2>&1; then
+    err "Homebrew is required to install the managed Zsh plugins"
+    err "install Homebrew first: https://brew.sh"
+    return 1
+  fi
+
+  MISSING_ZSH_PLUGIN_FORMULAE=()
+  for formula in "${ZSH_PLUGIN_FORMULAE[@]}"; do
+    if ! brew list --formula "$formula" >/dev/null 2>&1; then
+      MISSING_ZSH_PLUGIN_FORMULAE+=("$formula")
+    fi
+  done
+}
+
+print_zsh_plugin_plan() {
+  if (( ${#MISSING_ZSH_PLUGIN_FORMULAE[@]} == 0 )); then
+    skip "Zsh completion, autosuggestion, and highlighting plugins already installed"
+  elif (( DRY_RUN )); then
+    info "would install: ${MISSING_ZSH_PLUGIN_FORMULAE[*]}"
+  else
+    info "brew install ${MISSING_ZSH_PLUGIN_FORMULAE[*]}"
+  fi
+}
+
+install_missing_zsh_plugins() {
+  (( ${#MISSING_ZSH_PLUGIN_FORMULAE[@]} > 0 )) || return 0
+
+  brew install "${MISSING_ZSH_PLUGIN_FORMULAE[@]}" || {
+    err "could not install the managed Zsh plugins"
+    return 1
+  }
+}
+
 record_created_parent() {
   local parent_relative="$1"
 
@@ -829,6 +871,7 @@ main() {
   merge_active_inventory || return 1
 
   build_plan || return 1
+  resolve_missing_zsh_plugins || return 1
   if (( DRY_RUN )); then
     print_dry_run_plan
   else
@@ -836,12 +879,14 @@ main() {
     info "backup root: $BACKUP_ROOT"
     print_apply_plan
   fi
+  print_zsh_plugin_plan
   dotfiles_warn_lazyvim_dependencies
 
   if (( DRY_RUN )); then
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
+  install_missing_zsh_plugins || return 1
   if (( PLAN_CHANGE_COUNT == 0 )); then
     ok "install already matches the active receipt"
     return 0

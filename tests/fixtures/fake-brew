@@ -1,0 +1,24 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+case "${1:-}" in
+  list)
+    [[ "${2:-}" == --formula && -n "${3:-}" ]] || exit 2
+    grep -Fxq -- "$3" "$DOTFILES_TEST_BREW_STATE"
+    ;;
+  install)
+    shift
+    printf 'FAKE_BREW_INSTALL'
+    printf ' %s' "$@"
+    printf '\n'
+    for formula in "$@"; do
+      if ! grep -Fxq -- "$formula" "$DOTFILES_TEST_BREW_STATE"; then
+        printf '%s\n' "$formula" >>"$DOTFILES_TEST_BREW_STATE"
+      fi
+    done
+    ;;
+  *)
+    exit 2
+    ;;
+esac

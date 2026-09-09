@@ -35,8 +35,19 @@ zstyle ':completion:*' use-cache on
 zstyle ':completion:*' cache-path "$HOME/.zshcache"
 
 # Homebrew changes PATH and architecture-specific prefixes. It is optional.
+_dotfiles_brew_prefix=""
 if (( $+commands[brew] )); then
   eval "$(brew shellenv)"
+  _dotfiles_brew_prefix="${HOMEBREW_PREFIX:-}"
+  if [[ -z "$_dotfiles_brew_prefix" ]]; then
+    _dotfiles_brew_prefix="$(brew --prefix 2>/dev/null)"
+  fi
+fi
+
+if [[ -d "$_dotfiles_brew_prefix/share/zsh-completions" ]]; then
+  fpath=("$_dotfiles_brew_prefix/share/zsh-completions" $fpath)
+elif [[ -d "$ZSH_CUSTOM/plugins/zsh-completions/src" ]]; then
+  fpath=("$ZSH_CUSTOM/plugins/zsh-completions/src" $fpath)
 fi
 
 plugins=()
@@ -46,13 +57,14 @@ _dotfiles_add_omz_plugin() {
     plugins+=("$plugin")
   fi
 }
-for plugin in git github brew docker zsh-completions; do
+for plugin in git github brew docker; do
   _dotfiles_add_omz_plugin "$plugin"
 done
 if [[ -t 0 && -o zle ]]; then
-  for plugin in zsh-autosuggestions zsh-syntax-highlighting; do
-    _dotfiles_add_omz_plugin "$plugin"
-  done
+  [[ -r "$_dotfiles_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] ||
+    _dotfiles_add_omz_plugin zsh-autosuggestions
+  [[ -r "$_dotfiles_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] ||
+    _dotfiles_add_omz_plugin zsh-syntax-highlighting
 fi
 unset plugin
 unfunction _dotfiles_add_omz_plugin
@@ -104,10 +116,19 @@ fi
   source "/opt/homebrew/share/google-cloud-sdk/path.zsh.inc"
 [[ -r "/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc" ]] &&
   source "/opt/homebrew/share/google-cloud-sdk/completion.zsh.inc"
-[[ -r "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
-
-
 # >>> markdowner Ctrl+G launcher >>>
 export EDITOR="mdner --wait"
 export VISUAL="mdner --wait"
 # <<< markdowner Ctrl+G launcher <<<
+
+# Bun completions.
+[[ -r "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
+
+# Homebrew Zsh plugins are loaded after integrations so their ZLE hooks win.
+if [[ -t 0 && -o zle ]]; then
+  [[ -r "$_dotfiles_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" ]] &&
+    source "$_dotfiles_brew_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh"
+  [[ -r "$_dotfiles_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" ]] &&
+    source "$_dotfiles_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
+fi
+unset _dotfiles_brew_prefix

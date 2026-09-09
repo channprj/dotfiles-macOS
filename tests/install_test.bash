@@ -24,11 +24,20 @@ new_case() {
   CASE_ROOT="$TEST_ROOT/$name"
   CASE_HOME="$CASE_ROOT/home"
   CASE_BACKUP="$CASE_ROOT/backup"
-  mkdir -p "$CASE_HOME"
+  CASE_BIN="$CASE_ROOT/bin"
+  CASE_BREW_STATE="$CASE_ROOT/brew-state"
+  mkdir -p "$CASE_HOME" "$CASE_BIN"
+  cp "$REPO_ROOT/tests/fixtures/fake-brew" "$CASE_BIN/brew"
+  chmod +x "$CASE_BIN/brew"
+  : >"$CASE_BREW_STATE"
 }
 
 install_case() {
-  HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" "$REPO_ROOT/install.sh" "$@"
+  PATH="$CASE_BIN:$PATH" \
+    DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    HOME="$CASE_HOME" \
+    DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+    "$REPO_ROOT/install.sh" "$@"
 }
 
 uninstall_case() {
@@ -77,19 +86,51 @@ test_dry_run_and_invalid_module_do_not_mutate() {
   [[ ! -e "$CASE_BACKUP" ]] || fail "invalid module created the backup root"
 }
 
+test_installs_only_missing_zsh_plugins_and_is_idempotent() {
+  local output=""
+
+  new_case zsh-plugins
+  printf '%s\n' zsh-syntax-highlighting >"$CASE_BREW_STATE"
+
+  output="$(install_case)"
+  [[ "$output" == *"FAKE_BREW_INSTALL zsh-completions zsh-autosuggestions"* ]] ||
+    fail "the installer did not pass exactly the missing Zsh plugins to Homebrew"
+
+  output="$(install_case)"
+  [[ "$output" != *"FAKE_BREW_INSTALL"* ]] ||
+    fail "an idempotent install retried Zsh plugin installation"
+
+  uninstall_case >/dev/null
+}
+
+test_zsh_plugin_dry_run_does_not_install() {
+  local output=""
+
+  new_case zsh-plugins-dry-run
+  output="$(install_case --dry-run)"
+  [[ "$output" == *"would install: zsh-completions zsh-autosuggestions zsh-syntax-highlighting"* ]] ||
+    fail "dry-run did not report missing Zsh plugins"
+  [[ ! -s "$CASE_BREW_STATE" ]] || fail "dry-run installed Zsh plugins"
+  [[ ! -e "$CASE_BACKUP" ]] || fail "Zsh plugin dry-run created the backup root"
+}
+
 test_dry_run_colors_only_for_terminals() {
   local output=""
 
   new_case dry-run-color
   output="$(
-    TERM=xterm-256color NO_COLOR='' HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+    TERM=xterm-256color NO_COLOR='' PATH="$CASE_BIN:$PATH" \
+      DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+      HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
       /usr/bin/script -q /dev/null "$REPO_ROOT/install.sh" --dry-run 2>/dev/null
   )"
   [[ "$output" == *$'\033[1m'* ]] || fail "terminal dry-run is missing bold highlighting"
   [[ "$output" == *$'\033[0;32m'* ]] || fail "terminal dry-run is missing action colors"
 
   output="$(
-    TERM=xterm-256color NO_COLOR=1 HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+    TERM=xterm-256color NO_COLOR=1 PATH="$CASE_BIN:$PATH" \
+      DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+      HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
       /usr/bin/script -q /dev/null "$REPO_ROOT/install.sh" --dry-run 2>/dev/null
   )"
   [[ "$output" != *$'\033['* ]] || fail "NO_COLOR did not disable highlighting"
@@ -242,7 +283,9 @@ test_repository_relocation_repairs_only_owned_links() {
   backup_hash="$(shasum -a 256 "$(active_install_dir)/originals/.zshrc" | awk '{print $1}')"
   ln -s "$REPO_ROOT" "$moved_repo"
 
-  HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" "$moved_repo/install.sh" --module terminal >/dev/null
+  PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+    "$moved_repo/install.sh" --module terminal >/dev/null
   assert_eq "$moved_repo/sh/.zshrc" "$(readlink "$CASE_HOME/.zshrc")" "repository relocation did not repair default link"
   assert_eq "$moved_repo/editor/ghostty" "$(readlink "$CASE_HOME/.config/ghostty/config")" "repository relocation did not repair module link"
   assert_eq "$backup_hash" "$(shasum -a 256 "$(active_install_dir)/originals/.zshrc" | awk '{print $1}')" "relocation changed the original backup"
@@ -258,7 +301,8 @@ test_install_failure_rolls_back_the_whole_run() {
   new_case install-rollback
   printf '%s\n' one >"$CASE_HOME/.zshrc"
   printf '%s\n' two >"$CASE_HOME/.zshenv"
-  if HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" DOTFILES_TEST_FAIL_AFTER=2 \
+  if PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" DOTFILES_TEST_FAIL_AFTER=2 \
     "$REPO_ROOT/install.sh" >/dev/null 2>&1; then
     fail "injected install failure should fail"
   fi
@@ -274,7 +318,9 @@ test_incomplete_rollback_preserves_recovery_data() {
 
   new_case recovery-required
   printf '%s\n' original >"$CASE_HOME/.zshrc"
-  if HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" DOTFILES_TEST_FAIL_AFTER=1 DOTFILES_TEST_FAIL_ROLLBACK=1 \
+  if PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
+    DOTFILES_TEST_FAIL_AFTER=1 DOTFILES_TEST_FAIL_ROLLBACK=1 \
     "$REPO_ROOT/install.sh" >/dev/null 2>&1; then
     fail "incomplete rollback should fail"
   fi
@@ -375,6 +421,8 @@ test_uninstall_without_active_receipt_is_idempotent() {
 }
 
 test_dry_run_and_invalid_module_do_not_mutate
+test_installs_only_missing_zsh_plugins_and_is_idempotent
+test_zsh_plugin_dry_run_does_not_install
 test_dry_run_colors_only_for_terminals
 test_default_install_restores_every_original_kind
 test_default_install_manages_herdr_config
