@@ -47,7 +47,8 @@ synthetic_apply_claude() {
   env \
     ANTHROPIC_BASE_URL="https://api.synthetic.new/anthropic" \
     ANTHROPIC_AUTH_TOKEN="$synthetic_api_key" \
-    ANTHROPIC_DEFAULT_OPUS_MODEL="syn:large:vision" \
+    ANTHROPIC_MODEL="hf:zai-org/GLM-5.3-Flash" \
+    ANTHROPIC_DEFAULT_OPUS_MODEL="hf:zai-org/GLM-5.3-Flash" \
     ANTHROPIC_DEFAULT_SONNET_MODEL="syn:large:vision" \
     ANTHROPIC_DEFAULT_HAIKU_MODEL="syn:small:text" \
     CLAUDE_CODE_SUBAGENT_MODEL="syn:large:vision" \
