@@ -15,8 +15,8 @@ if (( ! $+functions[reset-iterm2-permissions] )); then
   print -u2 "reset-iterm2-permissions is not defined"
   exit 1
 fi
-if (( ! $+functions[synthetic_apply_claude] )); then
-  print -u2 "synthetic_apply_claude is not defined"
+if (( ! $+functions[synthetic_claude] )); then
+  print -u2 "synthetic_claude is not defined"
   exit 1
 fi
 
@@ -89,7 +89,7 @@ export CLAUDE_CODE_SUBAGENT_MODEL="parent-subagent"
 export CLAUDE_CODE_DISABLE_NONESSENTIAL_TRAFFIC="parent-traffic"
 export CLAUDE_CODE_ATTRIBUTION_HEADER="parent-attribution"
 
-synthetic_apply_claude --model "argument with spaces"
+synthetic_claude --model "argument with spaces"
 
 typeset -a expected_capture=(
   "ANTHROPIC_BASE_URL=https://api.synthetic.new/anthropic"
@@ -136,53 +136,53 @@ typeset -a actual_parent_environment=(
   "$CLAUDE_CODE_ATTRIBUTION_HEADER"
 )
 if [[ "${(j:\n:)actual_parent_environment}" != "${(j:\n:)expected_parent_environment}" ]]; then
-  print -u2 "synthetic_apply_claude changed the parent environment"
+  print -u2 "synthetic_claude changed the parent environment"
   exit 1
 fi
 
 # A bare invocation must select Synthetic even without a shell model override.
 unset ANTHROPIC_MODEL
-synthetic_apply_claude
+synthetic_claude
 default_capture="$(<"$SYNTHETIC_CLAUDE_CAPTURE")"
 if [[ "$default_capture" != *"ANTHROPIC_MODEL=hf:zai-org/GLM-5.3-Flash"* || "$default_capture" == *"ARG="* ]]; then
-  print -u2 "a bare synthetic_apply_claude invocation did not select the Synthetic model"
+  print -u2 "a bare synthetic_claude invocation did not select the Synthetic model"
   exit 1
 fi
 if (( ${+ANTHROPIC_MODEL} )); then
-  print -u2 "synthetic_apply_claude persisted its model in the parent environment"
+  print -u2 "synthetic_claude persisted its model in the parent environment"
   exit 1
 fi
 
 rm -f -- "$SYNTHETIC_CLAUDE_CAPTURE"
 unset SYNTHETIC_API_KEY
-synthetic_apply_claude --version
+synthetic_claude --version
 keychain_capture="$(<"$SYNTHETIC_CLAUDE_CAPTURE")"
 if [[ "$keychain_capture" != *"ANTHROPIC_AUTH_TOKEN=keychain-test-key"* ]]; then
-  print -u2 "synthetic_apply_claude did not use the Keychain API key"
+  print -u2 "synthetic_claude did not use the Keychain API key"
   exit 1
 fi
 if [[ "$keychain_capture" != *"ARG=--version"* ]]; then
-  print -u2 "synthetic_apply_claude did not forward arguments with the Keychain API key"
+  print -u2 "synthetic_claude did not forward arguments with the Keychain API key"
   exit 1
 fi
 if (( ${+SYNTHETIC_API_KEY} )); then
-  print -u2 "synthetic_apply_claude exported the Keychain API key to the parent environment"
+  print -u2 "synthetic_claude exported the Keychain API key to the parent environment"
   exit 1
 fi
 
 rm -f -- "$SYNTHETIC_CLAUDE_CAPTURE"
 export SYNTHETIC_KEYCHAIN_RESULT="missing"
 missing_key_error="$test_tmp/missing-key-error"
-if synthetic_apply_claude --version >/dev/null 2>"$missing_key_error"; then
-  print -u2 "synthetic_apply_claude accepted missing environment and Keychain API keys"
+if synthetic_claude --version >/dev/null 2>"$missing_key_error"; then
+  print -u2 "synthetic_claude accepted missing environment and Keychain API keys"
   exit 1
 fi
 if [[ -e "$SYNTHETIC_CLAUDE_CAPTURE" ]]; then
-  print -u2 "synthetic_apply_claude invoked Claude without an API key"
+  print -u2 "synthetic_claude invoked Claude without an API key"
   exit 1
 fi
-if [[ "$(<"$missing_key_error")" != "synthetic_apply_claude: API key was not found in SYNTHETIC_API_KEY or Keychain" ]]; then
-  print -u2 "synthetic_apply_claude returned an unexpected missing-key error"
+if [[ "$(<"$missing_key_error")" != "synthetic_claude: API key was not found in SYNTHETIC_API_KEY or Keychain" ]]; then
+  print -u2 "synthetic_claude returned an unexpected missing-key error"
   exit 1
 fi
 
@@ -192,8 +192,8 @@ original_path="$PATH"
 PATH="$test_tmp/bin"
 rehash
 config_output="$test_tmp/config-output"
-if ! synthetic_apply_claude config >"$config_output" 2>&1; then
-  print -u2 "synthetic_apply_claude config required an existing API key or Claude executable"
+if ! synthetic_claude config >"$config_output" 2>&1; then
+  print -u2 "synthetic_claude config required an existing API key or Claude executable"
   exit 1
 fi
 typeset -a expected_config_args=(
@@ -217,7 +217,7 @@ fi
 export SYNTHETIC_API_KEY="synthetic-test-key"
 export SYNTHETIC_KEYCHAIN_SAVE_STATUS=37
 config_status=0
-synthetic_apply_claude config >"$config_output" 2>&1 || config_status=$?
+synthetic_claude config >"$config_output" 2>&1 || config_status=$?
 if (( config_status != 37 )) || [[ "$(<"$config_output")" == *"saved"* ]]; then
   print -u2 "config did not propagate the Keychain save failure"
   exit 1
@@ -229,7 +229,7 @@ mv "$test_tmp/claude" "$test_tmp/bin/claude"
 
 rm -f -- "$SYNTHETIC_KEYCHAIN_CAPTURE"
 config_status=0
-synthetic_apply_claude config unexpected-argument >"$config_output" 2>&1 || config_status=$?
+synthetic_claude config unexpected-argument >"$config_output" 2>&1 || config_status=$?
 if (( config_status != 2 )) || [[ -e "$SYNTHETIC_KEYCHAIN_CAPTURE" || -e "$SYNTHETIC_CLAUDE_CAPTURE" ]]; then
   print -u2 "config accepted extra arguments or ran a command before rejecting them"
   exit 1
@@ -241,20 +241,20 @@ original_path="$PATH"
 PATH="$test_tmp/empty"
 rehash
 config_status=0
-synthetic_apply_claude config >"$config_output" 2>&1 || config_status=$?
+synthetic_claude config >"$config_output" 2>&1 || config_status=$?
 if (( config_status != 127 )) || [[ "$(<"$config_output")" != *"security"* ]]; then
   print -u2 "config did not report the missing Keychain command"
   exit 1
 fi
 missing_claude_error="$test_tmp/missing-claude-error"
-if synthetic_apply_claude --version >/dev/null 2>"$missing_claude_error"; then
-  print -u2 "synthetic_apply_claude accepted a missing Claude executable"
+if synthetic_claude --version >/dev/null 2>"$missing_claude_error"; then
+  print -u2 "synthetic_claude accepted a missing Claude executable"
   exit 1
 fi
 PATH="$original_path"
 rehash
-if [[ "$(<"$missing_claude_error")" != "synthetic_apply_claude: claude is not installed or not in PATH" ]]; then
-  print -u2 "synthetic_apply_claude returned an unexpected missing-Claude error"
+if [[ "$(<"$missing_claude_error")" != "synthetic_claude: claude is not installed or not in PATH" ]]; then
+  print -u2 "synthetic_claude returned an unexpected missing-Claude error"
   exit 1
 fi
 
