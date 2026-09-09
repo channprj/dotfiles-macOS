@@ -97,6 +97,43 @@ theme="$({
 } 2>&1)"
 assert_eq dpoggi-timestamp "$theme" "installed terminal theme was not selected"
 
+plugin_prefix="$TEST_ROOT/homebrew"
+plugin_bin="$TEST_ROOT/bin"
+mkdir -p \
+  "$plugin_bin" \
+  "$plugin_prefix/share/zsh-completions" \
+  "$plugin_prefix/share/zsh-autosuggestions" \
+  "$plugin_prefix/share/zsh-syntax-highlighting"
+cat >"$plugin_bin/brew" <<EOF
+#!/bin/sh
+case "\$1" in
+  shellenv) printf '%s\n' 'export HOMEBREW_PREFIX=$plugin_prefix' ;;
+  --prefix) printf '%s\n' '$plugin_prefix' ;;
+  *) exit 2 ;;
+esac
+EOF
+chmod +x "$plugin_bin/brew"
+cat >"$plugin_prefix/share/zsh-autosuggestions/zsh-autosuggestions.zsh" <<'EOF'
+typeset -g DOTFILES_TEST_ZSH_PLUGIN_ORDER=autosuggestions
+EOF
+cat >"$plugin_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" <<'EOF'
+DOTFILES_TEST_ZSH_PLUGIN_ORDER="${DOTFILES_TEST_ZSH_PLUGIN_ORDER},syntax-highlighting"
+EOF
+printf 'source %q\npath=(%q /usr/bin /bin /usr/sbin /sbin)\nexport PATH\n' \
+  "$REPO_ROOT/sh/.zshenv" "$plugin_bin" >"$TEST_HOME/.zshenv"
+
+plugin_output="$({
+  env -i \
+    HOME="$TEST_HOME" \
+    ZDOTDIR="$TEST_HOME" \
+    PATH="$plugin_bin:/usr/bin:/bin:/usr/sbin:/sbin" \
+    TERM=dumb \
+    /usr/bin/script -q /dev/null /bin/zsh -i -c \
+      'print -r -- "__ZSH_PLUGINS__|$fpath[1]|${DOTFILES_TEST_ZSH_PLUGIN_ORDER-}"'
+} 2>&1)"
+[[ "$plugin_output" == *"__ZSH_PLUGINS__|$plugin_prefix/share/zsh-completions|autosuggestions,syntax-highlighting"* ]] ||
+  fail "Homebrew Zsh plugins did not load in completion/autosuggestion/highlighting order: $plugin_output"
+
 excludes_file="$(HOME="$TEST_HOME" git config --file "$REPO_ROOT/git/.gitconfig" --path --get core.excludesfile)"
 assert_eq "$TEST_HOME/.gitignore_global" "$excludes_file" "global Git excludes path is not portable"
 

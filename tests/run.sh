@@ -21,6 +21,7 @@ bash_files=(
   lib/transaction.sh
   scripts/check-secrets.sh
   tests/install_test.bash
+  tests/fixtures/fake-brew
   tests/lazyvim_test.sh
   tests/run.sh
 )
