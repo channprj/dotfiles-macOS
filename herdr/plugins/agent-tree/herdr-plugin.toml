@@ -1,0 +1,16 @@
+id = "chann.agent-tree"
+name = "Agent Tree"
+version = "0.1.0"
+min_herdr_version = "0.8.0"
+description = "Parent/child tree of agents spawned via spawn.sh plus Claude Code in-process subagents"
+platforms = ["macos", "linux"]
+
+[[panes]]
+id = "tree"
+title = "Agent tree"
+placement = "split"
+command = ["bash", "tree.sh"]
+
+[[events]]
+on = "pane.closed"
+command = ["bash", "prune.sh"]
