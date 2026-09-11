@@ -1,6 +1,7 @@
 [filter "lfs"]
 	clean = git lfs clean %f
 	smudge = git lfs smudge %f
+	process = git-lfs filter-process
 	required = true
 [user]
 	name = chann
@@ -8,7 +9,7 @@
 	signingkey = EC9A01F394E0A778
 [core]
 	excludesfile = ~/.gitignore_global
-	editor = vim
+	editor = nvim
 	# pager = diff-so-fancy | less --tabs=4 -RFX
 	pager = delta
 	quotepath = false
@@ -35,6 +36,7 @@
 [merge]
 	tool = vscode
 	conflictStyle = zdiff3
+	ff = true
 [mergetool "vscode"]
 	cmd = code --wait $MERGED
 [interactive]
@@ -71,7 +73,13 @@
 [delta]
     navigate = true  # use n and N to move between diff sections
     dark = true      # or light = true, or omit for auto-detection
+[rerere]
+	enabled = true
 
-# corp
+# Corp workspaces live on an external volume, so git may resolve the symlinked
+# ~/workspace path to its physical location before matching gitdir patterns.
+# Keep both conditions so the corp include applies either way.
+[includeIf "gitdir:/Volumes/990EVO+/workspace/corp/"]
+	path = ~/.gitconfig-corp
 [includeIf "gitdir:~/workspace/corp/"]
 	path = ~/.gitconfig-corp

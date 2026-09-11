@@ -253,7 +253,7 @@ test_modules_accumulate_and_reinstall_is_idempotent() {
   [[ -L "$CASE_HOME/.gnupg/gpg-agent.conf" ]] || fail "gnupg module was not linked"
   [[ -L "$CASE_HOME/Brewfile" ]] || fail "brew module was not linked"
   assert_eq 700 "$(stat -f '%Lp' "$CASE_HOME/.gnupg")" ".gnupg permissions"
-  assert_eq 18 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
+  assert_eq 19 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
 
   uninstall_case >/dev/null
   [[ ! -e "$CASE_HOME/.config/ghostty/config" ]] || fail "terminal module was not uninstalled"
@@ -267,7 +267,7 @@ test_all_is_the_union_of_modules() {
   new_case all-modules
   install_case --all --module terminal >/dev/null
   manifest="$(active_install_dir)/manifest.tsv"
-  assert_eq 18 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
+  assert_eq 19 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
   uninstall_case >/dev/null
 }
 

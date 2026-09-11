@@ -13,6 +13,7 @@ LINKS_DEFAULT=(
   "sh/.zsh-welcome:.zsh-welcome"
   "sh/.direnvrc:.direnvrc"
   "git/.gitconfig:.gitconfig"
+  "git/.gitconfig-corp:.gitconfig-corp"
   "git/.gitignore_global:.gitignore_global"
   "git/.tigrc:.tigrc"
   "editor/.vimrc:.vimrc"

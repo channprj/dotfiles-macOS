@@ -1,0 +1,13 @@
+# Corp (chan-park_trueb) git settings, loaded only for repositories under
+# ~/workspace/corp/ via includeIf in .gitconfig. The pinned username makes the
+# gh credential helper in .gitconfig resolve the corp token automatically, so
+# no keychain entry or helper override is needed.
+[user]
+	name = Chan Park
+	email = chan.park@afinit.com
+[commit]
+	gpgsign = false
+[tag]
+	forceSignAnnotated = false
+[credential "https://github.com"]
+	username = chan-park_trueb
