@@ -58,6 +58,11 @@
 ## Git Workflow
 - When creating a commit, always use the git-commit-push skill.
 
+## GitHub CLI Account
+- Repositories under `~/workspace/corp/` belong to the corp GitHub account `chan-park_trueb`, the same identity `git/.gitconfig-corp` pins for those paths.
+- Run `gh auth switch --user chan-park_trueb` before the first `gh` call in such a repository. The personal account `channprj` can be the active one and has no `project` scope, so GitHub Projects reads and writes fail under it.
+- Do not switch the active account back for personal repositories; `gh` keeps the last selection for every later call in the session.
+
 Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
 
 **Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
