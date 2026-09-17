@@ -18,6 +18,7 @@ export ENABLE_BACKGROUND_TASKS="${ENABLE_BACKGROUND_TASKS:-1}"
 # preserves the incoming system PATH while removing duplicate entries.
 typeset -U path PATH
 path=(
+  # Antigravity CLI (agy) and other user-local installs land here.
   "$HOME/.local/bin"
   "$HOME/bin"
   "$HOME/.opencode/bin"
