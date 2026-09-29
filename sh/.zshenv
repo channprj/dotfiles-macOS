@@ -44,6 +44,8 @@ path=(
 
 [[ -d "/Applications/Keybase.app/Contents/SharedSupport/bin" ]] &&
   path+=("/Applications/Keybase.app/Contents/SharedSupport/bin")
+# Pulumi's installer puts its CLI here; skip it on machines without Pulumi.
+[[ -d "$HOME/.pulumi/bin" ]] && path+=("$HOME/.pulumi/bin")
 
 export PATH
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
