@@ -47,6 +47,12 @@ path=(
 # Pulumi's installer puts its CLI here; skip it on machines without Pulumi.
 [[ -d "$HOME/.pulumi/bin" ]] && path+=("$HOME/.pulumi/bin")
 
+# Prefer Codex HUD when installed, while keeping the official Codex launcher.
+if [[ -x "${CODEX_HOME:-$HOME/.codex}/codex-hud/bin/codex" ]]; then
+  export CODEX_HUD_BIN_DIR="${CODEX_HOME:-$HOME/.codex}/codex-hud/bin"
+  path=("$CODEX_HUD_BIN_DIR" $path)
+fi
+
 export PATH
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
