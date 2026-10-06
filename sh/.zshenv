@@ -51,6 +51,15 @@ path=(
 if [[ -x "${CODEX_HOME:-$HOME/.codex}/codex-hud/bin/codex" ]]; then
   export CODEX_HUD_BIN_DIR="${CODEX_HOME:-$HOME/.codex}/codex-hud/bin"
   path=("$CODEX_HUD_BIN_DIR" $path)
+
+  # Scope Herdr's agent hint to Codex while keeping the standard HUD launcher.
+  codex() {
+    if [[ "${HERDR_ENV:-}" == "1" ]]; then
+      HERDR_AGENT=codex command "$CODEX_HUD_BIN_DIR/codex" "$@"
+    else
+      command "$CODEX_HUD_BIN_DIR/codex" "$@"
+    fi
+  }
 fi
 
 export PATH
