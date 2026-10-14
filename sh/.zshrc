@@ -57,7 +57,7 @@ _dotfiles_add_omz_plugin() {
     plugins+=("$plugin")
   fi
 }
-for plugin in git github brew docker; do
+for plugin in git gh brew docker; do
   _dotfiles_add_omz_plugin "$plugin"
 done
 if [[ -t 0 && -o zle ]]; then
