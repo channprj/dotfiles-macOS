@@ -132,3 +132,5 @@ if [[ -t 0 && -o zle ]]; then
     source "$_dotfiles_brew_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh"
 fi
 unset _dotfiles_brew_prefix
+
+export PATH="$HOME/.local/bin:$PATH"
