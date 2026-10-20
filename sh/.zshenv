@@ -46,6 +46,8 @@ path=(
   path+=("/Applications/Keybase.app/Contents/SharedSupport/bin")
 # Pulumi's installer puts its CLI here; skip it on machines without Pulumi.
 [[ -d "$HOME/.pulumi/bin" ]] && path+=("$HOME/.pulumi/bin")
+# Grok's installer puts its CLI here; share it with non-interactive shells.
+[[ -d "$HOME/.grok/bin" ]] && path+=("$HOME/.grok/bin")
 
 export PATH
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"

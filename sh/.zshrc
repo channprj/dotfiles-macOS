@@ -50,6 +50,10 @@ elif [[ -d "$ZSH_CUSTOM/plugins/zsh-completions/src" ]]; then
   fpath=("$ZSH_CUSTOM/plugins/zsh-completions/src" $fpath)
 fi
 
+# Register Grok completions before the shared completion initialization.
+[[ -d "$HOME/.grok/completions/zsh" ]] &&
+  fpath=("$HOME/.grok/completions/zsh" $fpath)
+
 plugins=()
 _dotfiles_add_omz_plugin() {
   local plugin="$1"
