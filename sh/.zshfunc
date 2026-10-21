@@ -85,6 +85,12 @@ update-agents() {
     curl -fsSL https://chatgpt.com/codex/install.sh | sh
   fi || update_failed=1
 
+  if command -v grok >/dev/null 2>&1; then
+    grok update
+  else
+    curl -fsSL https://x.ai/cli/install.sh | bash
+  fi || update_failed=1
+
   if command -v opencode >/dev/null 2>&1; then
     opencode upgrade
   else
