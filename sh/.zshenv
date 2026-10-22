@@ -117,3 +117,6 @@ gh() {
   fi
   GH_TOKEN="$github_token" command gh "$@"
 }
+
+# Cap local Vitest so one suite cannot take every core on this Mac.
+[[ -r "$HOME/.config/local-vitest-cap.zsh" ]] && source "$HOME/.config/local-vitest-cap.zsh"
