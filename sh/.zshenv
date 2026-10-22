@@ -120,3 +120,8 @@ gh() {
 
 # Cap local Vitest so one suite cannot take every core on this Mac.
 [[ -r "$HOME/.config/local-vitest-cap.zsh" ]] && source "$HOME/.config/local-vitest-cap.zsh"
+
+# Send `git config --global` to a private file when one exists. That file
+# includes the symlinked ~/.gitconfig, so installer rewrites stay out of it.
+[[ -r "$HOME/.config/git/global" ]] &&
+  export GIT_CONFIG_GLOBAL="$HOME/.config/git/global"
