@@ -6,6 +6,7 @@
 .zsh-update
 .zsh_history
 .zcompdump*
+.zshrc.bak.*
 
 # ai agents
 .claude/
