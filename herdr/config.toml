@@ -18,6 +18,10 @@ settings = "prefix+s"
 [ui]
 show_agent_labels_on_pane_borders = true
 
+# Expanded left sidebar starts at Herdr's minimum column count.
+sidebar_width = 18
+sidebar_min_width = 18
+
 agent_panel_sort = "spaces"
 [ui.sound]
 enabled = false
