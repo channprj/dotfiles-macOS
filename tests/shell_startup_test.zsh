@@ -140,5 +140,11 @@ assert_eq "$TEST_HOME/.gitignore_global" "$excludes_file" "global Git excludes p
 if grep -R -n -E 'GREP_OPTIONS|/Users/' "$REPO_ROOT/sh" "$REPO_ROOT/git/.gitconfig" >/dev/null; then
   fail "active shell or Git configuration contains a retired machine-specific setting"
 fi
+if grep -q 'grok installer' "$REPO_ROOT/sh/.zshrc"; then
+  fail "Grok installer block is present in .zshrc"
+fi
+if ! grep -q 'path = ~/.config/git/local' "$REPO_ROOT/git/.gitconfig"; then
+  fail "machine-local Git include is missing"
+fi
 
 print "PASS: shell startup is quiet, portable, guarded, and PATH-idempotent"

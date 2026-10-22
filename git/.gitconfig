@@ -83,3 +83,7 @@
 	path = ~/.gitconfig-corp
 [includeIf "gitdir:~/workspace/corp/"]
 	path = ~/.gitconfig-corp
+# Optional machine-local overrides, such as a credential helper with an
+# absolute path. Git ignores a missing file, so other computers are unchanged.
+[include]
+	path = ~/.config/git/local
