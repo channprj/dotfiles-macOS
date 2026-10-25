@@ -39,7 +39,7 @@ formula만 자동으로 설치합니다. 이미 설치된 formula는 건드리�
 
 | 그룹 | 저장소 원본 | 홈 대상 |
 | --- | --- | --- |
-| Zsh | `.zshrc`, `.zshenv`, `.zshalias`, `.zshfunc`, `.zshexec`, `.zsh-welcome` | `~/`의 같은 이름 |
+| Zsh | `.zshrc`, `.zshenv`, `.zprofile`, `.zshalias`, `.zshfunc`, `.zshexec`, `.zsh-welcome` | `~/`의 같은 이름 |
 | Direnv | `sh/.direnvrc` | `~/.direnvrc` |
 | Git | `.gitconfig`, `.gitconfig-corp`, `.gitignore_global`, `.tigrc` | `~/`의 같은 이름 |
 | Vim | `editor/.vimrc`, `editor/.vim` | `~/.vimrc`, `~/.vim` |

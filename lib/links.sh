@@ -7,6 +7,7 @@
 LINKS_DEFAULT=(
   "sh/.zshrc:.zshrc"
   "sh/.zshenv:.zshenv"
+  "sh/.zprofile:.zprofile"
   "sh/.zshalias:.zshalias"
   "sh/.zshfunc:.zshfunc"
   "sh/.zshexec:.zshexec"
