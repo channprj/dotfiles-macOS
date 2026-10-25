@@ -28,13 +28,15 @@ new_case() {
   CASE_BREW_STATE="$CASE_ROOT/brew-state"
   mkdir -p "$CASE_HOME" "$CASE_BIN"
   cp "$REPO_ROOT/tests/fixtures/fake-brew" "$CASE_BIN/brew"
-  chmod +x "$CASE_BIN/brew"
+  cp "$REPO_ROOT/tests/fixtures/fake-curl" "$CASE_BIN/curl"
+  chmod +x "$CASE_BIN/brew" "$CASE_BIN/curl"
   : >"$CASE_BREW_STATE"
 }
 
 install_case() {
-  PATH="$CASE_BIN:$PATH" \
+  PATH="$CASE_BIN:/usr/bin:/bin:/usr/sbin:/sbin" \
     DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    DOTFILES_TEST_TOOL_BIN="$CASE_BIN" \
     HOME="$CASE_HOME" \
     DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
     "$REPO_ROOT/install.sh" "$@"
@@ -93,14 +95,41 @@ test_installs_only_missing_zsh_plugins_and_is_idempotent() {
   printf '%s\n' zsh-syntax-highlighting >"$CASE_BREW_STATE"
 
   output="$(install_case)"
-  [[ "$output" == *"FAKE_BREW_INSTALL zsh-completions zsh-autosuggestions"* ]] ||
-    fail "the installer did not pass exactly the missing Zsh plugins to Homebrew"
+  [[ "$output" == *"FAKE_BREW_INSTALL zsh-completions"* ]] ||
+    fail "the installer did not install missing zsh-completions"
+  [[ "$output" == *"FAKE_BREW_INSTALL zsh-autosuggestions"* ]] ||
+    fail "the installer did not install missing zsh-autosuggestions"
+  [[ "$output" != *"FAKE_BREW_INSTALL zsh-syntax-highlighting"* ]] ||
+    fail "the installer reinstalled a Zsh plugin that was already present"
+  [[ "$output" == *"FAKE_BREW_INSTALL git-delta"* ]] ||
+    fail "the installer did not install delta"
+  [[ "$output" == *"FAKE_CURL_INSTALL https://x.ai/cli/install.sh"* ]] ||
+    fail "the installer did not install grok from its official script"
 
   output="$(install_case)"
   [[ "$output" != *"FAKE_BREW_INSTALL"* ]] ||
     fail "an idempotent install retried Zsh plugin installation"
 
   uninstall_case >/dev/null
+}
+
+test_tool_failure_keeps_linking_and_reports_the_log() {
+  local output=""
+  local status=0
+
+  new_case tool-failure
+  printf '%s\n' original >"$CASE_HOME/.zshrc"
+  output="$(
+    DOTFILES_TEST_FAIL_TOOLS=grok install_case 2>&1
+  )" || status=$?
+  assert_eq 1 "$status" "a failed tool install should finish with status 1"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "a failed tool install stopped linking"
+  [[ "$output" == *"install failed: grok"* ]] || fail "failure summary omitted grok"
+  [[ "$output" == *"forced failure for grok"* ]] || fail "failure summary omitted the grok log"
+  [[ "$output" == *"/grok.log"* ]] || fail "failure summary omitted the grok log path"
+  [[ "$output" != *"install failed: delta"* ]] || fail "a successful tool was reported as failed"
+  [[ -x "$CASE_BIN/delta" ]] || fail "delta was not installed before the grok failure"
+  [[ ! -e "$CASE_BIN/grok" ]] || fail "failed grok install left a command behind"
 }
 
 test_zsh_plugin_dry_run_does_not_install() {
@@ -253,7 +282,7 @@ test_modules_accumulate_and_reinstall_is_idempotent() {
   [[ -L "$CASE_HOME/.gnupg/gpg-agent.conf" ]] || fail "gnupg module was not linked"
   [[ -L "$CASE_HOME/Brewfile" ]] || fail "brew module was not linked"
   assert_eq 700 "$(stat -f '%Lp' "$CASE_HOME/.gnupg")" ".gnupg permissions"
-  assert_eq 19 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
+  assert_eq 20 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
 
   uninstall_case >/dev/null
   [[ ! -e "$CASE_HOME/.config/ghostty/config" ]] || fail "terminal module was not uninstalled"
@@ -267,7 +296,7 @@ test_all_is_the_union_of_modules() {
   new_case all-modules
   install_case --all --module terminal >/dev/null
   manifest="$(active_install_dir)/manifest.tsv"
-  assert_eq 19 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
+  assert_eq 20 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
   uninstall_case >/dev/null
 }
 
@@ -283,7 +312,9 @@ test_repository_relocation_repairs_only_owned_links() {
   backup_hash="$(shasum -a 256 "$(active_install_dir)/originals/.zshrc" | awk '{print $1}')"
   ln -s "$REPO_ROOT" "$moved_repo"
 
-  PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+  PATH="$CASE_BIN:/usr/bin:/bin:/usr/sbin:/sbin" \
+    DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    DOTFILES_TEST_TOOL_BIN="$CASE_BIN" \
     HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
     "$moved_repo/install.sh" --module terminal >/dev/null
   assert_eq "$moved_repo/sh/.zshrc" "$(readlink "$CASE_HOME/.zshrc")" "repository relocation did not repair default link"
@@ -301,7 +332,9 @@ test_install_failure_rolls_back_the_whole_run() {
   new_case install-rollback
   printf '%s\n' one >"$CASE_HOME/.zshrc"
   printf '%s\n' two >"$CASE_HOME/.zshenv"
-  if PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+  if PATH="$CASE_BIN:/usr/bin:/bin:/usr/sbin:/sbin" \
+    DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    DOTFILES_TEST_TOOL_BIN="$CASE_BIN" \
     HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" DOTFILES_TEST_FAIL_AFTER=2 \
     "$REPO_ROOT/install.sh" >/dev/null 2>&1; then
     fail "injected install failure should fail"
@@ -318,7 +351,9 @@ test_incomplete_rollback_preserves_recovery_data() {
 
   new_case recovery-required
   printf '%s\n' original >"$CASE_HOME/.zshrc"
-  if PATH="$CASE_BIN:$PATH" DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+  if PATH="$CASE_BIN:/usr/bin:/bin:/usr/sbin:/sbin" \
+    DOTFILES_TEST_BREW_STATE="$CASE_BREW_STATE" \
+    DOTFILES_TEST_TOOL_BIN="$CASE_BIN" \
     HOME="$CASE_HOME" DOTFILES_BACKUP_DIR="$CASE_BACKUP" \
     DOTFILES_TEST_FAIL_AFTER=1 DOTFILES_TEST_FAIL_ROLLBACK=1 \
     "$REPO_ROOT/install.sh" >/dev/null 2>&1; then
@@ -422,6 +457,7 @@ test_uninstall_without_active_receipt_is_idempotent() {
 
 test_dry_run_and_invalid_module_do_not_mutate
 test_installs_only_missing_zsh_plugins_and_is_idempotent
+test_tool_failure_keeps_linking_and_reports_the_log
 test_zsh_plugin_dry_run_does_not_install
 test_dry_run_colors_only_for_terminals
 test_default_install_restores_every_original_kind

@@ -5,9 +5,9 @@
 # Dotfiles
 
 macOS용 개인 설정 저장소입니다. 기존 설정을 설치 영수증과 함께 백업한 뒤 저장소
-파일을 심링크하며, 언인스톨할 때 설치 전 상태로 되돌립니다. 셸 자동완성에 필요한
-Zsh 플러그인 3종을 제외한 Homebrew 패키지, GUI 앱, 브라우저 설정은 자동 설치하지
-않습니다.
+파일을 심링크하며, 언인스톨할 때 설치 전 상태로 되돌립니다. 설정이 바로 호출하는
+명령과 코딩 CLI만 없을 때 설치합니다. 나머지 Homebrew 패키지, GUI 앱, 브라우저
+설정은 자동 설치하지 않습니다.
 
 구현 계약과 안전 기준은 [PRD](docs/prd/2026-08-04-dotfiles-management-prd.md)에
 정리되어 있습니다.
@@ -22,11 +22,22 @@ cd ~/dotfiles
 ./install.sh
 ```
 
-Homebrew가 설치되어 있어야 합니다. 설치기는 `zsh-completions`,
-`zsh-autosuggestions`, `zsh-syntax-highlighting`의 누락 여부를 확인하고 필요한
-formula만 자동으로 설치합니다. 이미 설치된 formula는 건드리지 않으며 dry-run은
-설치 예정 목록만 표시합니다. 이 패키지들은 dotfiles 백업 트랜잭션에 포함되지 않고
-언인스톨할 때 제거되지 않습니다.
+설치기는 없는 명령만 설치합니다. 이미 있으면 다시 설치하지 않습니다.
+
+| 명령 | 없을 때 |
+| --- | --- |
+| Zsh 플러그인 3종 | `brew install` |
+| `delta`, `git-lfs` | `brew install git-delta`, `brew install git-lfs` |
+| `claude`, `codex`, `grok`, `opencode`, `agy` | 각 프로젝트의 공식 설치 스크립트 |
+
+Git 설정은 `pager = delta`와 Git LFS filter를 쓰므로 이 둘이 없으면 `git diff`와
+LFS checkout이 바로 실패합니다. Neovim, fzf, ripgrep, fd, curl, C 컴파일러는
+그대로 경고만 하고 설치하지 않습니다. `brew bundle`도 실행하지 않습니다.
+
+한 도구가 실패해도 나머지 설치와 심링크는 계속합니다. 끝난 뒤 실패한 도구 이름,
+로그 경로, 로그 내용을 출력하고 종료 코드는 1입니다. dry-run은 설치 예정 목록만
+보여 줍니다. 이렇게 설치된 명령은 dotfiles 백업 트랜잭션에 포함되지 않고
+언인스톨할 때 제거되지 않습니다. Homebrew가 없으면 brew 항목만 실패로 기록합니다.
 
 `--dry-run`은 각 대상의 절대 경로, 저장소 원본, 적용 방식, 현재 파일 종류,
 백업 예정 경로를 출력하며 파일, 디렉터리, 백업을 만들지 않습니다. 실제 설치 전

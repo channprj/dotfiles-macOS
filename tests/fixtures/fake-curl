@@ -1,0 +1,29 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+url=""
+for arg in "$@"; do
+  case "$arg" in
+    http:* | https:*) url="$arg" ;;
+  esac
+done
+
+name="${DOTFILES_TOOL_NAME:-}"
+if [[ -n "$name" && ",${DOTFILES_TEST_FAIL_TOOLS:-}," == *",$name,"* ]]; then
+  printf 'forced failure for %s\n' "$name" >&2
+  exit 1
+fi
+[[ -n "$url" ]] || exit 2
+
+cat <<EOF
+#!/bin/sh
+bindir="\${DOTFILES_TEST_TOOL_BIN:-}"
+tool="\${DOTFILES_TOOL_NAME:-}"
+printf '%s\n' "FAKE_CURL_INSTALL $url"
+if [ -n "\$bindir" ] && [ -n "\$tool" ]; then
+  printf '%s\n' '#!/bin/sh' 'exit 0' > "\$bindir/\$tool"
+  chmod +x "\$bindir/\$tool"
+fi
+exit 0
+EOF
