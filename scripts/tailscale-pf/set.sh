@@ -7,7 +7,8 @@ set -euo pipefail
 SCRIPT_DIR=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
 LABEL=com.chann.tailscale-ssh-vnc
 ANCHOR_LINE='anchor "com.chann.tailscale-ssh-vnc"'
-HOOK_LINE='anchor "com.apple.internet-sharing"'
+HOOK_SHARING='anchor "com.apple.internet-sharing"'
+HOOK_APPLE='anchor "com.apple/*"'
 PF_CONF=/etc/pf.conf
 ANCHOR_DST=/etc/pf.anchors/com.chann.tailscale-ssh-vnc
 LOAD_DST='/Library/Application Support/tailscale-pf/load.sh'
@@ -27,13 +28,9 @@ Does not cover Microsoft RDP (3389).
 EOF
 }
 
-insert_anchor() {
-  local src=$1 dst=$2
-  if grep -Fqx "$ANCHOR_LINE" "$src"; then
-    cp "$src" "$dst"
-    return 0
-  fi
-  if ! awk -v hook="$HOOK_LINE" '
+insert_before() {
+  local src=$1 dst=$2 hook=$3
+  awk -v hook="$hook" '
     $0 == hook && !done {
       print "# BEGIN com.chann.tailscale-ssh-vnc"
       print "anchor \"com.chann.tailscale-ssh-vnc\""
@@ -43,21 +40,39 @@ insert_anchor() {
     }
     { print }
     END { if (!done) exit 2 }
-  ' "$src" >"$dst"; then
-    rm -f "$dst"
-    printf '%s\n' "error: $PF_CONF has no line: $HOOK_LINE" >&2
-    return 1
+  ' "$src" >"$dst"
+}
+
+insert_anchor() {
+  local src=$1 dst=$2
+  if grep -Fqx "$ANCHOR_LINE" "$src"; then
+    cp "$src" "$dst"
+    return 0
   fi
+  if insert_before "$src" "$dst" "$HOOK_SHARING"; then
+    return 0
+  fi
+  if insert_before "$src" "$dst" "$HOOK_APPLE"; then
+    if [[ $src == "$PF_CONF" ]]; then
+      printf '%s\n' "pf.conf has no $HOOK_SHARING; inserting before $HOOK_APPLE" >&2
+    fi
+    return 0
+  fi
+  rm -f "$dst"
+  printf '%s\n' "error: $PF_CONF has neither line:" "  $HOOK_SHARING" "  $HOOK_APPLE" >&2
+  return 1
 }
 
 self_test() {
-  local stock live twice missing got
+  local stock live twice missing modern err got
   stock=$(mktemp)
   live=$(mktemp)
   twice=$(mktemp)
   missing=$(mktemp)
+  modern=$(mktemp)
+  err=$(mktemp)
   # shellcheck disable=SC2064
-  trap "rm -f '$stock' '$live' '$twice' '$missing'" RETURN
+  trap "rm -f '$stock' '$live' '$twice' '$missing' '$modern' '$err'" RETURN
 
   printf '%s\n' \
     'dummynet-anchor "com.apple/*"' \
@@ -71,7 +86,17 @@ self_test() {
     'load anchor "com.chann.tailscale-ssh-vnc" from "/etc/pf.anchors/com.chann.tailscale-ssh-vnc"' \
     'anchor "com.apple.internet-sharing"' \
     >"$live"
-  printf '%s\n' 'anchor "com.apple/*"' >"$missing"
+  printf '%s\n' \
+    'scrub-anchor "com.apple/*"' \
+    'nat-anchor "com.apple/*"' \
+    'rdr-anchor "com.apple/*"' \
+    'dummynet-anchor "com.apple/*"' \
+    >"$missing"
+  printf '%s\n' \
+    'dummynet-anchor "com.apple/*"' \
+    'anchor "com.apple/*"' \
+    'load anchor "com.apple" from "/etc/pf.anchors/com.apple"' \
+    >"$modern"
 
   insert_anchor "$stock" "$twice"
   got=$(cat "$twice")
@@ -90,10 +115,26 @@ anchor "com.apple/*"' ]]
   insert_anchor "$live" "$twice"
   cmp -s "$live" "$twice"
 
-  if insert_anchor "$missing" "$twice" 2>/dev/null; then
+  insert_anchor "$modern" "$stock"
+  got=$(cat "$stock")
+  [[ $got == 'dummynet-anchor "com.apple/*"
+# BEGIN com.chann.tailscale-ssh-vnc
+anchor "com.chann.tailscale-ssh-vnc"
+load anchor "com.chann.tailscale-ssh-vnc" from "/etc/pf.anchors/com.chann.tailscale-ssh-vnc"
+# END com.chann.tailscale-ssh-vnc
+anchor "com.apple/*"
+load anchor "com.apple" from "/etc/pf.anchors/com.apple"' ]]
+
+  insert_anchor "$stock" "$twice"
+  cmp -s "$stock" "$twice"
+
+  if insert_anchor "$missing" "$twice" 2>"$err"; then
     printf '%s\n' 'self-test failed: missing hook should error' >&2
     return 1
   fi
+  grep -F 'has neither line:' "$err" >/dev/null
+  grep -F "$HOOK_SHARING" "$err" >/dev/null
+  grep -F "$HOOK_APPLE" "$err" >/dev/null
   printf '%s\n' 'set.sh self-test ok'
 }
 
@@ -145,14 +186,15 @@ if [[ ${1:-} != --yes ]]; then
   }
 fi
 
+tmp=$(mktemp)
+trap 'rm -f "$tmp"' EXIT
+insert_anchor "$PF_CONF" "$tmp"
+
 install -d -o root -g wheel -m 755 '/Library/Application Support/tailscale-pf'
 install -o root -g wheel -m 644 "$SCRIPT_DIR/pf.anchor" "$ANCHOR_DST"
 install -o root -g wheel -m 755 "$SCRIPT_DIR/load.sh" "$LOAD_DST"
 install -o root -g wheel -m 644 "$SCRIPT_DIR/com.chann.tailscale-ssh-vnc.plist" "$PLIST_DST"
 
-tmp=$(mktemp)
-trap 'rm -f "$tmp"' EXIT
-insert_anchor "$PF_CONF" "$tmp"
 if cmp -s "$PF_CONF" "$tmp"; then
   printf '%s\n' 'pf.conf already references the anchor'
   rm -f "$tmp"
