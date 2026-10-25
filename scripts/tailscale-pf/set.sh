@@ -1,5 +1,5 @@
 #!/bin/bash
-# Install the Tailscale-only pf anchor for SSH, Screen Sharing, and Remote Management.
+# Install the pf anchor for SSH, Screen Sharing, and Remote Management.
 # See README.md in this directory. This script is not part of ./install.sh.
 
 set -euo pipefail
@@ -20,9 +20,10 @@ usage() {
 Usage: scripts/tailscale-pf/set.sh [--yes]
        scripts/tailscale-pf/set.sh --self-test
 
-Installs the Tailscale-only pf rules for TCP/UDP 22 (SSH), 5900
-(Screen Sharing), and 3283 (Apple Remote Management). Hooks /etc/pf.conf
-and reloads pf. Asks for confirmation unless --yes.
+Installs pf rules for TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283
+(Apple Remote Management). Allows lo0, Tailscale, and iptime Wi-Fi
+(192.168.0.0/24). Hooks /etc/pf.conf and reloads pf. Asks for confirmation
+unless --yes.
 Does not change System Settings sharing toggles.
 Does not cover Microsoft RDP (3389).
 EOF
@@ -167,7 +168,7 @@ fi
 
 printf '%s\n' \
   'This allows TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283 (Apple Remote Management)' \
-  'only from lo0 and Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48).' \
+  'only from lo0, Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48), and iptime Wi-Fi (192.168.0.0/24).' \
   'Microsoft RDP (3389) is unchanged.' \
   'It rewrites these files from this repo, then reloads pf:' \
   "  $ANCHOR_DST" \

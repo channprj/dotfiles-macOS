@@ -54,8 +54,8 @@ summarize() {
 $rules
 EOF
 
-  if [ "$count" -ne 24 ]; then
-    printf '%s\n' "tailscale-pf: expected 24 expanded rules, found $count" >&2
+  if [ "$count" -ne 30 ]; then
+    printf '%s\n' "tailscale-pf: expected 30 expanded rules, found $count" >&2
     ok=0
   fi
 
@@ -84,6 +84,14 @@ EOF
       printf '%s\n' "tailscale-pf: missing Tailscale IPv6 UDP pass for $port" >&2
       ok=0
     }
+    line_matches "pass in quick inet proto tcp from <chann_iptime4>" "port = $port " "flags any" || {
+      printf '%s\n' "tailscale-pf: missing iptime IPv4 TCP pass for $port" >&2
+      ok=0
+    }
+    line_matches "pass in quick inet proto udp from <chann_iptime4>" "port = $port " || {
+      printf '%s\n' "tailscale-pf: missing iptime IPv4 UDP pass for $port" >&2
+      ok=0
+    }
     line_matches "block drop in quick proto tcp" "port = $port" || {
       printf '%s\n' "tailscale-pf: missing TCP block for $port" >&2
       ok=0
@@ -102,10 +110,10 @@ EOF
 
   printf '%s\n' \
     'tailscale-pf: loaded.' \
-    'Allowed: lo0 and Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48).' \
+    'Allowed: lo0, Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48), and iptime Wi-Fi (192.168.0.0/24).' \
     'Ports: 22 SSH, 5900 Screen Sharing (VNC), 3283 Apple Remote Management.' \
     'Other sources to those ports are blocked.' \
-    'pf expanded the anchor to 18 pass rules and 6 block rules.' \
+    'pf expanded the anchor to 24 pass rules and 6 block rules.' \
     'The -f and ALTQ lines above are warnings, not a failed load.' \
     'Microsoft RDP (3389) is not covered.'
 }
@@ -130,6 +138,12 @@ pass in quick inet6 proto tcp from <chann_tailscale6> to any port = 3283 flags a
 pass in quick inet6 proto udp from <chann_tailscale6> to any port = 22 keep state
 pass in quick inet6 proto udp from <chann_tailscale6> to any port = 5900 keep state
 pass in quick inet6 proto udp from <chann_tailscale6> to any port = 3283 keep state
+pass in quick inet proto tcp from <chann_iptime4> to any port = 22 flags any keep state
+pass in quick inet proto tcp from <chann_iptime4> to any port = 5900 flags any keep state
+pass in quick inet proto tcp from <chann_iptime4> to any port = 3283 flags any keep state
+pass in quick inet proto udp from <chann_iptime4> to any port = 22 keep state
+pass in quick inet proto udp from <chann_iptime4> to any port = 5900 keep state
+pass in quick inet proto udp from <chann_iptime4> to any port = 3283 keep state
 block drop in quick proto tcp from any to any port = 22
 block drop in quick proto tcp from any to any port = 5900
 block drop in quick proto tcp from any to any port = 3283
@@ -142,7 +156,9 @@ EOF
 self_test() {
   got=$(summarize "$(loaded_rules)")
   printf '%s\n' "$got" | grep -Fqx 'tailscale-pf: loaded.'
+  printf '%s\n' "$got" | grep -Fqx 'Allowed: lo0, Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48), and iptime Wi-Fi (192.168.0.0/24).'
   printf '%s\n' "$got" | grep -Fqx 'Ports: 22 SSH, 5900 Screen Sharing (VNC), 3283 Apple Remote Management.'
+  printf '%s\n' "$got" | grep -Fqx 'pf expanded the anchor to 24 pass rules and 6 block rules.'
   printf '%s\n' "$got" | grep -Fqx 'Microsoft RDP (3389) is not covered.'
 
   if summarize '' >/dev/null 2>&1; then
@@ -158,6 +174,11 @@ pass in quick inet proto tcp from <chann_tailscale4> to any port = 3389 flags an
 
   if summarize "$(printf '%s\n' "$(loaded_rules)" | grep -v 'block drop in quick proto tcp from any to any port = 22$')" >/dev/null 2>&1; then
     printf '%s\n' 'self-test failed: missing block should error' >&2
+    return 1
+  fi
+
+  if summarize "$(printf '%s\n' "$(loaded_rules)" | grep -v 'pass in quick inet proto tcp from <chann_iptime4> to any port = 22 ')" >/dev/null 2>&1; then
+    printf '%s\n' 'self-test failed: missing iptime pass should error' >&2
     return 1
   fi
 
