@@ -22,7 +22,7 @@ assert_eq() {
   [[ "$1" == "$2" ]] || fail "$3 (expected '$1', got '$2')"
 }
 
-for config in .zshenv .zshrc .zshalias .zshexec .zshfunc; do
+for config in .zshenv .zprofile .zshrc .zshalias .zshexec .zshfunc; do
   /bin/zsh -n "$REPO_ROOT/sh/$config"
 done
 
@@ -66,6 +66,38 @@ path_order=("${(@s/:/)noninteractive_lines[5]}")
 (( path_order[1] < path_order[2] )) || fail "pyenv bin does not precede pyenv shims"
 (( path_order[2] < path_order[3] )) || fail "pyenv shims do not precede Homebrew bin"
 assert_eq "$TEST_HOME/.pyenv" "$noninteractive_lines[3]" "PYENV_ROOT is not HOME-relative"
+
+mkdir -p "$TEST_HOME/.grok/bin"
+ln -s "$REPO_ROOT/sh/.zprofile" "$TEST_HOME/.zprofile"
+login="$({
+  env -i \
+    HOME="$TEST_HOME" \
+    ZDOTDIR="$TEST_HOME" \
+    PATH="/usr/bin:/bin:/usr/sbin:/sbin" \
+    /bin/zsh -lc '
+      integer path_index=1 local_bin_index=0 pyenv_bin_index=0 grok_bin_index=0 usr_bin_index=0
+      typeset path_entry
+      for path_entry in "${path[@]}"; do
+        [[ "$path_entry" == "$HOME/.local/bin" ]] && local_bin_index=$path_index
+        [[ "$path_entry" == "$HOME/.pyenv/bin" ]] && pyenv_bin_index=$path_index
+        [[ "$path_entry" == "$HOME/.grok/bin" ]] && grok_bin_index=$path_index
+        [[ "$path_entry" == "/usr/bin" ]] && usr_bin_index=$path_index
+        (( path_index++ ))
+      done
+      print -r -- "__LOGIN_PATH__|$local_bin_index|$pyenv_bin_index|$grok_bin_index|$usr_bin_index"
+    '
+} 2>&1)"
+login_line="${login##*$'\n'}"
+[[ "$login_line" == __LOGIN_PATH__\|* ]] || fail "login shell did not report PATH: $login"
+login_order=("${(@s/|/)login_line}")
+(( login_order[2] > 0 )) || fail "login shell lost ~/.local/bin"
+(( login_order[3] > 0 )) || fail "login shell lost pyenv bin"
+(( login_order[4] > 0 )) || fail "login shell lost ~/.grok/bin"
+(( login_order[5] > 0 )) || fail "login shell lost /usr/bin"
+(( login_order[2] < login_order[3] && login_order[3] < login_order[5] )) ||
+  fail "login shell did not keep user paths ahead of /usr/bin: $login_line"
+(( login_order[2] < login_order[4] )) ||
+  fail "login shell did not keep ~/.local/bin ahead of ~/.grok/bin: $login_line"
 
 # Reset PATH after .zshenv so optional tools are absent while .zshrc loads.
 rm "$TEST_HOME/.zshenv"
@@ -140,8 +172,8 @@ assert_eq "$TEST_HOME/.gitignore_global" "$excludes_file" "global Git excludes p
 if grep -R -n -E 'GREP_OPTIONS|/Users/' "$REPO_ROOT/sh" "$REPO_ROOT/git/.gitconfig" >/dev/null; then
   fail "active shell or Git configuration contains a retired machine-specific setting"
 fi
-if grep -q 'grok installer' "$REPO_ROOT/sh/.zshrc"; then
-  fail "Grok installer block is present in .zshrc"
+if grep -q 'grok installer' "$REPO_ROOT/sh/.zshrc" "$REPO_ROOT/sh/.zprofile"; then
+  fail "Grok installer block is present in shell startup"
 fi
 if ! grep -q 'path = ~/.config/git/local' "$REPO_ROOT/git/.gitconfig"; then
   fail "machine-local Git include is missing"
