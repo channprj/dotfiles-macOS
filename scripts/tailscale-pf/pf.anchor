@@ -1,0 +1,15 @@
+# SSH, Screen Sharing and Remote Management: Tailscale only.
+# 100.64.0.0/10 and fd7a:115c:a1e0::/48 are Tailscale ranges.
+# lo0 is exempt so local clients of this Mac still work.
+# flags any so an already-open Tailscale session is not dropped
+# when this ruleset is loaded (there is no prior state entry).
+
+table <chann_tailscale4> const { 100.64.0.0/10 }
+table <chann_tailscale6> const { fd7a:115c:a1e0::/48 }
+
+pass in quick on lo0 proto { tcp udp } to any port { 22 5900 3283 }
+pass in quick inet proto tcp from <chann_tailscale4> to any port { 22 5900 3283 } flags any keep state
+pass in quick inet proto udp from <chann_tailscale4> to any port { 22 5900 3283 } keep state
+pass in quick inet6 proto tcp from <chann_tailscale6> to any port { 22 5900 3283 } flags any keep state
+pass in quick inet6 proto udp from <chann_tailscale6> to any port { 22 5900 3283 } keep state
+block in quick proto { tcp udp } to any port { 22 5900 3283 }
