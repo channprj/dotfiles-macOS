@@ -17,8 +17,9 @@ Usage: scripts/tailscale-pf/unset.sh [--yes]
        scripts/tailscale-pf/unset.sh --self-test
 
 Removes the Tailscale-only anchor from /etc/pf.conf and reloads pf.
-SSH, Screen Sharing, and Remote Management then accept any source that
-can already route to this Mac. Does not run pfctl -d.
+SSH (22), Screen Sharing (5900), and Apple Remote Management (3283)
+then accept any source that can already route to this Mac.
+Does not run pfctl -d. Does not change Microsoft RDP (3389).
 EOF
 }
 
@@ -101,10 +102,11 @@ fi
 }
 
 printf '%s\n' \
-  'This removes the Tailscale-only pf filter for tcp/udp 22, 5900, and 3283.' \
+  'This removes the Tailscale-only pf filter for TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283 (Apple Remote Management).' \
   'After reload, those ports accept any source that can reach this Mac,' \
   'including the LAN and any router port forward.' \
-  'pf stays enabled. System Settings sharing toggles stay as they are.'
+  'pf stays enabled. System Settings sharing toggles stay as they are.' \
+  'pfctl prints an -f warning twice and "No ALTQ support". Those lines are normal.'
 
 if [[ ${1:-} != --yes ]]; then
   printf '%s' "Type yes to remove the filter: "
@@ -140,4 +142,6 @@ fi
 rm -f "$PLIST_DST" "$ANCHOR_DST" "$LOAD_DIR/load.sh"
 rmdir "$LOAD_DIR" 2>/dev/null || true
 
-printf '%s\n' 'filter removed. /var/log/tailscale-pf.log was left in place.'
+printf '%s\n' \
+  'filter removed. 22, 5900, and 3283 are no longer limited to Tailscale.' \
+  '/var/log/tailscale-pf.log was left in place.'

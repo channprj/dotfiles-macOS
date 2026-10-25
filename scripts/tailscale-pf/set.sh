@@ -19,9 +19,11 @@ usage() {
 Usage: scripts/tailscale-pf/set.sh [--yes]
        scripts/tailscale-pf/set.sh --self-test
 
-Installs the Tailscale-only pf rules for tcp/udp 22, 5900, and 3283,
-hooks /etc/pf.conf, and reloads pf. Asks for confirmation unless --yes.
+Installs the Tailscale-only pf rules for TCP/UDP 22 (SSH), 5900
+(Screen Sharing), and 3283 (Apple Remote Management). Hooks /etc/pf.conf
+and reloads pf. Asks for confirmation unless --yes.
 Does not change System Settings sharing toggles.
+Does not cover Microsoft RDP (3389).
 EOF
 }
 
@@ -123,12 +125,15 @@ fi
 [[ -f $SCRIPT_DIR/pf.anchor && -f $SCRIPT_DIR/load.sh && -f $SCRIPT_DIR/com.chann.tailscale-ssh-vnc.plist ]]
 
 printf '%s\n' \
-  'This will allow tcp/udp 22, 5900, 3283 only from Tailscale and lo0.' \
+  'This allows TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283 (Apple Remote Management)' \
+  'only from lo0 and Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48).' \
+  'Microsoft RDP (3389) is unchanged.' \
   'It rewrites these files from this repo, then reloads pf:' \
   "  $ANCHOR_DST" \
   "  $LOAD_DST" \
   "  $PLIST_DST" \
   "  $PF_CONF" \
+  'pfctl prints an -f warning twice and "No ALTQ support". Those lines are normal.' \
   'Apply this from the Mac itself or from an existing Tailscale SSH session.'
 
 if [[ ${1:-} != --yes ]]; then
@@ -161,14 +166,9 @@ else
   printf '%s\n' "updated $PF_CONF (backup: $BACKUP)"
 fi
 
-/sbin/pfctl -E >/dev/null 2>&1 || true
-/sbin/pfctl -nf "$PF_CONF"
-/sbin/pfctl -f "$PF_CONF"
+"$LOAD_DST"
 
 launchctl enable "system/$LABEL" >/dev/null 2>&1 || true
 launchctl bootout "system/$LABEL" >/dev/null 2>&1 || true
 launchctl bootstrap system "$PLIST_DST"
 launchctl enable "system/$LABEL"
-
-printf '%s\n' 'loaded anchor:'
-/sbin/pfctl -a "$LABEL" -sr
