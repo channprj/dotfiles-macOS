@@ -22,7 +22,7 @@ assert_eq() {
   [[ "$1" == "$2" ]] || fail "$3 (expected '$1', got '$2')"
 }
 
-for config in .zshenv .zprofile .zshrc .zshalias .zshexec .zshfunc; do
+for config in .zshenv .zprofile .zshrc .zshalias .zshexec .zshfunc .zsh-welcome; do
   /bin/zsh -n "$REPO_ROOT/sh/$config"
 done
 

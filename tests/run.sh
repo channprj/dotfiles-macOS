@@ -28,7 +28,7 @@ bash_files=(
 )
 
 /bin/bash -n "${bash_files[@]}"
-for zsh_file in sh/.zshenv sh/.zprofile sh/.zshrc sh/.zshalias sh/.zshexec sh/.zshfunc tests/hsa_test.zsh tests/shell_startup_test.zsh tests/zshfunc_test.zsh tests/gh_account_test.zsh; do
+for zsh_file in sh/.zshenv sh/.zprofile sh/.zshrc sh/.zshalias sh/.zshexec sh/.zshfunc sh/.zsh-welcome tests/hsa_test.zsh tests/shell_startup_test.zsh tests/zshfunc_test.zsh tests/gh_account_test.zsh; do
   /bin/zsh -n "$zsh_file"
 done
 
@@ -41,6 +41,7 @@ else
   printf '%s\n' 'SKIP: ShellCheck is not installed (brew install shellcheck)' >&2
 fi
 
+DOTFILES_WELCOME_SELF_CHECK=1 /bin/zsh -c 'source sh/.zsh-welcome'
 /bin/zsh tests/shell_startup_test.zsh
 /bin/zsh tests/hsa_test.zsh
 /usr/bin/expect tests/hsa_prompt_test.exp
