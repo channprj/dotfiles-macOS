@@ -1,5 +1,5 @@
 #!/bin/bash
-# Remove the Tailscale-only pf anchor for SSH, Screen Sharing, and Remote Management.
+# Remove the pf anchor for SSH, Screen Sharing, and Remote Management.
 # See README.md in this directory. Does not disable pf itself.
 
 set -euo pipefail
@@ -16,7 +16,7 @@ usage() {
 Usage: scripts/tailscale-pf/unset.sh [--yes]
        scripts/tailscale-pf/unset.sh --self-test
 
-Removes the Tailscale-only anchor from /etc/pf.conf and reloads pf.
+Removes the Tailscale and iptime Wi-Fi anchor from /etc/pf.conf and reloads pf.
 SSH (22), Screen Sharing (5900), and Apple Remote Management (3283)
 then accept any source that can already route to this Mac.
 Does not run pfctl -d. Does not change Microsoft RDP (3389).
@@ -102,7 +102,7 @@ fi
 }
 
 printf '%s\n' \
-  'This removes the Tailscale-only pf filter for TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283 (Apple Remote Management).' \
+  'This removes the pf filter for TCP/UDP 22 (SSH), 5900 (Screen Sharing), and 3283 (Apple Remote Management).' \
   'After reload, those ports accept any source that can reach this Mac,' \
   'including the LAN and any router port forward.' \
   'pf stays enabled. System Settings sharing toggles stay as they are.' \

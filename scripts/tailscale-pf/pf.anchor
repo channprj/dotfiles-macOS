@@ -1,16 +1,20 @@
 # 22 SSH, 5900 Screen Sharing (VNC), 3283 Apple Remote Management.
 # Microsoft RDP (3389) is not in this anchor.
 # 100.64.0.0/10 and fd7a:115c:a1e0::/48 are Tailscale ranges, not one tailnet.
+# 192.168.0.0/24 is the iptime Wi-Fi. Other private ranges stay blocked.
 # lo0 stays open so clients on this Mac still work.
-# Tailscale TCP uses "flags any" so an already-open session survives pfctl -f.
+# Tailscale and iptime TCP use "flags any" so an already-open session survives pfctl -f.
 # lo0 TCP keeps the default flags S/SA, which accepts new connections only.
 
 table <chann_tailscale4> const { 100.64.0.0/10 }
 table <chann_tailscale6> const { fd7a:115c:a1e0::/48 }
+table <chann_iptime4> const { 192.168.0.0/24 }
 
 pass in quick on lo0 proto { tcp udp } to any port { 22 5900 3283 }
 pass in quick inet proto tcp from <chann_tailscale4> to any port { 22 5900 3283 } flags any keep state
 pass in quick inet proto udp from <chann_tailscale4> to any port { 22 5900 3283 } keep state
 pass in quick inet6 proto tcp from <chann_tailscale6> to any port { 22 5900 3283 } flags any keep state
 pass in quick inet6 proto udp from <chann_tailscale6> to any port { 22 5900 3283 } keep state
+pass in quick inet proto tcp from <chann_iptime4> to any port { 22 5900 3283 } flags any keep state
+pass in quick inet proto udp from <chann_iptime4> to any port { 22 5900 3283 } keep state
 block in quick proto { tcp udp } to any port { 22 5900 3283 }
