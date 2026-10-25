@@ -1,6 +1,6 @@
-# Tailscale에서만 SSH, 화면 공유, Apple 원격 관리
+# Tailscale과 iptime Wi-Fi에서만 SSH, 화면 공유, Apple 원격 관리
 
-이 필터가 보는 포트는 SSH(22), 화면 공유(5900), Apple 원격 관리(3283)입니다. 들어올 수 있는 곳은 Tailscale 주소와 이 맥 자신(lo0)뿐입니다. 집 LAN, 다른 네트워크, 인터넷에서 이 세 포트로 오는 패킷은 막습니다.
+이 필터가 보는 포트는 SSH(22), 화면 공유(5900), Apple 원격 관리(3283)입니다. 들어올 수 있는 곳은 Tailscale 주소, iptime Wi-Fi(`192.168.0.0/24`), 이 맥 자신(lo0)뿐입니다. 다른 사설 대역, 다른 네트워크, 인터넷에서 이 세 포트로 오는 패킷은 막습니다.
 
 화면 공유를 RDP라고 부르면 Microsoft 원격 데스크톱과 섞입니다. 이 필터의 화면은 5900입니다. RDP 포트 3389는 이 앵커에 없고, 막지도 않습니다.
 
@@ -24,7 +24,7 @@ TCP와 UDP를 같이 봅니다. SSH와 화면 공유는 TCP로 동작하고, UDP
 
 1. sshd와 화면 공유는 모든 네트워크 인터페이스에서 듣고 있습니다. `*.22`, `*.5900`입니다.
 2. macOS 응용 프로그램 방화벽은 켜져 있고, sshd와 화면 공유의 들어오는 연결을 허용합니다.
-3. 패킷 필터 pf의 앵커 `com.chann.tailscale-ssh-vnc`가 출발지를 보고, Tailscale과 loopback 외에는 버립니다.
+3. 패킷 필터 pf의 앵커 `com.chann.tailscale-ssh-vnc`가 출발지를 보고, Tailscale, iptime Wi-Fi(`192.168.0.0/24`), loopback 외에는 버립니다.
 
 출발지를 가르는 층은 3번입니다. Tailscale의 SSH 서버(`tailscale set --ssh`)는 꺼져 있습니다. 접속은 macOS sshd로 들어가고, pf가 그 패킷의 출발지 주소만 봅니다.
 
@@ -35,23 +35,27 @@ TCP와 UDP를 같이 봅니다. SSH와 화면 공유는 TCP로 동작하고, UDP
 ```pf
 table <chann_tailscale4> const { 100.64.0.0/10 }
 table <chann_tailscale6> const { fd7a:115c:a1e0::/48 }
+table <chann_iptime4> const { 192.168.0.0/24 }
 
 pass in quick on lo0 proto { tcp udp } to any port { 22 5900 3283 }
 pass in quick inet proto tcp from <chann_tailscale4> to any port { 22 5900 3283 } flags any keep state
 pass in quick inet proto udp from <chann_tailscale4> to any port { 22 5900 3283 } keep state
 pass in quick inet6 proto tcp from <chann_tailscale6> to any port { 22 5900 3283 } flags any keep state
 pass in quick inet6 proto udp from <chann_tailscale6> to any port { 22 5900 3283 } keep state
+pass in quick inet proto tcp from <chann_iptime4> to any port { 22 5900 3283 } flags any keep state
+pass in quick inet proto udp from <chann_iptime4> to any port { 22 5900 3283 } keep state
 block in quick proto { tcp udp } to any port { 22 5900 3283 }
 ```
 
-`pfctl -sr`은 규칙 여섯 줄(통과 5, 차단 1)을 프로토콜과 포트마다 한 줄로 펼칩니다. 통과 5줄은 pass 18줄, 차단 1줄은 block 6줄입니다. `block`은 `block drop`으로 보입니다. lo0의 TCP는 파일에 `flags`가 없어서 `flags S/SA`로 보이고, 새 연결만 받습니다. Tailscale TCP의 `flags any`는 그대로 보입니다.
+`pfctl -sr`은 규칙 여덟 줄(통과 7, 차단 1)을 프로토콜과 포트마다 한 줄로 펼칩니다. 통과 7줄은 pass 24줄, 차단 1줄은 block 6줄입니다. `block`은 `block drop`으로 보입니다. lo0의 TCP는 파일에 `flags`가 없어서 `flags S/SA`로 보이고, 새 연결만 받습니다. Tailscale TCP와 iptime TCP의 `flags any`는 그대로 보입니다.
 
 읽는 순서는 위에서 아래입니다.
 
 - `100.64.0.0/10`은 Tailscale이 장비에 주는 IPv4 대역입니다. 이 맥의 주소는 `tailscale ip -4`로 볼 수 있습니다.
 - `fd7a:115c:a1e0::/48`은 Tailscale IPv6 대역입니다.
+- `192.168.0.0/24`는 iptime Wi-Fi입니다. `192.168.0.x`에서 온 연결만 여기 통과합니다. `192.168.1.x` 같은 다른 사설 대역은 통과하지 않습니다. Wi-Fi의 IPv6 주소도 통과하지 않습니다. 같은 Wi-Fi에서는 `192.168.0.x`로 접속합니다.
 - `lo0`는 이 맥 안에서 자기 자신에게 붙는 연결입니다. 로컬 클라이언트가 SSH와 화면 공유를 그대로 쓰게 두었습니다.
-- 마지막 줄이 나머지 전부입니다. 집 LAN의 `192.168.x.x`, 공인 IP, 다른 IPv6가 여기 걸립니다.
+- 마지막 줄이 나머지 전부입니다. 다른 사설 대역, 공인 IP, 다른 IPv6가 여기 걸립니다.
 
 `/etc/pf.conf`에는 이 앵커를 Apple 앵커보다 먼저 불러오는 줄이 있습니다. 이미 들어가 있는 이 맥의 줄은 아래입니다.
 
@@ -66,7 +70,7 @@ load anchor "com.chann.tailscale-ssh-vnc" from "/etc/pf.anchors/com.chann.tailsc
 
 pf는 보통 마지막으로 맞은 규칙을 적용합니다. `quick`이 붙은 규칙은 맞는 즉시 결정을 끝내고, 뒤에 있는 규칙은 보지 않습니다.
 
-통과와 차단에 모두 `quick`을 붙여 두었으므로, 이 앵커 뒤에서 평가되는 Apple 규칙이 22, 5900, 3283을 다시 열어 주지 않습니다. 통과를 먼저 두고 차단을 마지막에 두면, Tailscale에서 온 패킷은 통과에서 끝나고 LAN에서 온 패킷은 마지막 차단에서 끝납니다.
+통과와 차단에 모두 `quick`을 붙여 두었으므로, 이 앵커 뒤에서 평가되는 Apple 규칙이 22, 5900, 3283을 다시 열어 주지 않습니다. 통과를 먼저 두고 차단을 마지막에 두면, Tailscale이나 iptime Wi-Fi에서 온 패킷은 통과에서 끝나고 그 외 패킷은 마지막 차단에서 끝납니다.
 
 차단을 위에 두고 `quick`을 빼면, 그 차단은 "일단 기억"일 뿐입니다. 뒤에 오는 규칙이 같은 패킷을 통과로 바꿀 수 있습니다.
 
@@ -74,7 +78,7 @@ pf는 보통 마지막으로 맞은 규칙을 적용합니다. `quick`이 붙은
 
 `pfctl -f`로 규칙을 다시 읽으면 기존 연결의 state가 비어 있습니다. TCP의 기본 state 규칙은 새 연결의 SYN만 받습니다. 이미 열린 Tailscale SSH는 SYN이 아닌 패킷만 보내므로, 그 패킷이 마지막 `quick` 차단에 걸리면 세션이 끊깁니다.
 
-Tailscale에서 오는 TCP 통과 규칙의 `flags any`는 그 패킷도 state로 받게 합니다. 그래서 이 스크립트를 이미 연결된 Tailscale SSH 안에서 실행해도 그 세션은 유지됩니다. 집 LAN이나 다른 경로로 붙어 있는 SSH 안에서 실행하면, 규칙을 읽는 순간 그 세션은 끊깁니다. 적용은 맥 앞에서 하거나 Tailscale로 붙은 셸에서 하세요.
+Tailscale과 iptime Wi-Fi에서 오는 TCP 통과 규칙의 `flags any`는 그 패킷도 state로 받게 합니다. 그래서 이 스크립트를 이미 연결된 Tailscale SSH나 `192.168.0.x` SSH 안에서 실행해도 그 세션은 유지됩니다. 다른 사설 대역이나 그 외 경로로 붙어 있는 SSH 안에서 실행하면, 규칙을 읽는 순간 그 세션은 끊깁니다. 적용은 맥 앞, Tailscale, 또는 iptime Wi-Fi로 붙은 셸에서 하세요.
 
 규칙을 다시 읽은 직후 `pfctl -s info`의 `current entries`가 0인 것은 state를 비웠다는 뜻입니다. `Status: Enabled`가 필터가 켜져 있다는 줄입니다. `Enabled for N days`는 pf가 켜져 있던 시간이고, 이 앵커를 올린 시각이 아닙니다.
 
@@ -96,10 +100,10 @@ pf는 규칙을 파일에 적어 두어도, 켜고 불러오는 쪽이 따로 �
 
 ```text
 tailscale-pf: loaded.
-Allowed: lo0 and Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48).
+Allowed: lo0, Tailscale (100.64.0.0/10, fd7a:115c:a1e0::/48), and iptime Wi-Fi (192.168.0.0/24).
 Ports: 22 SSH, 5900 Screen Sharing (VNC), 3283 Apple Remote Management.
 Other sources to those ports are blocked.
-pf expanded the anchor to 18 pass rules and 6 block rules.
+pf expanded the anchor to 24 pass rules and 6 block rules.
 The -f and ALTQ lines above are warnings, not a failed load.
 Microsoft RDP (3389) is not covered.
 ```
@@ -161,7 +165,7 @@ sudo pfctl -s info
 sudo pfctl -a com.chann.tailscale-ssh-vnc -sr
 ```
 
-`Status: Enabled`이면 pf가 켜져 있습니다. 앵커 출력은 pass 18줄과 block 6줄입니다. 22, 5900, 3283 외의 포트가 보이면 이 앵커가 아닙니다. `load.sh`는 같은 확인을 하고 `tailscale-pf: loaded.`로 끝냅니다.
+`Status: Enabled`이면 pf가 켜져 있습니다. 앵커 출력은 pass 24줄과 block 6줄입니다. 22, 5900, 3283 외의 포트가 보이면 이 앵커가 아닙니다. `load.sh`는 같은 확인을 하고 `tailscale-pf: loaded.`로 끝냅니다.
 
 디스크의 `pf.anchor`를 고친 것만으로는 커널 규칙이 바뀌지 않습니다. `set.sh`가 파일을 복사한 뒤 `load.sh`로 다시 읽습니다. 재부팅 때도 데몬이 `load.sh`를 실행합니다.
 
@@ -169,7 +173,7 @@ sudo pfctl -a com.chann.tailscale-ssh-vnc -sr
 
 이 앵커는 22, 5900, 3283만 봅니다. Microsoft RDP인 3389도, 443, 5000, 7000, 88처럼 모든 인터페이스에서 듣고 있는 다른 포트도 그대로입니다.
 
-`100.64.0.0/10`은 우리 tailnet만의 목록이 아닙니다. Tailscale을 쓰는 모든 네트워크가 이 대역을 씁니다. 규칙은 패킷이 Tailscale 인터페이스로 들어왔는지도 보지 않습니다. 공개 인터넷에서 출발지를 이 대역으로 속여 SSH 연결을 끝내려면 응답이 Tailscale 경로로 돌아가야 하므로, 그 시도는 이어지지 않습니다. 같은 LAN에서 출발지를 속이는 경우까지 막고 싶다면 통과 규칙에 인터페이스를 지정하면 됩니다. macOS에서는 그 인터페이스 이름이 재부팅 뒤에 바뀔 수 있어서, 지금 규칙은 주소만 봅니다.
+`100.64.0.0/10`은 우리 tailnet만의 목록이 아닙니다. Tailscale을 쓰는 모든 네트워크가 이 대역을 씁니다. `192.168.0.0/24`는 출발지 주소만 봅니다. iptime Wi-Fi 인터페이스 이름은 맥마다 달라서 규칙에 넣지 않습니다. 규칙은 패킷이 그 인터페이스로 들어왔는지도 보지 않습니다. 공개 인터넷에서 출발지를 이 대역으로 속여 SSH 연결을 끝내려면 응답이 그 경로로 돌아가야 하므로, 그 시도는 이어지지 않습니다.
 
 ## 파일
 
