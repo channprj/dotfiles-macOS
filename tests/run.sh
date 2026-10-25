@@ -48,5 +48,6 @@ fi
 /bin/zsh tests/gh_account_test.zsh
 /bin/bash tests/install_test.bash
 /bin/bash tests/lazyvim_test.sh
+python3 -B agents/install_skills.py self-test
 
 printf '%s\n' 'PASS: all deterministic dotfiles tests passed'
