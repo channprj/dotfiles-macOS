@@ -11,6 +11,14 @@ LOAD_DIR='/Library/Application Support/tailscale-pf'
 PLIST_DST=/Library/LaunchDaemons/com.chann.tailscale-ssh-vnc.plist
 BACKUP=/etc/pf.conf.before-unset-tailscale-ssh-vnc
 
+copy_backup_once() {
+  local src=$1 dst=$2
+  if [[ -e $dst ]]; then
+    return 0
+  fi
+  cp -p "$src" "$dst"
+}
+
 usage() {
   cat <<'EOF'
 Usage: scripts/tailscale-pf/unset.sh [--yes]
@@ -72,6 +80,19 @@ anchor "com.apple.internet-sharing"' ]]
 
   strip_anchor "$stock" "$live"
   cmp -s "$stock" "$live"
+
+  local backup_src backup_dst
+  backup_src=$(mktemp)
+  backup_dst=$(mktemp)
+  printf 'new\n' >"$backup_src"
+  printf 'old\n' >"$backup_dst"
+  copy_backup_once "$backup_src" "$backup_dst"
+  [[ $(cat "$backup_dst") == old ]]
+  rm -f "$backup_dst"
+  copy_backup_once "$backup_src" "$backup_dst"
+  [[ $(cat "$backup_dst") == new ]]
+  rm -f "$backup_src" "$backup_dst"
+
   printf '%s\n' 'unset.sh self-test ok'
 }
 
@@ -128,7 +149,7 @@ if cmp -s "$PF_CONF" "$tmp"; then
   rm -f "$tmp"
   trap - EXIT
 else
-  cp -np "$PF_CONF" "$BACKUP"
+  copy_backup_once "$PF_CONF" "$BACKUP"
   chmod 644 "$tmp"
   chown root:wheel "$tmp"
   trap - EXIT
