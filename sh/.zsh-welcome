@@ -1,8 +1,214 @@
 # welcome message
+# The spec line is detected per Mac and cached in ~/.cache/zsh-welcome-spec.
+# Delete that cache after a hardware change. A one-line override in
+# ~/.config/zsh-welcome.local wins, and that file stays out of git.
+
+_dotfiles_welcome_disk_label() {
+  emulate -L zsh
+  setopt localoptions extended_glob
+  local bytes=${1:-0}
+  [[ $bytes == [0-9]## ]] || bytes=0
+  local -a names advertised
+  names=(256GB 512GB 1TB 2TB 4TB 8TB)
+  advertised=(
+    256000000000
+    512000000000
+    1000000000000
+    2000000000000
+    4000000000000
+    8000000000000
+  )
+  local i pct
+  for (( i = 1; i <= ${#names}; i++ )); do
+    pct=$(( bytes * 100 / advertised[i] ))
+    if (( pct >= 85 && pct <= 105 )); then
+      print -r -- "${names[i]}"
+      return
+    fi
+  done
+  print -r -- "$(( (bytes + 500000000) / 1000000000 ))GB"
+}
+
+_dotfiles_welcome_chip_label() {
+  emulate -L zsh
+  local chip=${1-}
+  chip=${chip#Apple }
+  [[ $chip == *Intel* ]] && chip=Intel
+  print -r -- "$chip"
+}
+
+_dotfiles_welcome_spec_line() {
+  emulate -L zsh
+  setopt localoptions extended_glob pipefail
+  local spec_version=1
+  local override=${HOME}/.config/zsh-welcome.local
+  # ponytail: one cached line until the version changes. Delete the cache after a hardware change.
+  local cache=${XDG_CACHE_HOME:-$HOME/.cache}/zsh-welcome-spec
+  local raw trimmed version cached
+
+  if [[ -r $override ]]; then
+    while IFS= read -r raw || [[ -n $raw ]]; do
+      trimmed=${raw##[[:space:]]##}
+      [[ -z $trimmed || $trimmed == \#* ]] && continue
+      print -r -- "$raw"
+      return
+    done <"$override"
+  fi
+
+  if [[ -r $cache ]]; then
+    {
+      IFS= read -r version
+      IFS= read -r cached
+    } <"$cache"
+    if [[ $version == $spec_version && -n $cached ]]; then
+      print -r -- "$cached"
+      return
+    fi
+  fi
+
+  local hw model chip ram_bytes ram_gb plist disk_bytes disk title line
+  hw=$(system_profiler SPHardwareDataType 2>/dev/null) || hw=""
+  model=$(print -r -- "$hw" | awk -F': ' '/Model Name:/ { print $2; exit }')
+  chip=$(print -r -- "$hw" | awk -F': ' '/Chip:/ { print $2; exit }')
+  if [[ -z $chip ]]; then
+    chip=$(print -r -- "$hw" | awk -F': ' '/Processor Name:/ { print $2; exit }')
+  fi
+  model=${${model##[[:space:]]##}%%[[:space:]]##}
+  model=${model%$'\r'}
+  chip=${${chip##[[:space:]]##}%%[[:space:]]##}
+  chip=${chip%$'\r'}
+  chip=$(_dotfiles_welcome_chip_label "$chip")
+  if [[ -z $model ]]; then
+    model=$(sysctl -n hw.model 2>/dev/null) || model=""
+  fi
+  if [[ -z $chip ]]; then
+    chip=$(_dotfiles_welcome_chip_label "$(sysctl -n machdep.cpu.brand_string 2>/dev/null || true)")
+  fi
+
+  ram_bytes=$(sysctl -n hw.memsize 2>/dev/null) || ram_bytes=0
+  [[ $ram_bytes == [0-9]## ]] || ram_bytes=0
+  ram_gb=$(( (ram_bytes + 536870912) / 1073741824 ))
+
+  plist=$(diskutil info -plist / 2>/dev/null) || plist=""
+  disk_bytes=""
+  if [[ -n $plist ]]; then
+    disk_bytes=$(print -r -- "$plist" | plutil -extract APFSContainerSize raw - 2>/dev/null || true)
+    if [[ -z $disk_bytes || $disk_bytes == 0 ]]; then
+      disk_bytes=$(print -r -- "$plist" | plutil -extract Size raw - 2>/dev/null || true)
+    fi
+  fi
+  disk=$(_dotfiles_welcome_disk_label "${disk_bytes:-0}")
+
+  title=$model
+  [[ -n $chip ]] && title="${model} ${chip}"
+  title=${title##[[:space:]]##}
+  title=${title%%[[:space:]]##}
+  if [[ -n $title ]] && (( ram_gb > 0 )) && [[ $disk != 0GB ]]; then
+    line="     ${title} | RAM: ${ram_gb}GB | Disk: ${disk}"
+  elif [[ -n $title ]]; then
+    line="     ${title}"
+  else
+    return
+  fi
+
+  print -r -- "$line"
+  if [[ $line == *' | RAM: '* ]] && mkdir -p -- "${cache:h}" 2>/dev/null; then
+    print -r -- "$spec_version" >"$cache"
+    print -r -- "$line" >>"$cache"
+  fi
+}
+
+if [[ -n ${DOTFILES_WELCOME_SELF_CHECK-} ]]; then
+  _dotfiles_welcome_self_check() {
+    emulate -L zsh
+    local got
+    got=$(_dotfiles_welcome_disk_label 245107195904)
+    [[ $got == 256GB ]] || { print -u2 -- "FAIL: 256GB disk ($got)"; return 1 }
+    got=$(_dotfiles_welcome_disk_label 994662584320)
+    [[ $got == 1TB ]] || { print -u2 -- "FAIL: 1TB disk ($got)"; return 1 }
+    got=$(_dotfiles_welcome_disk_label 490000000000)
+    [[ $got == 512GB ]] || { print -u2 -- "FAIL: 512GB disk ($got)"; return 1 }
+    got=$(_dotfiles_welcome_disk_label 1900000000000)
+    [[ $got == 2TB ]] || { print -u2 -- "FAIL: 2TB disk ($got)"; return 1 }
+    got=$(_dotfiles_welcome_disk_label 100000000000)
+    [[ $got == 100GB ]] || { print -u2 -- "FAIL: fallback disk ($got)"; return 1 }
+    got=$(_dotfiles_welcome_chip_label "Apple M1 Ultra")
+    [[ $got == "M1 Ultra" ]] || { print -u2 -- "FAIL: chip ($got)"; return 1 }
+    got=$(_dotfiles_welcome_chip_label "8-Core Intel Core i7")
+    [[ $got == Intel ]] || { print -u2 -- "FAIL: intel chip ($got)"; return 1 }
+
+    local tmp line cache cached_line saved_home=$HOME saved_xdg=${XDG_CACHE_HOME-__unset__}
+    tmp=$(mktemp -d)
+    _dotfiles_welcome_restore_check_env() {
+      HOME=$saved_home
+      if [[ $saved_xdg == __unset__ ]]; then
+        unset XDG_CACHE_HOME
+      else
+        XDG_CACHE_HOME=$saved_xdg
+      fi
+      [[ -n ${1-} ]] && rm -rf -- "$1"
+    }
+    XDG_CACHE_HOME=$tmp/.cache
+    mkdir -p -- "$tmp/.config"
+    print -r -- $'# note\n\n     Custom Box | RAM: 1GB | Disk: 1TB' >"$tmp/.config/zsh-welcome.local"
+    HOME=$tmp
+    line=$(_dotfiles_welcome_spec_line)
+    HOME=$saved_home
+    [[ $line == "     Custom Box | RAM: 1GB | Disk: 1TB" ]] || {
+      print -u2 -- "FAIL: override ($line)"
+      _dotfiles_welcome_restore_check_env "$tmp"
+      return 1
+    }
+    [[ ! -e $tmp/.cache/zsh-welcome-spec ]] || {
+      print -u2 -- "FAIL: override wrote the cache"
+      _dotfiles_welcome_restore_check_env "$tmp"
+      return 1
+    }
+
+    if [[ $(uname) == Darwin ]]; then
+      rm -f -- "$tmp/.config/zsh-welcome.local"
+      HOME=$tmp
+      line=$(_dotfiles_welcome_spec_line)
+      HOME=$saved_home
+      print -r -- "$line" | grep -Eq '^     .+ \| RAM: [0-9]+GB \| Disk: ([0-9]+GB|[0-9]+TB)$' || {
+        print -u2 -- "FAIL: live spec ($line)"
+        _dotfiles_welcome_restore_check_env "$tmp"
+        return 1
+      }
+      cache=$tmp/.cache/zsh-welcome-spec
+      [[ -f $cache ]] || {
+        print -u2 -- "FAIL: cache missing"
+        _dotfiles_welcome_restore_check_env "$tmp"
+        return 1
+      }
+      if grep -Eq 'Serial|UUID|UDID' "$cache"; then
+        print -u2 -- "FAIL: cache kept a hardware identifier"
+        _dotfiles_welcome_restore_check_env "$tmp"
+        return 1
+      fi
+      HOME=$tmp
+      cached_line=$(_dotfiles_welcome_spec_line)
+      HOME=$saved_home
+      [[ $cached_line == "$line" ]] || {
+        print -u2 -- "FAIL: cache reread ($cached_line)"
+        _dotfiles_welcome_restore_check_env "$tmp"
+        return 1
+      }
+    fi
+    _dotfiles_welcome_restore_check_env "$tmp"
+    print -r -- "PASS: zsh welcome spec"
+  }
+  _dotfiles_welcome_self_check
+  check_status=$?
+  unfunction _dotfiles_welcome_self_check _dotfiles_welcome_restore_check_env _dotfiles_welcome_disk_label _dotfiles_welcome_chip_label _dotfiles_welcome_spec_line
+  return "$check_status"
+fi
+
 echo "\n"
 figlet -d ~/.figlet-fonts -f "ANSI Shadow" "  CHANN" | lolcat
-echo "\t\t\t\t...with Mac mini M4"
+_dotfiles_welcome_spec_line
 echo "--------------------------------------------------------------------------------"
 #neofetch -E
 w
 echo "--------------------------------------------------------------------------------"
+unfunction _dotfiles_welcome_disk_label _dotfiles_welcome_chip_label _dotfiles_welcome_spec_line
