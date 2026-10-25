@@ -1,8 +1,9 @@
-# SSH, Screen Sharing and Remote Management: Tailscale only.
-# 100.64.0.0/10 and fd7a:115c:a1e0::/48 are Tailscale ranges.
-# lo0 is exempt so local clients of this Mac still work.
-# flags any so an already-open Tailscale session is not dropped
-# when this ruleset is loaded (there is no prior state entry).
+# 22 SSH, 5900 Screen Sharing (VNC), 3283 Apple Remote Management.
+# Microsoft RDP (3389) is not in this anchor.
+# 100.64.0.0/10 and fd7a:115c:a1e0::/48 are Tailscale ranges, not one tailnet.
+# lo0 stays open so clients on this Mac still work.
+# Tailscale TCP uses "flags any" so an already-open session survives pfctl -f.
+# lo0 TCP keeps the default flags S/SA, which accepts new connections only.
 
 table <chann_tailscale4> const { 100.64.0.0/10 }
 table <chann_tailscale6> const { fd7a:115c:a1e0::/48 }
