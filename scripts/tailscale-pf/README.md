@@ -60,7 +60,7 @@ anchor "com.chann.tailscale-ssh-vnc"
 load anchor "com.chann.tailscale-ssh-vnc" from "/etc/pf.anchors/com.chann.tailscale-ssh-vnc"
 ```
 
-새로 설치하면 같은 줄을 `# BEGIN com.chann.tailscale-ssh-vnc`와 `# END com.chann.tailscale-ssh-vnc`로 감쌉니다. `anchor "com.apple.internet-sharing"` 바로 위에 넣습니다. 그 줄이 없는 pf.conf에는 설치를 멈춥니다.
+새로 설치하면 같은 줄을 `# BEGIN com.chann.tailscale-ssh-vnc`와 `# END com.chann.tailscale-ssh-vnc`로 감쌉니다. `anchor "com.apple.internet-sharing"`이 있으면 그 바로 위에 넣습니다. 그 줄이 없으면 `anchor "com.apple/*"` 바로 위에 넣습니다. 두 줄이 모두 없으면 시스템 파일을 쓰지 않고 멈춥니다.
 
 ## 차단을 맨 아래에 둔 이유
 
@@ -134,8 +134,8 @@ scripts/tailscale-pf/set.sh
 
 하는 일은 다음과 같습니다.
 
-1. `pf.anchor`, `load.sh`, LaunchDaemon plist를 시스템 경로에 복사합니다.
-2. `/etc/pf.conf`에 앵커를 불러오는 줄이 없으면 추가합니다. 이미 있으면 그 파일은 그대로 둡니다.
+1. `/etc/pf.conf`에 앵커를 넣을 자리를 먼저 정합니다. 이미 불러오는 줄이 있으면 그 파일은 그대로 둡니다. `anchor "com.apple.internet-sharing"`이 있으면 그 위에, 없으면 `anchor "com.apple/*"` 위에 넣습니다. 둘 다 없으면 여기서 멈추고 시스템 파일은 바꾸지 않습니다.
+2. `pf.anchor`, `load.sh`, LaunchDaemon plist를 시스템 경로에 복사합니다.
 3. 내용을 바꿀 때는 처음 한 번 `/etc/pf.conf.before-set-tailscale-ssh-vnc`로 복사해 둡니다. 이미 백업이 있으면 덮어쓰지 않습니다.
 4. `load.sh`로 문법을 확인하고 pf를 다시 읽습니다. 커널 규칙이 맞으면 `tailscale-pf: loaded.`를 출력합니다. 그 다음 데몬을 등록합니다.
 
