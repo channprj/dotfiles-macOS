@@ -1,0 +1,12 @@
+# Pool copies that ~/.agents/.skill-lock.json does not record.
+# snapshot adds a row only when ~/.agents/skills/<skill> exists.
+# Columns: skill, source, skillPath
+gcpr	chann/skills	git-skill/skills/gcpr/SKILL.md
+git-commit-realtime	chann/skills	git-skill/skills/git-commit-realtime/SKILL.md
+human-friendly-writing	chann/skills	human-friendly-writing/skills/human-friendly-writing/SKILL.md
+plan-summary	chann/skills	plan-summary/skills/plan-summary/SKILL.md
+plan-summary-md	chann/skills	plan-summary/skills/plan-summary-md/SKILL.md
+plan-summary-quiz	chann/skills	plan-summary/skills/plan-summary-quiz/SKILL.md
+work-summary	chann/skills	work-summary/skills/work-summary/SKILL.md
+expo-dev-client	expo/skills	skills/expo-dev-client/SKILL.md
+upgrading-expo	expo/skills	skills/upgrading-expo/SKILL.md
