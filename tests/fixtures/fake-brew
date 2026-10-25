@@ -9,13 +9,24 @@ case "${1:-}" in
     ;;
   install)
     shift
+    if [[ -n "${DOTFILES_TOOL_NAME:-}" && ",${DOTFILES_TEST_FAIL_TOOLS:-}," == *",${DOTFILES_TOOL_NAME},"* ]]; then
+      printf 'forced failure for %s\n' "$DOTFILES_TOOL_NAME" >&2
+      exit 1
+    fi
     printf 'FAKE_BREW_INSTALL'
     printf ' %s' "$@"
     printf '\n'
+    bindir="$(CDPATH='' cd -- "$(dirname -- "$(command -v brew)")" && pwd)"
     for formula in "$@"; do
       if ! grep -Fxq -- "$formula" "$DOTFILES_TEST_BREW_STATE"; then
         printf '%s\n' "$formula" >>"$DOTFILES_TEST_BREW_STATE"
       fi
+      case "$formula" in
+        git-delta) stub="delta" ;;
+        *) stub="$formula" ;;
+      esac
+      printf '%s\n' '#!/bin/sh' 'exit 0' >"$bindir/$stub"
+      chmod +x "$bindir/$stub"
     done
     ;;
   *)

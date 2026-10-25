@@ -57,7 +57,30 @@ ZSH_PLUGIN_FORMULAE=(
   zsh-autosuggestions
   zsh-syntax-highlighting
 )
+# Commands the linked config runs directly. Homebrew formula names differ
+# from the binary names for delta and git-lfs.
+BREW_COMMANDS=(
+  "delta|git-delta"
+  "git-lfs|git-lfs"
+)
+# Same first-time installers as update-agents. A present command is left alone.
+SCRIPT_COMMANDS=(
+  "claude|https://claude.ai/install.sh|bash"
+  "codex|https://chatgpt.com/codex/install.sh|sh"
+  "grok|https://x.ai/cli/install.sh|bash"
+  "opencode|https://opencode.ai/install|bash"
+  "agy|https://antigravity.google/cli/install.sh|bash"
+)
 MISSING_ZSH_PLUGIN_FORMULAE=()
+MISSING_BREW_NAMES=()
+MISSING_BREW_FORMULAE=()
+MISSING_SCRIPT_NAMES=()
+MISSING_SCRIPT_URLS=()
+MISSING_SCRIPT_SHELLS=()
+TOOL_FAILURE_NAMES=()
+TOOL_FAILURE_LOGS=()
+TOOL_LOG_DIR=""
+BREW_MISSING=0
 
 # shellcheck source=lib/links.sh
 source "$DOTFILES_DIR/lib/links.sh"
@@ -489,24 +512,61 @@ print_dry_run_plan() {
   done
 }
 
-resolve_missing_zsh_plugins() {
+resolve_missing_tools() {
   local formula=""
-
-  if ! command -v brew >/dev/null 2>&1; then
-    err "Homebrew is required to install the managed Zsh plugins"
-    err "install Homebrew first: https://brew.sh"
-    return 1
-  fi
+  local entry=""
+  local name=""
+  local rest=""
+  local url=""
+  local shell_name=""
 
   MISSING_ZSH_PLUGIN_FORMULAE=()
-  for formula in "${ZSH_PLUGIN_FORMULAE[@]}"; do
-    if ! brew list --formula "$formula" >/dev/null 2>&1; then
-      MISSING_ZSH_PLUGIN_FORMULAE+=("$formula")
+  MISSING_BREW_NAMES=()
+  MISSING_BREW_FORMULAE=()
+  MISSING_SCRIPT_NAMES=()
+  MISSING_SCRIPT_URLS=()
+  MISSING_SCRIPT_SHELLS=()
+  BREW_MISSING=0
+
+  if ! command -v brew >/dev/null 2>&1; then
+    BREW_MISSING=1
+  fi
+
+  if (( BREW_MISSING )); then
+    MISSING_ZSH_PLUGIN_FORMULAE=("${ZSH_PLUGIN_FORMULAE[@]}")
+  else
+    for formula in "${ZSH_PLUGIN_FORMULAE[@]}"; do
+      if ! brew list --formula "$formula" >/dev/null 2>&1; then
+        MISSING_ZSH_PLUGIN_FORMULAE+=("$formula")
+      fi
+    done
+  fi
+
+  for entry in "${BREW_COMMANDS[@]}"; do
+    name="${entry%%|*}"
+    formula="${entry#*|}"
+    if ! command -v "$name" >/dev/null 2>&1; then
+      MISSING_BREW_NAMES+=("$name")
+      MISSING_BREW_FORMULAE+=("$formula")
+    fi
+  done
+
+  for entry in "${SCRIPT_COMMANDS[@]}"; do
+    name="${entry%%|*}"
+    rest="${entry#*|}"
+    url="${rest%%|*}"
+    shell_name="${rest#*|}"
+    if ! command -v "$name" >/dev/null 2>&1; then
+      MISSING_SCRIPT_NAMES+=("$name")
+      MISSING_SCRIPT_URLS+=("$url")
+      MISSING_SCRIPT_SHELLS+=("$shell_name")
     fi
   done
 }
 
-print_zsh_plugin_plan() {
+print_tool_plan() {
+  local index=0
+
   if (( ${#MISSING_ZSH_PLUGIN_FORMULAE[@]} == 0 )); then
     skip "Zsh completion, autosuggestion, and highlighting plugins already installed"
   elif (( DRY_RUN )); then
@@ -514,15 +574,136 @@ print_zsh_plugin_plan() {
   else
     info "brew install ${MISSING_ZSH_PLUGIN_FORMULAE[*]}"
   fi
+
+  if (( ${#MISSING_BREW_NAMES[@]} == 0 && ${#MISSING_SCRIPT_NAMES[@]} == 0 )); then
+    skip "delta, git-lfs, and coding CLIs already installed"
+  fi
+  while (( index < ${#MISSING_BREW_NAMES[@]} )); do
+    if (( DRY_RUN )); then
+      info "would install: ${MISSING_BREW_NAMES[$index]} (brew install ${MISSING_BREW_FORMULAE[$index]})"
+    else
+      info "brew install ${MISSING_BREW_FORMULAE[$index]}"
+    fi
+    index=$((index + 1))
+  done
+  index=0
+  while (( index < ${#MISSING_SCRIPT_NAMES[@]} )); do
+    if (( DRY_RUN )); then
+      info "would install: ${MISSING_SCRIPT_NAMES[$index]} (${MISSING_SCRIPT_URLS[$index]})"
+    else
+      info "install ${MISSING_SCRIPT_NAMES[$index]} from ${MISSING_SCRIPT_URLS[$index]}"
+    fi
+    index=$((index + 1))
+  done
+  if (( DRY_RUN && BREW_MISSING && (${#MISSING_ZSH_PLUGIN_FORMULAE[@]} + ${#MISSING_BREW_NAMES[@]} > 0) )); then
+    warn "Homebrew is not installed; those brew installs would fail and linking would continue"
+  fi
 }
 
-install_missing_zsh_plugins() {
-  (( ${#MISSING_ZSH_PLUGIN_FORMULAE[@]} > 0 )) || return 0
+ensure_tool_log_dir() {
+  if [[ -n "$TOOL_LOG_DIR" ]]; then
+    return 0
+  fi
+  TOOL_LOG_DIR="$(mktemp -d "${TMPDIR:-/tmp}/dotfiles-tool-logs.XXXXXX")" || return 1
+  chmod 0700 "$TOOL_LOG_DIR" || return 1
+}
 
-  brew install "${MISSING_ZSH_PLUGIN_FORMULAE[@]}" || {
-    err "could not install the managed Zsh plugins"
-    return 1
-  }
+record_tool_failure() {
+  TOOL_FAILURE_NAMES+=("$1")
+  TOOL_FAILURE_LOGS+=("$2")
+}
+
+install_one_brew_tool() {
+  local name="$1"
+  local formula="$2"
+  local log="$3"
+
+  if (( BREW_MISSING )); then
+    printf '%s\n' "Homebrew is not installed" >"$log"
+    record_tool_failure "$name" "$log"
+    return 0
+  fi
+  if DOTFILES_TOOL_NAME="$name" brew install "$formula" >"$log" 2>&1; then
+    cat "$log"
+    return 0
+  fi
+  record_tool_failure "$name" "$log"
+}
+
+install_one_script_tool() {
+  local name="$1"
+  local url="$2"
+  local shell_name="$3"
+  local log="$4"
+
+  if ! command -v curl >/dev/null 2>&1; then
+    printf '%s\n' "curl is not installed" >"$log"
+    record_tool_failure "$name" "$log"
+    return 0
+  fi
+  if ! command -v "$shell_name" >/dev/null 2>&1; then
+    printf '%s\n' "$shell_name is not installed" >"$log"
+    record_tool_failure "$name" "$log"
+    return 0
+  fi
+  if DOTFILES_TOOL_NAME="$name" curl -fsSL "$url" 2>>"$log" | DOTFILES_TOOL_NAME="$name" "$shell_name" >>"$log" 2>&1; then
+    cat "$log"
+    return 0
+  fi
+  record_tool_failure "$name" "$log"
+}
+
+install_missing_tools() {
+  local index=0
+  local pending=0
+
+  pending=$((${#MISSING_ZSH_PLUGIN_FORMULAE[@]} + ${#MISSING_BREW_NAMES[@]} + ${#MISSING_SCRIPT_NAMES[@]}))
+  (( pending > 0 )) || return 0
+  ensure_tool_log_dir || return 1
+
+  while (( index < ${#MISSING_ZSH_PLUGIN_FORMULAE[@]} )); do
+    install_one_brew_tool \
+      "${MISSING_ZSH_PLUGIN_FORMULAE[$index]}" \
+      "${MISSING_ZSH_PLUGIN_FORMULAE[$index]}" \
+      "$TOOL_LOG_DIR/${MISSING_ZSH_PLUGIN_FORMULAE[$index]}.log"
+    index=$((index + 1))
+  done
+  index=0
+  while (( index < ${#MISSING_BREW_NAMES[@]} )); do
+    install_one_brew_tool \
+      "${MISSING_BREW_NAMES[$index]}" \
+      "${MISSING_BREW_FORMULAE[$index]}" \
+      "$TOOL_LOG_DIR/${MISSING_BREW_NAMES[$index]}.log"
+    index=$((index + 1))
+  done
+  index=0
+  while (( index < ${#MISSING_SCRIPT_NAMES[@]} )); do
+    install_one_script_tool \
+      "${MISSING_SCRIPT_NAMES[$index]}" \
+      "${MISSING_SCRIPT_URLS[$index]}" \
+      "${MISSING_SCRIPT_SHELLS[$index]}" \
+      "$TOOL_LOG_DIR/${MISSING_SCRIPT_NAMES[$index]}.log"
+    index=$((index + 1))
+  done
+}
+
+report_tool_failures() {
+  local index=0
+  local line=""
+
+  (( ${#TOOL_FAILURE_NAMES[@]} > 0 )) || return 0
+  err "tool install failed (${#TOOL_FAILURE_NAMES[@]})"
+  while (( index < ${#TOOL_FAILURE_NAMES[@]} )); do
+    err "install failed: ${TOOL_FAILURE_NAMES[$index]}"
+    err "log: ${TOOL_FAILURE_LOGS[$index]}"
+    if [[ -f "${TOOL_FAILURE_LOGS[$index]}" ]]; then
+      while IFS= read -r line; do
+        printf '    %s\n' "$line" >&2
+      done <"${TOOL_FAILURE_LOGS[$index]}"
+    fi
+    index=$((index + 1))
+  done
+  return 1
 }
 
 record_created_parent() {
@@ -871,7 +1052,7 @@ main() {
   merge_active_inventory || return 1
 
   build_plan || return 1
-  resolve_missing_zsh_plugins || return 1
+  resolve_missing_tools || return 1
   if (( DRY_RUN )); then
     print_dry_run_plan
   else
@@ -879,39 +1060,50 @@ main() {
     info "backup root: $BACKUP_ROOT"
     print_apply_plan
   fi
-  print_zsh_plugin_plan
+  print_tool_plan
   dotfiles_warn_lazyvim_dependencies
 
   if (( DRY_RUN )); then
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
-  install_missing_zsh_plugins || return 1
+  install_missing_tools || return 1
   if (( PLAN_CHANGE_COUNT == 0 )); then
     ok "install already matches the active receipt"
+    report_tool_failures || return 1
     return 0
   fi
 
-  dotfiles_acquire_lock install || return 1
-  dotfiles_check_incomplete_receipts || return 1
+  dotfiles_acquire_lock install || {
+    report_tool_failures || true
+    return 1
+  }
+  dotfiles_check_incomplete_receipts || {
+    report_tool_failures || true
+    return 1
+  }
   if ! prepare_transaction; then
     if [[ -n "$RUN_RECEIPT" && -f "$RUN_RECEIPT" ]]; then
       dotfiles_receipt_result "$RUN_RECEIPT" recovery-required
       err "transaction setup is incomplete; inspect: $RUN_RECEIPT"
     fi
+    report_tool_failures || true
     return 1
   fi
   if ! apply_plan; then
     rollback_install || true
+    report_tool_failures || true
     return 1
   fi
   if ! commit_active_receipt; then
     err "could not commit active receipt"
     rollback_install || true
+    report_tool_failures || true
     return 1
   fi
 
   ok "install complete: $INSTALL_ID"
+  report_tool_failures || return 1
 }
 
 main "$@"

@@ -22,6 +22,7 @@ bash_files=(
   scripts/check-secrets.sh
   tests/install_test.bash
   tests/fixtures/fake-brew
+  tests/fixtures/fake-curl
   tests/lazyvim_test.sh
   tests/run.sh
 )
