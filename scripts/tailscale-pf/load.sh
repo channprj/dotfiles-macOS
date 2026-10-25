@@ -33,6 +33,9 @@ summarize() {
 
   if [ -z "$rules" ]; then
     printf '%s\n' 'tailscale-pf: anchor has no rules' >&2
+    if ! grep -Fqx 'anchor "com.chann.tailscale-ssh-vnc"' /etc/pf.conf 2>/dev/null; then
+      printf '%s\n' 'tailscale-pf: /etc/pf.conf does not load the anchor' >&2
+    fi
     return 1
   fi
 
