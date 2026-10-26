@@ -367,6 +367,21 @@ build_plan() {
       if [[ ! -L "$destination_absolute" ]]; then
         if leave_existing_welcome "$destination" "$destination_absolute"; then
           action="pass"
+        elif [[ "$destination" == .config/nvim ]]; then
+          if ! dotfiles_path_exists "$destination_absolute"; then
+            action="link"
+          elif [[ "$backup_path" == - ]] || ! dotfiles_path_exists "$ACTIVE_INSTALL_DIR/$backup_path"; then
+            action="backup-link"
+            if [[ -d "$destination_absolute" ]]; then
+              original_kind="directory"
+            else
+              original_kind="file"
+            fi
+            backup_path="originals/$destination"
+          else
+            action="overwrite"
+          fi
+          PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
         else
           err "managed target was replaced; refusing to overwrite: ~/$destination"
           return 1
@@ -455,6 +470,7 @@ print_apply_plan() {
       adopt) info "adopt ~/${PLAN_DESTINATIONS[$index]}" ;;
       relink) info "repair ~/${PLAN_DESTINATIONS[$index]} for repository relocation" ;;
       backup-link) info "backup and link ~/${PLAN_DESTINATIONS[$index]}" ;;
+      overwrite) info "overwrite ~/${PLAN_DESTINATIONS[$index]}" ;;
       link) info "link ~/${PLAN_DESTINATIONS[$index]}" ;;
     esac
     index=$((index + 1))
@@ -537,6 +553,14 @@ print_dry_run_plan() {
         dotfiles_plan_detail method "move current ${PLAN_KINDS[$index]}, then create symlink"
         dotfiles_plan_detail current "${PLAN_KINDS[$index]}"
         dotfiles_plan_detail backup "$installation_dir/$backup" "$c_yellow"
+        ;;
+      overwrite)
+        dotfiles_plan_item "$c_yellow" OVERWRITE "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "replace the current path with the managed symlink"
+        dotfiles_plan_detail current "replaced path"
+        dotfiles_plan_detail backup "not required"
         ;;
       link)
         dotfiles_plan_item "$c_green" LINK "$destination"
@@ -856,6 +880,21 @@ apply_plan() {
         ln -s "${PLAN_NEW_TARGETS[$index]}" "$destination_absolute" || return 1
         maybe_inject_failure || return 1
         ;;
+      overwrite)
+        backup_absolute="$INSTALL_DIR/displaced/${PLAN_DESTINATIONS[$index]}"
+        backup_parent="$(dirname -- "$backup_absolute")"
+        mkdir -p "$backup_parent" || return 1
+        chmod 0700 "$INSTALL_DIR/displaced" "$backup_parent" 2>/dev/null || true
+        if dotfiles_path_exists "$backup_absolute"; then
+          err "displaced path already exists: $backup_absolute"
+          return 1
+        fi
+        mv "$destination_absolute" "$backup_absolute" || return 1
+        record_mutation backup "$destination_absolute" "$backup_absolute" "${PLAN_OLD_TARGETS[$index]}" "${PLAN_NEW_TARGETS[$index]}"
+        ensure_home_parent "$destination_absolute" || return 1
+        ln -s "${PLAN_NEW_TARGETS[$index]}" "$destination_absolute" || return 1
+        maybe_inject_failure || return 1
+        ;;
       *)
         err "unknown install action: $action"
         return 1
@@ -956,6 +995,14 @@ rollback_install() {
   return 0
 }
 
+discard_overwritten_paths() {
+  local displaced="$INSTALL_DIR/displaced"
+
+  if [[ -d "$displaced" ]]; then
+    rm -rf -- "$displaced" || warn "could not remove overwritten copy: $displaced"
+  fi
+}
+
 update_active_arrays() {
   local index=0
   local active_index=0
@@ -971,6 +1018,10 @@ update_active_arrays() {
       ACTIVE_SOURCES[$active_index]="${PLAN_SOURCES[$index]}"
       ACTIVE_LINK_TARGETS[$active_index]="${PLAN_NEW_TARGETS[$index]}"
       ACTIVE_STATUSES[$active_index]=linked
+      if [[ "${PLAN_ACTIONS[$index]}" == backup-link ]]; then
+        ACTIVE_KINDS[$active_index]="${PLAN_KINDS[$index]}"
+        ACTIVE_BACKUPS[$active_index]="${PLAN_BACKUPS[$index]}"
+      fi
     else
       ACTIVE_MODULES+=("${PLAN_MODULES[$index]}")
       ACTIVE_SOURCES+=("${PLAN_SOURCES[$index]}")
@@ -1145,6 +1196,7 @@ main() {
     return 1
   fi
 
+  discard_overwritten_paths
   ok "install complete: $INSTALL_ID"
   report_tool_failures || return 1
 }

@@ -540,6 +540,83 @@ test_replaced_managed_zsh_welcome_does_not_stop_install() {
   assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "failed install overwrote welcome"
 }
 
+test_replaced_nvim_is_overwritten_with_the_managed_link() {
+  local output=""
+  local manifest=""
+  local install_dir=""
+
+  new_case nvim-replaced
+  install_case >/dev/null
+  [[ -L "$CASE_HOME/.config/nvim" ]] || fail "nvim was not linked on a clean install"
+  unlink "$CASE_HOME/.config/nvim"
+  mkdir "$CASE_HOME/.config/nvim"
+  printf '%s\n' 'local nvim' >"$CASE_HOME/.config/nvim/marker"
+
+  output="$(install_case --dry-run)"
+  [[ "$output" == *"BACKUP + LINK"* ]] || fail "dry-run did not plan to back up and link nvim"
+  [[ "$output" == *"$CASE_HOME/.config/nvim"* ]] || fail "dry-run omitted the nvim path"
+  [[ "$output" == *"move current directory, then create symlink"* ]] ||
+    fail "dry-run nvim method is missing"
+  [[ "$output" == *"originals/.config/nvim"* ]] || fail "dry-run omitted the nvim backup"
+  [[ -d "$CASE_HOME/.config/nvim" && ! -L "$CASE_HOME/.config/nvim" ]] ||
+    fail "dry-run replaced the nvim directory"
+  assert_eq 'local nvim' "$(<"$CASE_HOME/.config/nvim/marker")" "dry-run changed the nvim marker"
+
+  output="$(install_case)"
+  install_dir="$(active_install_dir)"
+  manifest="$install_dir/manifest.tsv"
+  [[ "$output" == *"backup and link ~/.config/nvim"* ]] ||
+    fail "install did not report the nvim backup"
+  [[ -L "$CASE_HOME/.config/nvim" ]] || fail "replaced nvim was not relinked"
+  assert_eq "$REPO_ROOT/editor/nvim" "$(readlink "$CASE_HOME/.config/nvim")" "nvim link target"
+  assert_eq directory "$(manifest_value "$manifest" .config/nvim 4)" "replaced nvim kind was not recorded"
+  assert_eq originals/.config/nvim "$(manifest_value "$manifest" .config/nvim 5)" "replaced nvim backup path"
+  assert_eq 'local nvim' "$(<"$install_dir/originals/.config/nvim/marker")" "replaced nvim was not backed up"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "nvim overwrite disturbed another managed link"
+
+  uninstall_case >/dev/null
+  assert_eq 'local nvim' "$(<"$CASE_HOME/.config/nvim/marker")" "uninstall did not restore the replaced nvim directory"
+
+  new_case nvim-missing
+  install_case >/dev/null
+  unlink "$CASE_HOME/.config/nvim"
+  install_case >/dev/null
+  [[ -L "$CASE_HOME/.config/nvim" ]] || fail "a removed nvim link was not restored"
+  assert_eq "$REPO_ROOT/editor/nvim" "$(readlink "$CASE_HOME/.config/nvim")" "restored nvim link target"
+
+  new_case nvim-rollback
+  install_case >/dev/null
+  unlink "$CASE_HOME/.config/nvim"
+  mkdir "$CASE_HOME/.config/nvim"
+  printf '%s\n' 'rollback nvim' >"$CASE_HOME/.config/nvim/marker"
+  if DOTFILES_TEST_FAIL_AFTER=1 install_case >/dev/null 2>&1; then
+    fail "injected nvim overwrite failure should fail"
+  fi
+  [[ ! -L "$CASE_HOME/.config/nvim" ]] || fail "rollback left the nvim symlink"
+  assert_eq 'rollback nvim' "$(<"$CASE_HOME/.config/nvim/marker")" "rollback did not restore the replaced nvim directory"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "nvim rollback disturbed another managed link"
+
+  new_case nvim-keep-original
+  mkdir -p "$CASE_HOME/.config/nvim"
+  printf '%s\n' 'original nvim' >"$CASE_HOME/.config/nvim/marker"
+  install_case >/dev/null
+  install_dir="$(active_install_dir)"
+  manifest="$install_dir/manifest.tsv"
+  assert_eq directory "$(manifest_value "$manifest" .config/nvim 4)" "original nvim directory was not recorded"
+  assert_eq 'original nvim' "$(<"$install_dir/originals/.config/nvim/marker")" "original nvim backup changed"
+  unlink "$CASE_HOME/.config/nvim"
+  mkdir "$CASE_HOME/.config/nvim"
+  printf '%s\n' 'replacement nvim' >"$CASE_HOME/.config/nvim/marker"
+  install_case >/dev/null
+  [[ -L "$CASE_HOME/.config/nvim" ]] || fail "nvim with an original backup was not relinked"
+  assert_eq "$REPO_ROOT/editor/nvim" "$(readlink "$CASE_HOME/.config/nvim")" "nvim target changed"
+  assert_eq 'original nvim' "$(<"$install_dir/originals/.config/nvim/marker")" "overwrite replaced the original nvim backup"
+  assert_eq directory "$(manifest_value "$manifest" .config/nvim 4)" "overwrite changed the recorded nvim kind"
+  [[ ! -e "$install_dir/displaced" ]] || fail "overwrite kept the replacement nvim directory"
+  uninstall_case >/dev/null
+  assert_eq 'original nvim' "$(<"$CASE_HOME/.config/nvim/marker")" "uninstall did not restore the original nvim directory"
+}
+
 test_dry_run_and_invalid_module_do_not_mutate
 test_installs_only_missing_zsh_plugins_and_is_idempotent
 test_tool_failure_keeps_linking_and_reports_the_log
@@ -561,5 +638,6 @@ test_unsafe_backup_roots_are_rejected
 test_uninstall_without_active_receipt_is_idempotent
 test_existing_zsh_welcome_is_left_in_place
 test_replaced_managed_zsh_welcome_does_not_stop_install
+test_replaced_nvim_is_overwritten_with_the_managed_link
 
 printf '%s\n' 'PASS: transactional install and uninstall preserve every managed state'
