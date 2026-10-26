@@ -320,6 +320,14 @@ validate_source() {
   esac
 }
 
+# ~/.zsh-welcome is often a local file. Leave an existing path alone.
+leave_existing_welcome() {
+  local destination="$1"
+  local destination_absolute="$2"
+
+  [[ "$destination" == .zsh-welcome ]] && dotfiles_path_exists "$destination_absolute"
+}
+
 build_plan() {
   local index=0
   local active_index=0
@@ -357,19 +365,27 @@ build_plan() {
       backup_path="${ACTIVE_BACKUPS[$active_index]}"
       old_target="${ACTIVE_LINK_TARGETS[$active_index]}"
       if [[ ! -L "$destination_absolute" ]]; then
-        err "managed target was replaced; refusing to overwrite: ~/$destination"
-        return 1
-      fi
-      current_target="$(readlink "$destination_absolute")" || return 1
-      if [[ "$current_target" != "$old_target" ]]; then
-        err "managed symlink changed outside the installer: ~/$destination"
-        return 1
-      fi
-      if [[ "$old_target" == "$source_absolute" ]]; then
-        action="unchanged"
+        if leave_existing_welcome "$destination" "$destination_absolute"; then
+          action="pass"
+        else
+          err "managed target was replaced; refusing to overwrite: ~/$destination"
+          return 1
+        fi
       else
-        action="relink"
-        PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+        current_target="$(readlink "$destination_absolute")" || return 1
+        if [[ "$current_target" != "$old_target" ]]; then
+          if leave_existing_welcome "$destination" "$destination_absolute"; then
+            action="pass"
+          else
+            err "managed symlink changed outside the installer: ~/$destination"
+            return 1
+          fi
+        elif [[ "$old_target" == "$source_absolute" ]]; then
+          action="unchanged"
+        else
+          action="relink"
+          PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+        fi
       fi
     elif [[ -L "$destination_absolute" ]]; then
       current_target="$(readlink "$destination_absolute")" || return 1
@@ -377,6 +393,10 @@ build_plan() {
         action="adopt"
         original_kind="adopted"
         PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+      elif leave_existing_welcome "$destination" "$destination_absolute"; then
+        action="pass"
+        original_kind="symlink"
+        old_target="$current_target"
       else
         action="backup-link"
         original_kind="symlink"
@@ -385,15 +405,25 @@ build_plan() {
         PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
       fi
     elif [[ -d "$destination_absolute" ]]; then
-      action="backup-link"
-      original_kind="directory"
-      backup_path="originals/$destination"
-      PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+      if leave_existing_welcome "$destination" "$destination_absolute"; then
+        action="pass"
+        original_kind="directory"
+      else
+        action="backup-link"
+        original_kind="directory"
+        backup_path="originals/$destination"
+        PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+      fi
     elif [[ -e "$destination_absolute" ]]; then
-      action="backup-link"
-      original_kind="file"
-      backup_path="originals/$destination"
-      PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+      if leave_existing_welcome "$destination" "$destination_absolute"; then
+        action="pass"
+        original_kind="file"
+      else
+        action="backup-link"
+        original_kind="file"
+        backup_path="originals/$destination"
+        PLAN_CHANGE_COUNT=$((PLAN_CHANGE_COUNT + 1))
+      fi
     else
       action="link"
       original_kind="absent"
@@ -421,6 +451,7 @@ print_apply_plan() {
     action="${PLAN_ACTIONS[$index]}"
     case "$action" in
       unchanged) skip "$HOME/${PLAN_DESTINATIONS[$index]} already managed" ;;
+      pass) skip "$HOME/${PLAN_DESTINATIONS[$index]} already exists" ;;
       adopt) info "adopt ~/${PLAN_DESTINATIONS[$index]}" ;;
       relink) info "repair ~/${PLAN_DESTINATIONS[$index]} for repository relocation" ;;
       backup-link) info "backup and link ~/${PLAN_DESTINATIONS[$index]}" ;;
@@ -470,6 +501,14 @@ print_dry_run_plan() {
         else
           dotfiles_plan_detail backup "retained at $installation_dir/$backup" "$c_yellow"
         fi
+        ;;
+      pass)
+        dotfiles_plan_item "$c_dim" PASS "$destination"
+        dotfiles_plan_detail module "${PLAN_MODULES[$index]}"
+        dotfiles_plan_detail source "${PLAN_NEW_TARGETS[$index]}" "$c_magenta"
+        dotfiles_plan_detail method "leave the existing path unchanged"
+        dotfiles_plan_detail current "existing path kept"
+        dotfiles_plan_detail backup "not required"
         ;;
       adopt)
         dotfiles_plan_item "$c_cyan" ADOPT "$destination"
@@ -789,7 +828,7 @@ apply_plan() {
     fi
 
     case "$action" in
-      unchanged | adopt)
+      unchanged | adopt | pass)
         ;;
       backup-link)
         backup_parent="$(dirname -- "$backup_absolute")"
@@ -922,6 +961,10 @@ update_active_arrays() {
   local active_index=0
 
   while (( index < ${#PLAN_DESTINATIONS[@]} )); do
+    if [[ "${PLAN_ACTIONS[$index]}" == pass ]]; then
+      index=$((index + 1))
+      continue
+    fi
     active_index="$(active_index_for "${PLAN_DESTINATIONS[$index]}")"
     if (( active_index >= 0 )); then
       ACTIVE_MODULES[$active_index]="${PLAN_MODULES[$index]}"
