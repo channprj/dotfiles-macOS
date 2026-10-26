@@ -455,6 +455,91 @@ test_uninstall_without_active_receipt_is_idempotent() {
   [[ ! -e "$CASE_BACKUP" ]] || fail "idempotent uninstall created backup root"
 }
 
+test_existing_zsh_welcome_is_left_in_place() {
+  local output=""
+  local manifest=""
+  local custom=""
+
+  new_case welcome-exists
+  printf '%s\n' 'local welcome' >"$CASE_HOME/.zsh-welcome"
+
+  output="$(install_case --dry-run)"
+  [[ "$output" == *"PASS"* ]] || fail "dry-run did not pass an existing welcome file"
+  [[ "$output" == *"$CASE_HOME/.zsh-welcome"* ]] || fail "dry-run omitted the welcome path"
+  [[ "$output" == *"leave the existing path unchanged"* ]] || fail "dry-run welcome method is missing"
+  [[ "$output" != *"originals/.zsh-welcome"* ]] || fail "dry-run planned a welcome backup"
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "dry-run changed an existing welcome file"
+  [[ ! -e "$CASE_BACKUP" ]] || fail "welcome dry-run created the backup root"
+
+  output="$(install_case)"
+  manifest="$(active_install_dir)/manifest.tsv"
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "install replaced an existing welcome file"
+  [[ ! -L "$CASE_HOME/.zsh-welcome" ]] || fail "install linked over an existing welcome file"
+  [[ "$output" == *"$CASE_HOME/.zsh-welcome already exists"* ]] || fail "install did not skip the existing welcome file"
+  assert_eq "" "$(manifest_value "$manifest" .zsh-welcome 3)" "existing welcome was recorded as managed"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "skipping welcome stopped the other links"
+  [[ ! -e "$(active_install_dir)/originals/.zsh-welcome" ]] || fail "existing welcome was backed up"
+
+  output="$(install_case)"
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "second install replaced the welcome file"
+  [[ "$output" == *"$CASE_HOME/.zsh-welcome already exists"* ]] || fail "second install did not skip welcome"
+
+  uninstall_case >/dev/null
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "uninstall removed an unmanaged welcome file"
+  [[ ! -e "$CASE_HOME/.zshrc" ]] || fail "uninstall left a managed link"
+
+  new_case welcome-custom-link
+  custom="$CASE_ROOT/custom-welcome"
+  printf '%s\n' custom >"$custom"
+  ln -s "$custom" "$CASE_HOME/.zsh-welcome"
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  assert_eq "$custom" "$(readlink "$CASE_HOME/.zsh-welcome")" "install replaced a custom welcome symlink"
+  assert_eq "" "$(manifest_value "$manifest" .zsh-welcome 3)" "custom welcome symlink was managed"
+
+  new_case welcome-adopt
+  ln -s "$REPO_ROOT/sh/.zsh-welcome" "$CASE_HOME/.zsh-welcome"
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  assert_eq adopted "$(manifest_value "$manifest" .zsh-welcome 4)" "repository welcome symlink was not adopted"
+  assert_eq "$REPO_ROOT/sh/.zsh-welcome" "$(readlink "$CASE_HOME/.zsh-welcome")" "adopted welcome target changed"
+}
+
+test_replaced_managed_zsh_welcome_does_not_stop_install() {
+  local output=""
+  local status=0
+  local manifest=""
+  local welcome_target=""
+
+  new_case welcome-replaced
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  welcome_target="$(readlink "$CASE_HOME/.zsh-welcome")"
+  unlink "$CASE_HOME/.zsh-welcome"
+  printf '%s\n' 'local welcome' >"$CASE_HOME/.zsh-welcome"
+
+  output="$(install_case)" || status=$?
+  assert_eq 0 "$status" "an existing welcome file stopped install"
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "install overwrote the replaced welcome file"
+  [[ ! -L "$CASE_HOME/.zsh-welcome" ]] || fail "install replaced the welcome file with a symlink"
+  [[ "$output" == *"$CASE_HOME/.zsh-welcome already exists"* ]] || fail "install did not skip the replaced welcome file"
+  [[ -L "$CASE_HOME/.zshrc" ]] || fail "skipping welcome disturbed another managed link"
+  assert_eq "$welcome_target" "$(manifest_value "$manifest" .zsh-welcome 6)" "skipping welcome rewrote its receipt"
+
+  install_case --module terminal >/dev/null
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "module install replaced the welcome file"
+  [[ -L "$CASE_HOME/.config/ghostty/config" ]] || fail "module install did not continue after welcome"
+  assert_eq "$welcome_target" "$(manifest_value "$manifest" .zsh-welcome 6)" "module install rewrote the welcome receipt"
+
+  unlink "$CASE_HOME/.zshrc"
+  printf '%s\n' 'user zshrc' >"$CASE_HOME/.zshrc"
+  if install_case >/dev/null 2>&1; then
+    fail "a replaced managed zshrc should still fail"
+  fi
+  assert_eq 'user zshrc' "$(<"$CASE_HOME/.zshrc")" "failed install overwrote zshrc"
+  assert_eq 'local welcome' "$(<"$CASE_HOME/.zsh-welcome")" "failed install overwrote welcome"
+}
+
 test_dry_run_and_invalid_module_do_not_mutate
 test_installs_only_missing_zsh_plugins_and_is_idempotent
 test_tool_failure_keeps_linking_and_reports_the_log
@@ -474,5 +559,7 @@ test_uninstall_failure_restores_active_installation
 test_live_stale_locks_and_incomplete_receipts_block
 test_unsafe_backup_roots_are_rejected
 test_uninstall_without_active_receipt_is_idempotent
+test_existing_zsh_welcome_is_left_in_place
+test_replaced_managed_zsh_welcome_does_not_stop_install
 
 printf '%s\n' 'PASS: transactional install and uninstall preserve every managed state'
