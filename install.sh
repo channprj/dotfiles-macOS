@@ -5,6 +5,11 @@
 # Usage:
 #   ./install.sh [-n|--dry-run] [--module <terminal|gnupg|brew>]... [--all]
 #   ./install.sh [-h|--help]
+#
+# A real install also applies the iTerm2 session-restoration preferences in
+# utilities/iterm-session-restore.sh. Installer tests set
+# DOTFILES_TEST_BREW_STATE and skip that step so they do not change the
+# login user's preferences.
 
 set -o pipefail
 umask 077
@@ -1117,6 +1122,19 @@ prepare_transaction() {
   chmod 0600 "$RUN_RECEIPT" || return 1
 }
 
+apply_iterm_session_restore() {
+  local script="$DOTFILES_DIR/utilities/iterm-session-restore.sh"
+
+  if [[ -n "${DOTFILES_TEST_BREW_STATE:-}" || "${DOTFILES_SKIP_APP_PREFS:-0}" == 1 ]]; then
+    return 0
+  fi
+  if (( DRY_RUN )); then
+    "$script" --dry-run
+    return 0
+  fi
+  "$script"
+}
+
 main() {
   parse_args "$@" || {
     usage >&2
@@ -1158,10 +1176,12 @@ main() {
   dotfiles_warn_lazyvim_dependencies
 
   if (( DRY_RUN )); then
+    apply_iterm_session_restore || return 1
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
   install_missing_tools || return 1
+  apply_iterm_session_restore || return 1
   if (( PLAN_CHANGE_COUNT == 0 )); then
     ok "install already matches the active receipt"
     report_tool_failures || return 1
