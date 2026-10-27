@@ -21,6 +21,8 @@ bash_files=(
   lib/transaction.sh
   scripts/check-secrets.sh
   tests/install_test.bash
+  tests/iterm_session_restore_test.bash
+  utilities/iterm-session-restore.sh
   tests/fixtures/fake-brew
   tests/fixtures/fake-curl
   tests/lazyvim_test.sh
@@ -48,6 +50,7 @@ DOTFILES_WELCOME_SELF_CHECK=1 /bin/zsh -c 'source sh/.zsh-welcome'
 /bin/zsh tests/zshfunc_test.zsh
 /bin/zsh tests/gh_account_test.zsh
 /bin/bash tests/install_test.bash
+/bin/bash tests/iterm_session_restore_test.bash
 /bin/bash tests/lazyvim_test.sh
 python3 -B agents/install_skills.py self-test
 

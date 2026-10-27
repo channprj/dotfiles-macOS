@@ -202,11 +202,32 @@ hsa delete -f
 기본 실행은 `y` 또는 `Y` 확인이 필요합니다. 실행 중 세션의 stop이 실패하면
 delete를 호출하지 않으며, 이미 없는 세션은 성공으로 처리합니다.
 
+## iTerm 세션 복원
+
+`./install.sh`는 심링크와 함께 iTerm 탭 복원에 필요한 설정만 넣습니다.
+iTerm 전체 설정 파일은 복사하지 않습니다. 심링크가 이미 맞아도 설치를 다시
+실행하면 이 설정은 다시 맞춥니다. 언인스톨은 이 값을 되돌리지 않습니다.
+
+- macOS `NSQuitAlwaysKeepsWindows`를 켭니다. 시스템 설정의 "응용 프로그램 종료 시 윈도우 닫기"가 꺼집니다. 이 값은 iTerm만이 아니라 모든 앱에 적용됩니다.
+- iTerm은 시스템 윈도우 복원을 따르고, 세션 복원을 켜며, `Cmd-Q`가 실행 중인 작업을 종료하지 않습니다.
+
+설정만 다시 맞추려면 다음을 실행합니다.
+
+```sh
+./utilities/iterm-session-restore.sh --dry-run
+./utilities/iterm-session-restore.sh
+```
+
+iTerm이 켜져 있으면 종료할 때 예전 값을 덮어쓸 수 있습니다. 스크립트는 그때를
+위해 종료 뒤에 한 번 더 씁니다. 그 첫 종료는 이미 켜져 있던 작업을 끝낼 수
+있습니다. 다음 실행부터 탭이 돌아오고, 그 다음 `Cmd-Q`부터 작업이 유지됩니다.
+재부팅하면 작업은 사라지고 탭과 작업 폴더만 돌아옵니다.
+
 ## 자동 설치하지 않는 자료
 
 - `browser-extensions/`: Vimium, Safari CSS 등 브라우저에서 수동 가져오기
 - `keyboard/`: 키보드 펌웨어와 macOS 키 매핑 자료
-- `utilities/`: BetterTouchTool preset과 iTerm 키맵
+- `utilities/`: BetterTouchTool preset과 iTerm 키맵. 세션 복원 값만 설치기가 넣습니다.
 - `agents/`: Codex/Claude 설정과 별도의 스킬 설치 자료
 - `archive/`: 기본 설치에서 제외한 Vim 테마와 지원 종료 스크립트
 
