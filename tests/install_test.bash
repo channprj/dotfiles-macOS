@@ -200,6 +200,25 @@ test_default_install_restores_every_original_kind() {
   [[ -L "$CASE_BACKUP/latest" ]] || fail "legacy latest pointer was removed"
 }
 
+test_default_install_links_zed_keymap() {
+  local manifest=""
+
+  new_case zed-keymap
+
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  [[ -L "$CASE_HOME/.config/zed/keymap.json" ]] || fail "Zed keymap was not linked by default"
+  assert_eq "$REPO_ROOT/editor/zed/keymap.json" \
+    "$(readlink "$CASE_HOME/.config/zed/keymap.json")" \
+    "Zed keymap link target"
+  assert_eq absent \
+    "$(manifest_value "$manifest" .config/zed/keymap.json 4)" \
+    "Zed keymap original kind"
+
+  uninstall_case >/dev/null
+  [[ ! -e "$CASE_HOME/.config/zed/keymap.json" ]] || fail "absent Zed keymap was left behind"
+}
+
 test_default_install_manages_herdr_config() {
   local manifest=""
 
@@ -282,7 +301,7 @@ test_modules_accumulate_and_reinstall_is_idempotent() {
   [[ -L "$CASE_HOME/.gnupg/gpg-agent.conf" ]] || fail "gnupg module was not linked"
   [[ -L "$CASE_HOME/Brewfile" ]] || fail "brew module was not linked"
   assert_eq 700 "$(stat -f '%Lp' "$CASE_HOME/.gnupg")" ".gnupg permissions"
-  assert_eq 20 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
+  assert_eq 21 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
 
   uninstall_case >/dev/null
   [[ ! -e "$CASE_HOME/.config/ghostty/config" ]] || fail "terminal module was not uninstalled"
@@ -296,7 +315,7 @@ test_all_is_the_union_of_modules() {
   new_case all-modules
   install_case --all --module terminal >/dev/null
   manifest="$(active_install_dir)/manifest.tsv"
-  assert_eq 20 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
+  assert_eq 21 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
   uninstall_case >/dev/null
 }
 
@@ -623,6 +642,7 @@ test_tool_failure_keeps_linking_and_reports_the_log
 test_zsh_plugin_dry_run_does_not_install
 test_dry_run_colors_only_for_terminals
 test_default_install_restores_every_original_kind
+test_default_install_links_zed_keymap
 test_default_install_manages_herdr_config
 test_uninstall_dry_run_explains_restore_paths
 test_adopts_existing_repository_symlink
