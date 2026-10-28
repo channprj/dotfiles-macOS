@@ -20,6 +20,7 @@ LINKS_DEFAULT=(
   "editor/.vimrc:.vimrc"
   "editor/.vim:.vim"
   "editor/nvim:.config/nvim"
+  "editor/zed/keymap.json:.config/zed/keymap.json"
   "herdr/config.toml:.config/herdr/config.toml"
 )
 

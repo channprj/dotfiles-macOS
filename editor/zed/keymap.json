@@ -1,0 +1,9 @@
+[
+  {
+    "context": "Editor && mode == full",
+    "bindings": {
+      // Delete line stays on cmd-shift-k. cmd-k z shares that stem.
+      "cmd-alt-w": "editor::ToggleSoftWrap"
+    }
+  }
+]
