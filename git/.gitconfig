@@ -6,7 +6,7 @@
 [user]
 	name = chann
 	email = chann@chann.dev
-	signingkey = EC9A01F394E0A778
+	signingkey = ~/.ssh/id_ed25519.pub
 [core]
 	excludesfile = ~/.gitignore_global
 	editor = nvim
@@ -88,3 +88,7 @@
 # in that file: an empty helper value resets the account-selecting helper.
 [include]
 	path = ~/.config/git/local
+[gpg]
+	format = ssh
+[gpg "ssh"]
+	allowedSignersFile = ~/.ssh/allowed_signers
