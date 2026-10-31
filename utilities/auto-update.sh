@@ -81,6 +81,14 @@ PLIST
 PLIST
 }
 
+schedule_text() {
+  local hour="" text=""
+  for hour in "${HOURS[@]}"; do
+    text+="$(printf '%02d:00' "$hour") "
+  done
+  printf '%s' "${text% }"
+}
+
 domain() {
   printf 'gui/%s' "$(id -u)"
 }
@@ -93,7 +101,7 @@ install_agent() {
   local tmp=""
 
   if [[ "${1:-}" == dry-run ]]; then
-    printf 'auto-update: would write %s (daily %s:00) and load %s\n' "$PLIST" "${HOURS[*]}" "$LABEL"
+    printf 'auto-update: would write %s (daily %s) and load %s\n' "$PLIST" "$(schedule_text)" "$LABEL"
     return 0
   fi
   mkdir -p -- "$HOME/Library/LaunchAgents" "$LOG_DIR"
@@ -114,7 +122,7 @@ install_agent() {
   fi
   launchctl bootout "$(domain)/${LABEL}" >/dev/null 2>&1 || true
   launchctl bootstrap "$(domain)" "$PLIST"
-  printf 'auto-update: loaded %s (daily %s:00, log %s)\n' "$LABEL" "${HOURS[*]}" "$LOG_FILE"
+  printf 'auto-update: loaded %s (daily %s, log %s)\n' "$LABEL" "$(schedule_text)" "$LOG_FILE"
 }
 
 uninstall_agent() {
@@ -151,7 +159,7 @@ acquire_lock() {
 }
 
 run_update() {
-  local branch="" before="" after=""
+  local branch="" before="" after="" login_path=""
 
   mkdir -p -- "$LOG_DIR"
   # Keep the log small: drop the oldest half once it passes 1 MiB.
@@ -167,6 +175,11 @@ run_update() {
   log "start: $DOTFILES_DIR"
   cd "$DOTFILES_DIR"
   export GIT_TERMINAL_PROMPT=0 GIT_ASKPASS=/usr/bin/false
+  # launchd starts with a bare PATH. Use the login shell's PATH so install.sh
+  # finds CLIs in ~/.local/bin and does not reinstall them (their installers
+  # append PATH lines to the linked ~/.zprofile and ~/.zshrc).
+  login_path="$(/bin/zsh -lc 'printf %s "$PATH"' </dev/null 2>/dev/null || true)"
+  [[ -z "$login_path" ]] || export PATH="$login_path"
 
   branch="$(git symbolic-ref --quiet --short HEAD || true)"
   if [[ "$branch" != "$BRANCH" ]]; then
@@ -192,12 +205,14 @@ run_update() {
   else
     log "git: ${before:0:7} -> ${after:0:7}"
   fi
-  if DOTFILES_AUTO_UPDATE_RUN=1 NO_COLOR=1 "$DOTFILES_DIR/install.sh" </dev/null; then
-    log "done"
-  else
+  if ! DOTFILES_AUTO_UPDATE_RUN=1 NO_COLOR=1 "$DOTFILES_DIR/install.sh" </dev/null; then
     log "fail: install.sh exited $?"
     return 1
   fi
+  if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
+    log "warn: install left local changes; later runs skip until they are resolved"
+  fi
+  log "done"
 }
 
 case "${1:-}" in
