@@ -14,6 +14,22 @@ macOS용 개인 설정 저장소입니다. 기존 설정을 설치 영수증과 
 
 ## 빠른 시작
 
+한 줄로 `~/dotfiles`에 clone하고 바로 설치합니다.
+
+```sh
+curl -fsL dotfiles.chann.dev/install.sh | bash
+# 옵션 전달: curl -fsL dotfiles.chann.dev/install.sh | bash -s -- --dry-run
+```
+
+저장소 밖에서 실행된 `install.sh`는 `~/dotfiles`가 없으면 clone하고, 이미 있으면
+`main`이고 로컬 변경이 없을 때만 fast-forward pull한 뒤 그 checkout의
+`install.sh`를 같은 옵션으로 실행합니다. 질문하지 않으므로 파이프 실행에서도
+멈추지 않습니다. git이 없으면 Xcode Command Line Tools 설치 창을 띄우고 멈추니,
+설치를 마친 뒤 다시 실행하세요. 위치와 원격은 `DOTFILES_TARGET`,
+`DOTFILES_REPO_URL`로 바꿀 수 있습니다.
+
+직접 clone해도 됩니다.
+
 ```sh
 git clone https://github.com/channprj/dotfiles-macOS.git ~/dotfiles
 cd ~/dotfiles
@@ -43,6 +59,29 @@ LFS checkout이 바로 실패합니다. Neovim, fzf, ripgrep, fd, curl, C 컴파
 백업 예정 경로를 출력하며 파일, 디렉터리, 백업을 만들지 않습니다. 실제 설치 전
 항상 먼저 실행하는 것을 권장합니다. 터미널에서는 작업 종류와 주요 경로를 자동으로
 컬러 하이라이트하며, `NO_COLOR=1 ./install.sh --dry-run`으로 색상을 끌 수 있습니다.
+
+## 자동 업데이트
+
+`./install.sh`는 LaunchAgent `com.chann.dotfiles.auto-update`를 함께 등록합니다.
+매일 09:00, 21:00(로컬 시간)에 [utilities/auto-update.sh](utilities/auto-update.sh)가
+`origin/main`을 fast-forward로만 받아 `./install.sh`를 다시 실행합니다. 그 시각에
+잠자기 중이었다면 깨어난 뒤 한 번 실행합니다. 일정은 이 스크립트에 있으므로 다른
+컴퓨터도 `git pull` 후 install을 한 번 돌리면 같은 일정을 받습니다.
+
+- 로컬 변경이 있거나 `main`이 아니거나 fast-forward가 안 되면 아무것도 바꾸지 않고
+  건너뜁니다. 동시에 두 번 돌지 않습니다.
+- 로그: `~/Library/Logs/dotfiles/auto-update.log`
+
+```sh
+utilities/auto-update.sh --run                                   # 지금 바로 업데이트
+launchctl kickstart gui/$(id -u)/com.chann.dotfiles.auto-update  # launchd로 한 번 실행
+utilities/auto-update.sh --uninstall                             # 끄기
+DOTFILES_SKIP_AUTO_UPDATE=1 ./install.sh                         # 등록 없이 설치
+```
+
+`--uninstall`로 끈 뒤에도 다음 `./install.sh`가 다시 등록하므로, 계속 끄려면
+`DOTFILES_SKIP_AUTO_UPDATE=1`로 설치하세요. `./uninstall.sh`도 이 LaunchAgent를
+제거합니다.
 
 ## 설치 범위
 
