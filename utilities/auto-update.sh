@@ -205,8 +205,10 @@ run_update() {
   else
     log "git: ${before:0:7} -> ${after:0:7}"
   fi
-  if ! DOTFILES_AUTO_UPDATE_RUN=1 NO_COLOR=1 "$DOTFILES_DIR/install.sh" </dev/null; then
-    log "fail: install.sh exited $?"
+  local status=0
+  DOTFILES_AUTO_UPDATE_RUN=1 NO_COLOR=1 "$DOTFILES_DIR/install.sh" </dev/null || status=$?
+  if (( status != 0 )); then
+    log "fail: install.sh exited $status"
     return 1
   fi
   if [[ -n "$(git status --porcelain --untracked-files=no)" ]]; then
