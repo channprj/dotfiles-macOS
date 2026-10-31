@@ -1,0 +1,36 @@
+[cli]
+installer = "internal"
+auto_update = true
+
+[marketplace]
+default_skills_installs_purged = true
+official_marketplace_auto_installed = true
+
+[[marketplace.sources]]
+name = "xAI Official"
+git = "https://github.com/xai-org/plugin-marketplace.git"
+
+[ui]
+max_thoughts_width = 120
+yolo = false
+compact_mode = true
+voice_stt_language = "en"
+tool_call_density = "compact-all-grouped"
+permission_mode = "always-approve"
+theme = "oscura-midnight"
+screen_mode = "minimal"
+
+[ui.status_line]
+type = "command"
+command = "~/.grok/statusline.sh"
+refresh_interval = 300
+
+[privacy]
+privacy_banner_acked = "2026-10-20T07:48:47Z"
+
+[plugins]
+enabled = ["cloudflare"]
+
+[models]
+default = "grok-4.7"
+default_reasoning_effort = "xhigh"

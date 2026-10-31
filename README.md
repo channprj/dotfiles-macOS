@@ -56,6 +56,7 @@ LFS checkout이 바로 실패합니다. Neovim, fzf, ripgrep, fd, curl, C 컴파
 | Vim | `editor/.vimrc`, `editor/.vim` | `~/.vimrc`, `~/.vim` |
 | LazyVim | `editor/nvim` | `~/.config/nvim` |
 | Herdr | `herdr/config.toml` | `~/.config/herdr/config.toml` |
+| Grok | `grok/config.toml`, `grok/statusline.sh` | `~/.grok/config.toml`, `~/.grok/statusline.sh` |
 
 전체 매핑은 [lib/links.sh](lib/links.sh)이 단일 기준입니다.
 
@@ -201,6 +202,13 @@ hsa delete -f
 
 기본 실행은 `y` 또는 `Y` 확인이 필요합니다. 실행 중 세션의 stop이 실패하면
 delete를 호출하지 않으며, 이미 없는 세션은 성공으로 처리합니다.
+
+## Grok 설정
+
+기본 설치는 `grok/config.toml`과 `grok/statusline.sh`를 `~/.grok/`로 연결합니다.
+상태줄 스크립트는 실행할 때 `~/.grok/auth.json`을 읽습니다. 그 파일과
+`mcp_credentials.json`, 세션, 메모리, 로그, `trusted_folders.toml`은 이 저장소에
+넣지 않습니다. MCP 헤더나 토큰을 `config.toml`에 적지 마세요.
 
 ## iTerm 세션 복원
 
