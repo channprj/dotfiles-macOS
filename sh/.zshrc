@@ -93,6 +93,9 @@ fi
 if (( $+commands[goenv] )); then
   eval "$(goenv init -)"
 fi
+if (( $+commands[mise] )); then
+  eval "$(mise activate zsh)"
+fi
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 [[ -r "$HOME/.local/bin/env" ]] && source "$HOME/.local/bin/env"
 if (( $+commands[uv] )); then
