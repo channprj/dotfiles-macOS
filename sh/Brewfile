@@ -1,4 +1,5 @@
 tap "homebrew/bundle"
+brew "mise"
 brew "xz"
 brew "webp"
 brew "bat"
