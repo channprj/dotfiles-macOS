@@ -22,6 +22,8 @@ LINKS_DEFAULT=(
   "editor/nvim:.config/nvim"
   "editor/zed/keymap.json:.config/zed/keymap.json"
   "herdr/config.toml:.config/herdr/config.toml"
+  "grok/config.toml:.grok/config.toml"
+  "grok/statusline.sh:.grok/statusline.sh"
 )
 
 # shellcheck disable=SC2034
