@@ -429,6 +429,10 @@ main() {
   fi
   remove_created_parents
   remove_consumed_installation || return 1
+  if [[ "${DOTFILES_SKIP_AUTO_UPDATE:-0}" != 1 ]]; then
+    # Acts only when $HOME has the LaunchAgent that install.sh loaded.
+    "$DOTFILES_DIR/utilities/auto-update.sh" --uninstall || warn "could not remove the auto-update LaunchAgent"
+  fi
   ok "uninstall complete; originals restored"
 }
 

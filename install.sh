@@ -5,6 +5,12 @@
 # Usage:
 #   ./install.sh [-n|--dry-run] [--module <terminal|gnupg|brew>]... [--all]
 #   ./install.sh [-h|--help]
+#   curl -fsL dotfiles.chann.dev/install.sh | bash [-s -- <options>]
+#
+# Run outside a checkout (for example piped from curl), it clones
+# $DOTFILES_REPO_URL into ${DOTFILES_TARGET:-~/dotfiles}, or fast-forwards an
+# existing clean main checkout there, and then runs that checkout's
+# install.sh with the same options.
 #
 # A real install also applies the iTerm2 session-restoration preferences in
 # utilities/iterm-session-restore.sh. Installer tests set
@@ -13,6 +19,53 @@
 
 set -o pipefail
 umask 077
+
+bootstrap_checkout() {
+  local here=""
+  local repo_url="${DOTFILES_REPO_URL:-https://github.com/channprj/dotfiles-macOS.git}"
+  local target="${DOTFILES_TARGET:-$HOME/dotfiles}"
+
+  if [[ -n "${BASH_SOURCE[0]:-}" && -f "${BASH_SOURCE[0]}" ]]; then
+    here="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+    [[ -f "$here/lib/links.sh" && -f "$here/lib/transaction.sh" ]] && return 0
+  fi
+
+  printf '==> dotfiles bootstrap: %s -> %s\n' "$repo_url" "$target"
+  if [[ "$(uname -s)" != Darwin ]]; then
+    printf 'error: this installer currently supports macOS only\n' >&2
+    exit 1
+  fi
+  for here in /opt/homebrew/bin /usr/local/bin; do
+    [[ -x "$here/brew" && ":$PATH:" != *":$here:"* ]] && PATH="$here:$PATH"
+  done
+  if ! git --version >/dev/null 2>&1; then
+    xcode-select --install >/dev/null 2>&1 || true
+    printf 'error: git is missing. Finish the Xcode Command Line Tools install, then rerun.\n' >&2
+    exit 1
+  fi
+
+  if [[ -d "$target/.git" ]]; then
+    if [[ "$(git -C "$target" symbolic-ref --quiet --short HEAD)" == main &&
+      -z "$(git -C "$target" status --porcelain --untracked-files=no)" ]]; then
+      GIT_TERMINAL_PROMPT=0 git -C "$target" pull --ff-only --quiet origin main </dev/null ||
+        printf 'warning: could not fast-forward %s; installing the current checkout\n' "$target" >&2
+    else
+      printf 'warning: %s has local changes or is not on main; skipping pull\n' "$target" >&2
+    fi
+  elif [[ -e "$target" ]]; then
+    printf 'error: %s exists but is not a git checkout\n' "$target" >&2
+    exit 1
+  else
+    GIT_TERMINAL_PROMPT=0 git clone --quiet "$repo_url" "$target" </dev/null || exit 1
+  fi
+
+  # Piped from curl, stdin is the rest of this script; never hand it on.
+  if [[ -t 0 ]]; then
+    exec /bin/bash "$target/install.sh" "$@"
+  fi
+  exec /bin/bash "$target/install.sh" "$@" </dev/null
+}
+bootstrap_checkout "$@"
 
 DOTFILES_DIR="$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
 DOTFILES_DIR_PHYSICAL="$(CDPATH='' cd -P -- "$DOTFILES_DIR" && pwd)"
@@ -1135,6 +1188,19 @@ apply_iterm_session_restore() {
   "$script"
 }
 
+apply_auto_update_agent() {
+  local script="$DOTFILES_DIR/utilities/auto-update.sh"
+
+  if [[ -n "${DOTFILES_TEST_BREW_STATE:-}" || "${DOTFILES_SKIP_AUTO_UPDATE:-0}" == 1 ]]; then
+    return 0
+  fi
+  if (( DRY_RUN )); then
+    "$script" --dry-run
+    return 0
+  fi
+  "$script" || warn "could not load the auto-update LaunchAgent"
+}
+
 main() {
   parse_args "$@" || {
     usage >&2
@@ -1177,11 +1243,13 @@ main() {
 
   if (( DRY_RUN )); then
     apply_iterm_session_restore || return 1
+    apply_auto_update_agent
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
   install_missing_tools || return 1
   apply_iterm_session_restore || return 1
+  apply_auto_update_agent
   if (( PLAN_CHANGE_COUNT == 0 )); then
     ok "install already matches the active receipt"
     report_tool_failures || return 1
