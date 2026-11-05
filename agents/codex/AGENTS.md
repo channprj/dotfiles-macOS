@@ -1,124 +1,39 @@
-# Workflow Orchestration
+## Herdr
 
-- Always refer to existing code patterns to maintain maximum consistency.
-- Always think about maintainability and do your best for better readability.
-- Keep code consistent and follow a uniform, developer-friendly.
-- Add comments only when truly necessary. No need to be overly verbose. Use English for comments.
-- Write docstrings for functions and classes if necessary.
-- Use ponytail skill(full) for coding.
+Inside a Herdr pane (`HERDR_ENV=1`), start a helper with `~/dotfiles/herdr/plugins/agent-tree/spawn.sh <name> <kind> [--direction right|down] [-- args]`. Drive it with `herdr agent prompt <name>` and `herdr agent wait <name>`.
 
-## Plan Mode Default
-- Enter plan mode for ANY non-trivial task (3+ steps or architectural decisions)
-- If something goes sideways, STOP and re-plan immediately - do not keep pushing
-- Use plan mode for verification steps, not just building
-- Write detailed specs upfront to reduce ambiguity
+## Ponytail
 
-## Subagent Strategy to keep main context window clean
-- Offload research, exploration, and parallel analysis to subagents
-- For complex problems, throw more compute at it via subagents
-- One task per subagent for focused execution
+Use the ponytail skill (full) for coding.
 
-## Self-Improvement Loop
-- After ANY correction from the user: update `tasks/lessons.md` with the pattern
-- Write rules for yourself that prevent the same mistake
-- Ruthlessly iterate on these lessons until mistake rate drops
-- Review lessons at session start for relevant project
+## GitHub CLI
 
-## Verification Before Done
-- Never mark a task complete without proving it works
-- Diff behavior between main and your changes when relevant
-- Ask yourself: "Would a staff engineer approve this?"
-- Run tests, check logs, demonstrate correctness
+Under `~/workspace/corp/`, run `gh auth switch --user chan-park_trueb` before the first `gh` call. Those paths use `~/.gitconfig-corp`. `channprj` lacks the `project` scope, so GitHub Projects calls fail on it. `gh auth switch` keeps that account for every later call in the session. Do not switch it back for a personal repository.
 
-## Demand Elegance (Balanced)
-- For non-trivial changes: pause and ask "is there a more elegant way?"
-- If a fix feels hacky: "Knowing everything I know now, implement the elegant solution"
-- Skip this for simple, obvious fixes - do not over-engineer
-- Challenge your own work before presenting it
+## Worktree and branch cleanup
 
-## Autonomous Bug Fixing
-- When given a bug report: just fix it. Do not ask for hand-holding
-- Point at logs, errors, failing tests -> then resolve them
-- Zero context switching required from the user
-- Go fix failing CI tests without being told how
+When this session's worktree or task branch is finished, remove it in the same session and say so. Finished means every commit is on the remote default branch and later requirements, such as deploy, verification, or issue closure, are done. Require a clean `git status --short` (ignored files only) and `git rev-list --count origin/<default>..HEAD` of 0. Use `git worktree remove` without `--force` and `git branch -d`, never `-D`. If either refuses, leave it and report that. Touch only worktrees and branches this session created. Do not delete remote branches unless asked.
 
-## Task Management
-1. **Plan First**: Write plan to `tasks/todo.md` with checkable items
-2. **Verify Plan**: Check in before starting implementation
-3. **Track Progress**: Mark items complete as you go
-4. **Explain Changes**: High-level summary at each step
-5. **Document Results**: Add review section to `tasks/todo.md`
-6. **Capture Lessons**: Update `tasks/lessons.md` after corrections
+## Human decisions and push notifications
 
-## Core Principles
-- **Simplicity First**: Make every change as simple as possible. Impact minimal code.
-- **No Laziness**: Find root causes. No temporary fixes. Senior developer standards.
-- **Minimal Impact**: Changes should only touch what is necessary. Avoid introducing bugs.
+Before a plain-text question or blocking decision with no question tool, run this and then ask. Structured questions and permission prompts already notify.
 
-## Git Workflow
-- When creating a commit, always use the git-commit-push skill.
-
-## GitHub CLI Account
-- Repositories under `~/workspace/corp/` belong to the corp GitHub account `chan-park_trueb`, the same identity `git/.gitconfig-corp` pins for those paths.
-- Run `gh auth switch --user chan-park_trueb` before the first `gh` call in such a repository. The personal account `channprj` can be the active one and has no `project` scope, so GitHub Projects reads and writes fail under it.
-- Do not switch the active account back for personal repositories; `gh` keeps the last selection for every later call in the session.
-
-Behavioral guidelines to reduce common LLM coding mistakes. Merge with project-specific instructions as needed.
-
-**Tradeoff:** These guidelines bias toward caution over speed. For trivial tasks, use judgment.
-
-## Think Before Coding
-**Don't assume. Don't hide confusion. Surface tradeoffs.**
-
-Before implementing:
-- State your assumptions explicitly. If uncertain, ask.
-- If multiple interpretations exist, present them - don't pick silently.
-- If a simpler approach exists, say so. Push back when warranted.
-- If something is unclear, stop. Name what's confusing. Ask.
-
-## Simplicity First
-**Minimum code that solves the problem. Nothing speculative.**
-
-- No features beyond what was asked.
-- No abstractions for single-use code.
-- No "flexibility" or "configurability" that wasn't requested.
-- No error handling for impossible scenarios.
-- If you write 200 lines and it could be 50, rewrite it.
-
-Ask yourself: "Would a senior engineer say this is overcomplicated?" If yes, simplify.
-
-## Surgical Changes
-**Touch only what you must. Clean up only your own mess.**
-
-When editing existing code:
-- Don't "improve" adjacent code, comments, or formatting.
-- Don't refactor things that aren't broken.
-- Match existing style, even if you'd do it differently.
-- If you notice unrelated dead code, mention it - don't delete it.
-
-When your changes create orphans:
-- Remove imports/variables/functions that YOUR changes made unused.
-- Don't remove pre-existing dead code unless asked.
-
-The test: Every changed line should trace directly to the user's request.
-
-## 4. Goal-Driven Execution
-**Define success criteria. Loop until verified.**
-
-Transform tasks into verifiable goals:
-- "Add validation" → "Write tests for invalid inputs, then make them pass"
-- "Fix the bug" → "Write a test that reproduces it, then make it pass"
-- "Refactor X" → "Ensure tests pass before and after"
-
-For multi-step tasks, state a brief plan:
-```
-1. [Step] → verify: [check]
-2. [Step] → verify: [check]
-3. [Step] → verify: [check]
+```sh
+node ~/.local/share/agent-input-notify/notify.mjs --message 'A brief summary of the decision needed'
 ```
 
-Strong success criteria let you loop independently. Weak criteria ("make it work") require constant clarification.
+The summary is Korean and names the decision. No secrets, credentials, raw commands, or file dumps. Skip routine progress and normal completion. A failed alert still allows the question. A push is not permission to proceed.
 
----
+## Use ego-browser(ego-lite) as default agent browser
 
-**These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+Use the `ego-browser` skill and Ego Lite for browsing, sign-in, forms, screenshots, extraction, and web UI review. Read `~/.agents/skills/ego-browser/SKILL.md` and run scripts with `ego-browser nodejs`. If the user or a higher-priority instruction names another browser, use that. If ego-browser fails, check the skill's `references/install.md`, report the cause, and name the unfinished work.
+
+## Model selection
+
+Use the cheapest model and effort that still meets the bar. Haiku/Luna `low` for mechanical work, Luna/Sonnet `medium` for scoped implementation, Sonnet `high` for demanding execution, and Opus/Astra `high` or `xhigh` for design, architecture, diagnosis, and security. Check the live catalog before dispatch. Pass only the context the child needs. Keep an explicit user model choice.
+
+## Session for Lightpanda
+
+When Lightpanda must open a logged-in page, copy that origin's session from ego lite. Do not complete the site's login inside Lightpanda or ask for a pasted token.
+
+Export that origin's cookies with CDP `Network.getCookies`, including HttpOnly cookies, and any localStorage token the app keeps. A cookie alone may not be enough. Pass the cookies to `lightpanda fetch --cookie` and set localStorage with `--inject-script-file` before page scripts run. Keep the files in `/tmp` at mode `0600`, delete them after, and never print them. Signed in means the final URL is the requested page. The first paint can still be a login shell. If ego lite has no session, give the user that site's login URL and read ego lite again after they sign in.
