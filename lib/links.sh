@@ -24,6 +24,9 @@ LINKS_DEFAULT=(
   "herdr/config.toml:.config/herdr/config.toml"
   "grok/config.toml:.grok/config.toml"
   "grok/statusline.sh:.grok/statusline.sh"
+  "agents/codex/AGENTS.md:.agents/AGENTS.md"
+  "agents/codex/AGENTS.md:.claude/AGENTS.md"
+  "agents/codex/AGENTS.md:.codex/AGENTS.md"
 )
 
 # shellcheck disable=SC2034
