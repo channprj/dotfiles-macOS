@@ -5,8 +5,6 @@
 [user]
 	name = Chan Park
 	email = chan.park@afinit.com
-[commit]
-	gpgsign = false
 [tag]
 	forceSignAnnotated = false
 [credential "https://github.com"]
