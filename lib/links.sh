@@ -22,6 +22,7 @@ LINKS_DEFAULT=(
   "editor/nvim:.config/nvim"
   "editor/zed/keymap.json:.config/zed/keymap.json"
   "herdr/config.toml:.config/herdr/config.toml"
+  "rex/init.lua:.config/rex/init.lua"
   "grok/config.toml:.grok/config.toml"
   "grok/statusline.sh:.grok/statusline.sh"
   "agents/codex/AGENTS.md:.agents/AGENTS.md"
