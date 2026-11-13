@@ -95,6 +95,7 @@ DOTFILES_SKIP_AUTO_UPDATE=1 ./install.sh                         # 등록 없이
 | Vim | `editor/.vimrc`, `editor/.vim` | `~/.vimrc`, `~/.vim` |
 | LazyVim | `editor/nvim` | `~/.config/nvim` |
 | Herdr | `herdr/config.toml` | `~/.config/herdr/config.toml` |
+| Rex | `rex/init.lua` | `~/.config/rex/init.lua` |
 | Grok | `grok/config.toml`, `grok/statusline.sh` | `~/.grok/config.toml`, `~/.grok/statusline.sh` |
 
 전체 매핑은 [lib/links.sh](lib/links.sh)이 단일 기준입니다.

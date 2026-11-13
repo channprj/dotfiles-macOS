@@ -279,6 +279,30 @@ test_default_install_manages_herdr_config() {
     "original Herdr config was not restored"
 }
 
+test_default_install_manages_rex_config() {
+  local manifest=""
+
+  new_case rex-config
+  mkdir -p "$CASE_HOME/.config/rex"
+  printf '%s\n' original-rex-config >"$CASE_HOME/.config/rex/init.lua"
+
+  install_case >/dev/null
+  manifest="$(active_install_dir)/manifest.tsv"
+  [[ -L "$CASE_HOME/.config/rex/init.lua" ]] || fail "Rex config was not linked by default"
+  assert_eq "$REPO_ROOT/rex/init.lua" \
+    "$(readlink "$CASE_HOME/.config/rex/init.lua")" \
+    "Rex config link target"
+  assert_eq file \
+    "$(manifest_value "$manifest" .config/rex/init.lua 4)" \
+    "Rex config original kind"
+  [[ ! -L "$CASE_HOME/.config/rex" ]] || fail "Rex config directory was linked into the repository"
+
+  uninstall_case >/dev/null
+  assert_eq original-rex-config \
+    "$(<"$CASE_HOME/.config/rex/init.lua")" \
+    "original Rex config was not restored"
+}
+
 test_uninstall_dry_run_explains_restore_paths() {
   local install_dir=""
   local output=""
@@ -682,6 +706,7 @@ test_default_install_restores_every_original_kind
 test_default_install_links_zed_keymap
 test_default_install_manages_grok_config
 test_default_install_manages_herdr_config
+test_default_install_manages_rex_config
 test_uninstall_dry_run_explains_restore_paths
 test_adopts_existing_repository_symlink
 test_modules_accumulate_and_reinstall_is_idempotent
