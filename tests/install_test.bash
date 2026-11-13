@@ -3,6 +3,9 @@
 set -euo pipefail
 
 REPO_ROOT=$(CDPATH='' cd -- "$(dirname -- "${BASH_SOURCE[0]}")/.." && pwd)
+# shellcheck source=lib/links.sh
+source "$REPO_ROOT/lib/links.sh"
+ALL_LINK_COUNT=$((${#LINKS_DEFAULT[@]} + ${#LINKS_TERMINAL[@]} + ${#LINKS_GNUPG[@]} + ${#LINKS_BREW[@]}))
 TEST_ROOT=$(mktemp -d /tmp/dotfiles-install-test.XXXXXX)
 trap 'rm -rf -- "$TEST_ROOT"' EXIT
 
@@ -335,7 +338,7 @@ test_modules_accumulate_and_reinstall_is_idempotent() {
   [[ -L "$CASE_HOME/.gnupg/gpg-agent.conf" ]] || fail "gnupg module was not linked"
   [[ -L "$CASE_HOME/Brewfile" ]] || fail "brew module was not linked"
   assert_eq 700 "$(stat -f '%Lp' "$CASE_HOME/.gnupg")" ".gnupg permissions"
-  assert_eq 23 "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
+  assert_eq "$ALL_LINK_COUNT" "$(awk 'END { print NR - 1 }' "$manifest")" "module manifest row count"
 
   uninstall_case >/dev/null
   [[ ! -e "$CASE_HOME/.config/ghostty/config" ]] || fail "terminal module was not uninstalled"
@@ -349,7 +352,7 @@ test_all_is_the_union_of_modules() {
   new_case all-modules
   install_case --all --module terminal >/dev/null
   manifest="$(active_install_dir)/manifest.tsv"
-  assert_eq 23 "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
+  assert_eq "$ALL_LINK_COUNT" "$(awk 'END { print NR - 1 }' "$manifest")" "--all did not install each mapping once"
   uninstall_case >/dev/null
 }
 
