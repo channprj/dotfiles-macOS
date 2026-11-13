@@ -10,6 +10,8 @@
 
 # ai agents
 .claude/
+# still ignored in repos that re-include .claude/
+**/.claude/settings.local.json
 .codex/
 .gemini/
 .antigravitycli/
