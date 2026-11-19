@@ -28,16 +28,6 @@ When this session's worktree or task branch is finished, remove it in the same s
 
 A child's worktree is finished once its commits are on the orchestrator's branch. For it, require `git rev-list --count <orchestrator-branch>..<child-branch>` of 0 instead of the remote check.
 
-## Human decisions and push notifications
-
-Before a plain-text question or blocking decision with no question tool, run this and then ask. Structured questions and permission prompts already notify.
-
-```sh
-node ~/.local/share/agent-input-notify/notify.mjs --message 'A brief summary of the decision needed'
-```
-
-The summary is Korean and names the decision. No secrets, credentials, raw commands, or file dumps. Skip routine progress and normal completion. A failed alert still allows the question. A push is not permission to proceed.
-
 ## Use ego-browser(ego-lite) as default agent browser
 
 Use the `ego-browser` skill and Ego Lite for browsing, sign-in, forms, screenshots, extraction, and web UI review. Read `~/.agents/skills/ego-browser/SKILL.md` and run scripts with `ego-browser nodejs`. If the user or a higher-priority instruction names another browser, use that. If ego-browser fails, check the skill's `references/install.md`, report the cause, and name the unfinished work.
