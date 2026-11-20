@@ -120,6 +120,7 @@ ZSH_PLUGIN_FORMULAE=(
 BREW_COMMANDS=(
   "delta|git-delta"
   "git-lfs|git-lfs"
+  "fzf|fzf"
 )
 # Same first-time installers as update-agents. A present command is left alone.
 SCRIPT_COMMANDS=(
@@ -697,7 +698,7 @@ print_tool_plan() {
   fi
 
   if (( ${#MISSING_BREW_NAMES[@]} == 0 && ${#MISSING_SCRIPT_NAMES[@]} == 0 )); then
-    skip "delta, git-lfs, and coding CLIs already installed"
+    skip "delta, git-lfs, fzf, and coding CLIs already installed"
   fi
   while (( index < ${#MISSING_BREW_NAMES[@]} )); do
     if (( DRY_RUN )); then
