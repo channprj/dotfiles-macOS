@@ -52,6 +52,46 @@ path=(
 export PATH
 [[ -r "$HOME/.cargo/env" ]] && source "$HOME/.cargo/env"
 
+# ~/workspace/corp after symlink resolution, matching gh's account switch.
+_dotfiles_in_corporate_workspace() {
+  local corporate_root="${HOME}/workspace/corp"
+  corporate_root="${corporate_root:A}"
+  local pwd_physical="${PWD:A}"
+  [[ "$pwd_physical" == "$corporate_root" || "$pwd_physical" == "$corporate_root/"* ]]
+}
+
+# Directory git treats as its startup directory. Later -C paths win, and a
+# relative -C is resolved from the previous one. Other global options that
+# take a value are skipped so they are not mistaken for the command.
+_dotfiles_git_startup_dir() {
+  local dir="$PWD"
+  local take_next=0
+  local arg
+  for arg in "$@"; do
+    if (( take_next )); then
+      if (( take_next == 1 )); then
+        if [[ "$arg" == /* ]]; then
+          dir="$arg"
+        else
+          dir="${dir%/}/$arg"
+        fi
+      fi
+      take_next=0
+      continue
+    fi
+    case "$arg" in
+      -C) take_next=1 ;;
+      -c|--git-dir|--work-tree|--namespace|--super-prefix|--config-env|--exec-path)
+        take_next=2
+        ;;
+      --) break ;;
+      -*) ;;
+      *) break ;;
+    esac
+  done
+  print -r -- "${dir:A}"
+}
+
 # Select the GitHub account when gh runs, including in non-interactive Zsh.
 gh() {
   emulate -L zsh
@@ -90,9 +130,7 @@ gh() {
   fi
 
   local github_user=channprj
-  local corporate_root="$HOME/workspace/corp"
-  corporate_root="${corporate_root:A}"
-  if [[ "${PWD:A}" == "$corporate_root" || "${PWD:A}" == "$corporate_root/"* ]]; then
+  if _dotfiles_in_corporate_workspace; then
     github_user=chan-park_trueb
   fi
 
@@ -116,6 +154,39 @@ gh() {
     return 1
   fi
   GH_TOKEN="$github_token" command gh "$@"
+}
+
+# Repositories under ~/workspace/corp already include ~/.gitconfig-corp via
+# includeIf. Apply that same file to every git command whose working directory
+# is there, including `git config` and `git init` before a repository exists.
+git() {
+  emulate -L zsh
+
+  local startup corporate_root
+  if [[ ! -r "${HOME}/.gitconfig-corp" ]]; then
+    command git "$@"
+    return $?
+  fi
+  startup="$(_dotfiles_git_startup_dir "$@")"
+  corporate_root="${HOME}/workspace/corp"
+  corporate_root="${corporate_root:A}"
+  if [[ "$startup" != "$corporate_root" && "$startup" != "$corporate_root/"* ]]; then
+    command git "$@"
+    return $?
+  fi
+
+  local count="${GIT_CONFIG_COUNT:-0}"
+  if [[ -z "$count" || -n "${count//[0-9]/}" ]]; then
+    count=0
+  fi
+  local key="GIT_CONFIG_KEY_${count}"
+  local value_name="GIT_CONFIG_VALUE_${count}"
+  (
+    export GIT_CONFIG_COUNT=$((count + 1))
+    export "$key=include.path"
+    export "$value_name=${HOME}/.gitconfig-corp"
+    command git "$@"
+  )
 }
 
 # Cap local Vitest so one suite cannot take every core on this Mac.
