@@ -106,6 +106,8 @@ test_installs_only_missing_zsh_plugins_and_is_idempotent() {
     fail "the installer reinstalled a Zsh plugin that was already present"
   [[ "$output" == *"FAKE_BREW_INSTALL git-delta"* ]] ||
     fail "the installer did not install delta"
+  [[ "$output" == *"FAKE_BREW_INSTALL fzf"* ]] ||
+    fail "the installer did not install fzf"
   [[ "$output" == *"FAKE_CURL_INSTALL https://x.ai/cli/install.sh"* ]] ||
     fail "the installer did not install grok from its official script"
 
@@ -142,6 +144,8 @@ test_zsh_plugin_dry_run_does_not_install() {
   output="$(install_case --dry-run)"
   [[ "$output" == *"would install: zsh-completions zsh-autosuggestions zsh-syntax-highlighting"* ]] ||
     fail "dry-run did not report missing Zsh plugins"
+  [[ "$output" == *"would install: fzf (brew install fzf)"* ]] ||
+    fail "dry-run did not report the fzf install"
   [[ ! -s "$CASE_BREW_STATE" ]] || fail "dry-run installed Zsh plugins"
   [[ ! -e "$CASE_BACKUP" ]] || fail "Zsh plugin dry-run created the backup root"
 }

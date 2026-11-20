@@ -44,11 +44,13 @@ cd ~/dotfiles
 | --- | --- |
 | Zsh 플러그인 3종 | `brew install` |
 | `delta`, `git-lfs` | `brew install git-delta`, `brew install git-lfs` |
+| `fzf` | `brew install fzf` |
 | `claude`, `codex`, `grok`, `opencode`, `agy` | 각 프로젝트의 공식 설치 스크립트 |
 
 Git 설정은 `pager = delta`와 Git LFS filter를 쓰므로 이 둘이 없으면 `git diff`와
-LFS checkout이 바로 실패합니다. Neovim, fzf, ripgrep, fd, curl, C 컴파일러는
-그대로 경고만 하고 설치하지 않습니다. `brew bundle`도 실행하지 않습니다.
+LFS checkout이 바로 실패합니다. `fzf`가 없으면 `brew install fzf`로 설치합니다.
+Neovim, ripgrep, fd, curl, C 컴파일러는 그대로 경고만 하고 설치하지 않습니다.
+`brew bundle`도 실행하지 않습니다.
 
 한 도구가 실패해도 나머지 설치와 심링크는 계속합니다. 끝난 뒤 실패한 도구 이름,
 로그 경로, 로그 내용을 출력하고 종료 코드는 1입니다. dry-run은 설치 예정 목록만
