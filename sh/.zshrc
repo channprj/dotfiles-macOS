@@ -116,7 +116,11 @@ fi
 [[ -r "$HOME/.zshexec" ]] && source "$HOME/.zshexec"
 [[ -r "$HOME/.zsh-welcome" ]] && source "$HOME/.zsh-welcome"
 
-[[ -t 0 && -o zle && -r "$HOME/.fzf.zsh" ]] && source "$HOME/.fzf.zsh"
+# Homebrew fzf does not install ~/.fzf.zsh. Load its integration after
+# completion setup and before the highlighting plugin wraps ZLE widgets.
+if [[ -t 0 && -o zle ]] && (( $+commands[fzf] )); then
+  source <(fzf --zsh)
+fi
 [[ -r "$HOME/.iterm2_shell_integration.zsh" ]] && source "$HOME/.iterm2_shell_integration.zsh"
 [[ -r "$HOME/.orbstack/shell/init.zsh" ]] && source "$HOME/.orbstack/shell/init.zsh"
 [[ -r "/opt/homebrew/share/google-cloud-sdk/path.zsh.inc" ]] &&
