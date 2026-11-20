@@ -151,6 +151,13 @@ EOF
 cat >"$plugin_prefix/share/zsh-syntax-highlighting/zsh-syntax-highlighting.zsh" <<'EOF'
 DOTFILES_TEST_ZSH_PLUGIN_ORDER="${DOTFILES_TEST_ZSH_PLUGIN_ORDER},syntax-highlighting"
 EOF
+cat >"$plugin_bin/fzf" <<'EOF'
+#!/bin/sh
+case "${1:-}" in
+  --zsh) printf '%s\n' 'typeset -g DOTFILES_TEST_FZF_ZSH=1' ;;
+esac
+EOF
+chmod +x "$plugin_bin/fzf"
 printf 'source %q\npath=(%q /usr/bin /bin /usr/sbin /sbin)\nexport PATH\n' \
   "$REPO_ROOT/sh/.zshenv" "$plugin_bin" >"$TEST_HOME/.zshenv"
 
@@ -161,9 +168,9 @@ plugin_output="$({
     PATH="$plugin_bin:/usr/bin:/bin:/usr/sbin:/sbin" \
     TERM=dumb \
     /usr/bin/script -q /dev/null /bin/zsh -i -c \
-      'print -r -- "__ZSH_PLUGINS__|$fpath[1]|${DOTFILES_TEST_ZSH_PLUGIN_ORDER-}"'
+      'print -r -- "__ZSH_PLUGINS__|$fpath[1]|${DOTFILES_TEST_ZSH_PLUGIN_ORDER-}|${DOTFILES_TEST_FZF_ZSH-}"'
 } 2>&1)"
-[[ "$plugin_output" == *"__ZSH_PLUGINS__|$plugin_prefix/share/zsh-completions|autosuggestions,syntax-highlighting"* ]] ||
+[[ "$plugin_output" == *"__ZSH_PLUGINS__|$plugin_prefix/share/zsh-completions|autosuggestions,syntax-highlighting|1"* ]] ||
   fail "Homebrew Zsh plugins did not load in completion/autosuggestion/highlighting order: $plugin_output"
 
 excludes_file="$(HOME="$TEST_HOME" git config --file "$REPO_ROOT/git/.gitconfig" --path --get core.excludesfile)"
