@@ -1,11 +1,13 @@
 #!/usr/bin/env python3
-"""Status line: cwd, model, context, and weekly limit remaining.
+"""Status line: project folder, diff size, model, context, weekly limit.
 
 Network runs only when trigger is refresh_interval. Other runs read the cache.
+Git diff is local and runs on every refresh.
 """
 
 import json
 import os
+import subprocess
 import sys
 import time
 import urllib.request
@@ -80,6 +82,88 @@ def fmt_num(value):
     return str(value)
 
 
+def location_label(workspace, payload):
+    cwd = (workspace.get("current_dir") or payload.get("cwd") or "").rstrip("/")
+    repo = (workspace.get("repo_root") or "").rstrip("/")
+    if repo:
+        project = os.path.basename(repo)
+        if cwd and cwd != repo and cwd.startswith(repo + os.sep):
+            return f"{project}/{os.path.relpath(cwd, repo)}"
+        if project:
+            return project
+    if cwd:
+        return os.path.basename(cwd)
+    return ""
+
+
+def git_root(workspace, payload):
+    return (workspace.get("repo_root") or workspace.get("current_dir") or payload.get("cwd") or "").rstrip("/")
+
+
+def parse_numstat(text):
+    added = deleted = 0
+    for line in text.splitlines():
+        cols = line.split("\t")
+        if len(cols) < 2:
+            continue
+        if cols[0].isdigit():
+            added += int(cols[0])
+        if cols[1].isdigit():
+            deleted += int(cols[1])
+    return added, deleted
+
+
+def untracked_lines(repo, paths):
+    added = 0
+    for rel in paths[:200]:
+        if not rel:
+            continue
+        path = os.path.join(repo, rel)
+        try:
+            if not os.path.isfile(path) or os.path.getsize(path) > 1_000_000:
+                continue
+            with open(path, "rb") as handle:
+                data = handle.read()
+        except OSError:
+            continue
+        if b"\0" in data:
+            continue
+        added += data.count(b"\n")
+        if data and not data.endswith(b"\n"):
+            added += 1
+    return added
+
+
+def diff_label(repo):
+    if not repo or not os.path.isdir(repo):
+        return None
+    try:
+        diff = subprocess.run(
+            ["git", "-C", repo, "diff", "--numstat", "HEAD"],
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=False,
+        )
+        untracked = subprocess.run(
+            ["git", "-C", repo, "ls-files", "--others", "--exclude-standard", "-z"],
+            capture_output=True,
+            text=True,
+            timeout=2,
+            check=False,
+        )
+    except (OSError, subprocess.TimeoutExpired):
+        return None
+    if diff.returncode != 0:
+        return None
+    added, deleted = parse_numstat(diff.stdout)
+    if untracked.returncode == 0 and untracked.stdout:
+        added += untracked_lines(repo, untracked.stdout.split("\0"))
+    if added == 0 and deleted == 0:
+        return None
+    return f"\033[32m+{added}\033[0m \033[31m-{deleted}\033[0m"
+
+
 def weekly_label(cache):
     if not cache or cache.get("percent") is None:
         return None
@@ -104,14 +188,16 @@ def main():
             pass
 
     workspace = payload.get("workspace") or {}
-    cwd = workspace.get("current_dir") or payload.get("cwd") or ""
-    name = os.path.basename(cwd.rstrip("/")) if cwd else ""
+    name = location_label(workspace, payload)
     model = (payload.get("model") or {}).get("display_name") or ""
     ctx = (payload.get("context_window") or {}).get("used_percentage")
+    diff = diff_label(git_root(workspace, payload))
 
     parts = []
     if name:
         parts.append(name)
+    if diff:
+        parts.append(diff)
     if model:
         parts.append(model)
     if ctx is not None:
