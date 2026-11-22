@@ -32,5 +32,5 @@ privacy_banner_acked = "2026-10-20T07:48:47Z"
 enabled = ["cloudflare"]
 
 [models]
-default = "grok-4.7"
+default = "grok-4.7-build-fast"
 default_reasoning_effort = "xhigh"
