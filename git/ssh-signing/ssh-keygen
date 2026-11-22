@@ -1,0 +1,17 @@
+#!/bin/sh
+
+key="$HOME/.ssh/id_ed25519-github"
+
+# ssh-keygen tries an agent with the matching public key even when -f names
+# a private key. Drop the socket only for our on-disk signing key.
+if [ "${1-}" = -Y ] && [ "${2-}" = sign ] &&
+   [ "${3-}" = -n ] && [ "${4-}" = git ] &&
+   [ "${5-}" = -f ] &&
+   { [ "${6-}" = "$key.pub" ] || [ "${6-}" -ef "$key.pub" ]; } &&
+   [ -f "$key" ] && [ -r "$key" ]; then
+    shift 6
+    unset SSH_AUTH_SOCK
+    set -- -Y sign -n git -f "$key" "$@"
+fi
+
+exec ssh-keygen "$@"

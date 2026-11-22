@@ -1,0 +1,2 @@
+[gpg "ssh"]
+	program = ~/.config/git/ssh-signing/ssh-keygen

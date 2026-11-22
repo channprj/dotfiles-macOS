@@ -15,6 +15,7 @@ LINKS_DEFAULT=(
   "sh/.direnvrc:.direnvrc"
   "git/.gitconfig:.gitconfig"
   "git/.gitconfig-corp:.gitconfig-corp"
+  "git/ssh-signing:.config/git/ssh-signing"
   "git/.gitignore_global:.gitignore_global"
   "git/.tigrc:.tigrc"
   "editor/.vimrc:.vimrc"

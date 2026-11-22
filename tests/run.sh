@@ -25,6 +25,7 @@ bash_files=(
   utilities/iterm-session-restore.sh
   utilities/auto-update.sh
   tests/auto_update_test.bash
+  tests/git_ssh_signing_test.bash
   tests/fixtures/fake-brew
   tests/fixtures/fake-curl
   tests/lazyvim_test.sh
@@ -32,12 +33,13 @@ bash_files=(
 )
 
 /bin/bash -n "${bash_files[@]}"
+/bin/sh -n git/ssh-signing/ssh-keygen
 for zsh_file in sh/.zshenv sh/.zprofile sh/.zshrc sh/.zshalias sh/.zshexec sh/.zshfunc sh/.zsh-welcome tests/hsa_test.zsh tests/shell_startup_test.zsh tests/zshfunc_test.zsh tests/gh_account_test.zsh tests/corp_gitconfig_test.zsh; do
   /bin/zsh -n "$zsh_file"
 done
 
 if command -v shellcheck >/dev/null 2>&1; then
-  shellcheck -x -S warning "${bash_files[@]}"
+  shellcheck -x -S warning "${bash_files[@]}" git/ssh-signing/ssh-keygen
 elif [[ "${DOTFILES_REQUIRE_SHELLCHECK:-0}" == 1 ]]; then
   printf '%s\n' 'FAIL: ShellCheck is required (brew install shellcheck)' >&2
   exit 127
@@ -52,6 +54,7 @@ DOTFILES_WELCOME_SELF_CHECK=1 /bin/zsh -c 'source sh/.zsh-welcome'
 /bin/zsh tests/zshfunc_test.zsh
 /bin/zsh tests/gh_account_test.zsh
 /bin/zsh tests/corp_gitconfig_test.zsh
+/bin/bash tests/git_ssh_signing_test.bash
 /bin/bash tests/install_test.bash
 /bin/bash tests/iterm_session_restore_test.bash
 /bin/bash tests/auto_update_test.bash
