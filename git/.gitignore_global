@@ -21,6 +21,7 @@
 .ralph-tui/
 .ralph/
 .beads/
+.bug-hunts/
 .diffs/
 .reviews/
 .handoffs/
