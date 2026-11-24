@@ -23,6 +23,9 @@ case "${1:-}" in
       fi
       case "$formula" in
         git-delta) stub="delta" ;;
+        neovim) stub="nvim" ;;
+        ripgrep) stub="rg" ;;
+        tree-sitter-cli) stub="tree-sitter" ;;
         *) stub="$formula" ;;
       esac
       printf '%s\n' '#!/bin/sh' 'exit 0' >"$bindir/$stub"

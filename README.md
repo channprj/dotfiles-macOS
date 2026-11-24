@@ -45,12 +45,18 @@ cd ~/dotfiles
 | Zsh 플러그인 3종 | `brew install` |
 | `delta`, `git-lfs` | `brew install git-delta`, `brew install git-lfs` |
 | `fzf` | `brew install fzf` |
+| `nvim`, `tree-sitter`, `rg`, `fd`, `git` | `brew install neovim`, `tree-sitter-cli`, `ripgrep`, `fd`, `git` |
 | `claude`, `codex`, `grok`, `opencode`, `agy` | 각 프로젝트의 공식 설치 스크립트 |
 
 Git 설정은 `pager = delta`와 Git LFS filter를 쓰므로 이 둘이 없으면 `git diff`와
-LFS checkout이 바로 실패합니다. `fzf`가 없으면 `brew install fzf`로 설치합니다.
-Neovim, ripgrep, fd, curl, C 컴파일러는 그대로 경고만 하고 설치하지 않습니다.
+LFS checkout이 바로 실패합니다. LazyVim이 쓰는 `nvim`, `tree-sitter`, `fzf`,
+`rg`, `fd`가 없으면 같은 방식으로 설치합니다. `tree-sitter` 명령은
+`tree-sitter-cli` 포뮬러입니다. `curl`과 C 컴파일러는 경고만 합니다. `curl`은
+Homebrew에서 keg-only이고, C 컴파일러는 Xcode Command Line Tools에 있습니다.
 `brew bundle`도 실행하지 않습니다.
+
+설치가 끝나면 `~/.zshrc`를 새 zsh 프로세스에서 한 번 읽습니다. `install.sh`를
+실행한 셸의 환경은 바뀌지 않습니다.
 
 한 도구가 실패해도 나머지 설치와 심링크는 계속합니다. 끝난 뒤 실패한 도구 이름,
 로그 경로, 로그 내용을 출력하고 종료 코드는 1입니다. dry-run은 설치 예정 목록만
@@ -212,8 +218,9 @@ security delete-generic-password -a "$USER" -s "synthetic.new.api-key"
 ## LazyVim과 패키지 준비
 
 [LazyVim Starter](https://github.com/LazyVim/starter)의 고정 스냅샷과
-`lazy-lock.json`, 로컬 `ambiwidth=single` 옵션을 추적합니다. 설치기는 구성만
-연결하고 Neovim이나 플러그인을 실행하지 않습니다.
+`lazy-lock.json`, 로컬 `ambiwidth=single` 옵션을 추적합니다. 설치기는 구성을
+연결하고, 없는 런타임 명령을 Homebrew로 설치합니다. Neovim이나 플러그인은
+실행하지 않습니다.
 
 필요하면 패키지를 수동으로 준비합니다.
 

@@ -108,6 +108,16 @@ test_installs_only_missing_zsh_plugins_and_is_idempotent() {
     fail "the installer did not install delta"
   [[ "$output" == *"FAKE_BREW_INSTALL fzf"* ]] ||
     fail "the installer did not install fzf"
+  [[ "$output" == *"FAKE_BREW_INSTALL neovim"* ]] ||
+    fail "the installer did not install neovim"
+  [[ "$output" == *"FAKE_BREW_INSTALL tree-sitter-cli"* ]] ||
+    fail "the installer did not install the tree-sitter CLI"
+  [[ "$output" == *"FAKE_BREW_INSTALL ripgrep"* ]] ||
+    fail "the installer did not install ripgrep"
+  [[ "$output" == *"FAKE_BREW_INSTALL fd"* ]] ||
+    fail "the installer did not install fd"
+  [[ "$output" != *"LazyVim optional/runtime dependencies missing:"* ]] ||
+    fail "installed LazyVim tools were still reported missing"
   [[ "$output" == *"FAKE_CURL_INSTALL https://x.ai/cli/install.sh"* ]] ||
     fail "the installer did not install grok from its official script"
 
@@ -146,6 +156,12 @@ test_zsh_plugin_dry_run_does_not_install() {
     fail "dry-run did not report missing Zsh plugins"
   [[ "$output" == *"would install: fzf (brew install fzf)"* ]] ||
     fail "dry-run did not report the fzf install"
+  [[ "$output" == *"would install: tree-sitter (brew install tree-sitter-cli)"* ]] ||
+    fail "dry-run did not report the tree-sitter CLI install"
+  [[ "$output" != *"LazyVim optional/runtime dependencies missing:"*"tree-sitter"* ]] ||
+    fail "dry-run warned about a tool it already plans to install"
+  [[ "$output" != *"LazyVim optional/runtime dependencies missing:"*"fzf"* ]] ||
+    fail "dry-run warned about fzf after planning its install"
   [[ ! -s "$CASE_BREW_STATE" ]] || fail "dry-run installed Zsh plugins"
   [[ ! -e "$CASE_BACKUP" ]] || fail "Zsh plugin dry-run created the backup root"
 }
@@ -701,6 +717,28 @@ test_replaced_nvim_is_overwritten_with_the_managed_link() {
   assert_eq 'original nvim' "$(<"$CASE_HOME/.config/nvim/marker")" "uninstall did not restore the original nvim directory"
 }
 
+test_install_sources_zshrc_once() {
+  local output=""
+  local count=0
+
+  new_case source-zshrc
+  cat >"$CASE_BIN/zsh" <<'EOF'
+#!/bin/sh
+printf 'ZSH_ARGV %s\n' "$*"
+EOF
+  chmod +x "$CASE_BIN/zsh"
+
+  output="$(DOTFILES_TEST_SOURCE_ZSHRC=1 install_case)"
+  [[ "$output" == *"source $CASE_HOME/.zshrc"* ]] || fail "install did not report sourcing zshrc"
+  [[ "$output" == *'ZSH_ARGV -dfc source "$HOME/.zshrc"'* ]] ||
+    fail "install did not source zshrc once in a new zsh"
+  count="$(printf '%s\n' "$output" | grep -c 'ZSH_ARGV')"
+  assert_eq 1 "$count" "install sourced zshrc more than once"
+
+  output="$(DOTFILES_TEST_SOURCE_ZSHRC=1 install_case --dry-run)"
+  [[ "$output" != *"ZSH_ARGV"* ]] || fail "dry-run sourced zshrc"
+}
+
 test_dry_run_and_invalid_module_do_not_mutate
 test_installs_only_missing_zsh_plugins_and_is_idempotent
 test_tool_failure_keeps_linking_and_reports_the_log
@@ -726,5 +764,6 @@ test_uninstall_without_active_receipt_is_idempotent
 test_existing_zsh_welcome_is_left_in_place
 test_replaced_managed_zsh_welcome_does_not_stop_install
 test_replaced_nvim_is_overwritten_with_the_managed_link
+test_install_sources_zshrc_once
 
 printf '%s\n' 'PASS: transactional install and uninstall preserve every managed state'

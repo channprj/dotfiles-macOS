@@ -16,6 +16,9 @@
 # utilities/iterm-session-restore.sh. Installer tests set
 # DOTFILES_TEST_BREW_STATE and skip that step so they do not change the
 # login user's preferences.
+#
+# A finished install sources ~/.zshrc once in a new zsh process. The shell
+# that launched install.sh keeps its old environment.
 
 set -o pipefail
 umask 077
@@ -116,11 +119,17 @@ ZSH_PLUGIN_FORMULAE=(
   zsh-syntax-highlighting
 )
 # Commands the linked config runs directly. Homebrew formula names differ
-# from the binary names for delta and git-lfs.
+# from the binary names for delta, Neovim, ripgrep, and the tree-sitter CLI.
+# curl is keg-only and cc comes from the Xcode CLT, so those stay warnings.
 BREW_COMMANDS=(
   "delta|git-delta"
   "git-lfs|git-lfs"
   "fzf|fzf"
+  "nvim|neovim"
+  "git|git"
+  "tree-sitter|tree-sitter-cli"
+  "rg|ripgrep"
+  "fd|fd"
 )
 # Same first-time installers as update-agents. A present command is left alone.
 SCRIPT_COMMANDS=(
@@ -698,7 +707,7 @@ print_tool_plan() {
   fi
 
   if (( ${#MISSING_BREW_NAMES[@]} == 0 && ${#MISSING_SCRIPT_NAMES[@]} == 0 )); then
-    skip "delta, git-lfs, fzf, and coding CLIs already installed"
+    skip "Homebrew commands and coding CLIs already installed"
   fi
   while (( index < ${#MISSING_BREW_NAMES[@]} )); do
     if (( DRY_RUN )); then
@@ -807,6 +816,25 @@ install_missing_tools() {
       "$TOOL_LOG_DIR/${MISSING_SCRIPT_NAMES[$index]}.log"
     index=$((index + 1))
   done
+}
+
+source_zshrc_once() {
+  local zshrc="$HOME/.zshrc"
+
+  if (( DRY_RUN )); then
+    return 0
+  fi
+  if [[ -n "${DOTFILES_TEST_BREW_STATE:-}" && "${DOTFILES_TEST_SOURCE_ZSHRC:-0}" != 1 ]]; then
+    return 0
+  fi
+  [[ -r "$zshrc" ]] || return 0
+  if ! command -v zsh >/dev/null 2>&1; then
+    warn "zsh is missing; skipped source $zshrc"
+    return 0
+  fi
+  info "source $zshrc"
+  # -f skips the automatic rc files, so this is the one source.
+  zsh -dfc 'source "$HOME/.zshrc"' </dev/null || warn "could not source $zshrc"
 }
 
 report_tool_failures() {
@@ -1202,11 +1230,23 @@ apply_auto_update_agent() {
   "$script" || warn "could not load the auto-update LaunchAgent"
 }
 
+ensure_brew_path() {
+  local dir=""
+
+  [[ -n "${DOTFILES_TEST_BREW_STATE:-}" ]] && return 0
+  for dir in /opt/homebrew/bin /usr/local/bin; do
+    if [[ -d "$dir" && ":$PATH:" != *":$dir:"* ]]; then
+      PATH="$dir:$PATH"
+    fi
+  done
+}
+
 main() {
   parse_args "$@" || {
     usage >&2
     return 2
   }
+  ensure_brew_path
   dotfiles_validate_platform || return 1
   [[ -d "$HOME" && "$HOME" == /* ]] || {
     err "HOME must be an existing absolute directory: $HOME"
@@ -1240,19 +1280,21 @@ main() {
     print_apply_plan
   fi
   print_tool_plan
-  dotfiles_warn_lazyvim_dependencies
 
   if (( DRY_RUN )); then
+    dotfiles_warn_lazyvim_dependencies "${MISSING_BREW_NAMES[@]}"
     apply_iterm_session_restore || return 1
     apply_auto_update_agent
     warn "dry-run mode: no filesystem changes were made"
     return 0
   fi
   install_missing_tools || return 1
+  dotfiles_warn_lazyvim_dependencies
   apply_iterm_session_restore || return 1
   apply_auto_update_agent
   if (( PLAN_CHANGE_COUNT == 0 )); then
     ok "install already matches the active receipt"
+    source_zshrc_once
     report_tool_failures || return 1
     return 0
   fi
@@ -1287,6 +1329,7 @@ main() {
 
   discard_overwritten_paths
   ok "install complete: $INSTALL_ID"
+  source_zshrc_once
   report_tool_failures || return 1
 }
 

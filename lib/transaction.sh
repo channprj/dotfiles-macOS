@@ -300,10 +300,18 @@ dotfiles_receipt_result() {
 
 dotfiles_warn_lazyvim_dependencies() {
   local dependency=""
+  local scheduled=""
   local missing=()
+  local skip_list=("$@")
 
   for dependency in nvim git tree-sitter curl fzf rg fd cc; do
-    command -v "$dependency" >/dev/null 2>&1 || missing+=("$dependency")
+    command -v "$dependency" >/dev/null 2>&1 && continue
+    if (( ${#skip_list[@]} > 0 )); then
+      for scheduled in "${skip_list[@]}"; do
+        [[ "$scheduled" == "$dependency" ]] && continue 2
+      done
+    fi
+    missing+=("$dependency")
   done
   if (( ${#missing[@]} > 0 )); then
     warn "LazyVim optional/runtime dependencies missing: ${missing[*]}"
